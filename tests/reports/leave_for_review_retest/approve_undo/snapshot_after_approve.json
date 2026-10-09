@@ -1,0 +1,36 @@
+{
+  "files": {
+    "GhostOS Reports/expenses-202610092030.csv": {
+      "sha256": "df0eac639114fbda62c5ebd7d8f2bb3f45662369758c83d42b9da813f5ed57fe",
+      "size": 136
+    },
+    "Other/birth-certificate.pdf": {
+      "sha256": "df083a5d7500220e94e943891489ab6dc100a88a783426a351e864ef6c4edd1b",
+      "size": 1095
+    },
+    "Receipts/2026-09/sunbeam-cafe-receipt.pdf": {
+      "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+      "size": 1217
+    },
+    "Uncategorized/lease-agreement-summary.pdf": {
+      "sha256": "4538c2e2306137414f574f3a216ea56da1c71756255c94fbc6c506e5b00516f9",
+      "size": 1020
+    }
+  },
+  "dirs": [
+    "GhostOS Reports",
+    "Other",
+    "Receipts",
+    "Receipts/2026-09",
+    "Uncategorized",
+    "lv",
+    "lv/identity",
+    "lv/legal",
+    "lv/receipts"
+  ],
+  "empty_dirs": [
+    "lv/identity",
+    "lv/legal",
+    "lv/receipts"
+  ]
+}

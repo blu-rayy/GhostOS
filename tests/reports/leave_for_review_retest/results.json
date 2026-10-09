@@ -1,0 +1,129 @@
+[
+  {
+    "id": "S0",
+    "check": "Preconditions from the live scan",
+    "expected": "lease and birth certificate unresolved + non-transactional (the UI shows Leave/File buttons); receipt ok + transaction",
+    "actual": "lease needs_review/legal/none; birth needs_review/identity_or_civil/none; receipt ok/receipt/transaction",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "S1",
+    "check": "Scan and first preview wrote nothing",
+    "expected": "unchanged",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L1",
+    "check": "PATCH 'Leave for review' on the lease (exact UI payload)",
+    "expected": "HTTP 200; category uncertain; kind/profile unchanged; no transaction values",
+    "actual": "HTTP 200; category uncertain, kind legal, profile none, tx={'merchant': None, 'date': None, 'amount': None, 'currency': None}",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L2",
+    "check": "Review flags / status after 'Leave for review'",
+    "expected": "review state preserved (per test request)",
+    "actual": "status ok, user_corrected True, review_flags []",
+    "status": "FAIL",
+    "owner": "Dev 1 + team",
+    "note": "accept:true clears review_flags and sets status ok by design; the review intent is kept only as category 'uncertain' + Uncategorized/ routing"
+  },
+  {
+    "id": "F1",
+    "check": "PATCH 'File it' on the birth certificate (exact UI payload)",
+    "expected": "HTTP 200; category other; no transaction values",
+    "actual": "HTTP 200; category other, kind identity_or_civil, profile none, status ok",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "D1g",
+    "check": "D1 guard: both decisions landed on this scan",
+    "expected": "both true",
+    "actual": {
+      "lv/legal/lease-agreement-summary.pdf": true,
+      "lv/identity/birth-certificate.pdf": true
+    },
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P1",
+    "check": "planned destination for lv/legal/lease-agreement-summary.pdf",
+    "expected": "Uncategorized/lease-agreement-summary.pdf",
+    "actual": "Uncategorized/lease-agreement-summary.pdf (Left for human review)",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P2",
+    "check": "planned destination for lv/identity/birth-certificate.pdf",
+    "expected": "Other/birth-certificate.pdf",
+    "actual": "Other/birth-certificate.pdf (Non-transactional document)",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P3",
+    "check": "planned destination for lv/receipts/sunbeam-cafe-receipt.pdf",
+    "expected": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+    "actual": "Receipts/2026-09/sunbeam-cafe-receipt.pdf (receipt dated 2026-09-21)",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P4",
+    "check": "Report rows",
+    "expected": "only the receipt: accepted PHP 683.20",
+    "actual": [
+      [
+        "lv/receipts/sunbeam-cafe-receipt.pdf",
+        "accepted",
+        "683.20",
+        "PHP"
+      ]
+    ],
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P5",
+    "check": "Blocking reviews and mode",
+    "expected": "mode blocking, blocking_review_count 0",
+    "actual": "mode blocking, blocking 0",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P6",
+    "check": "Corrections and preview wrote nothing",
+    "expected": "unchanged",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "UI",
+    "check": "Actual frontend click on 'Leave for review'",
+    "expected": "observed in a browser",
+    "actual": "not performed (no browser automation in this run)",
+    "status": "NOT TESTED",
+    "owner": "QA",
+    "note": "Payload verified from frontend code (viewModel.ts NON_TRANSACTION_DECISIONS) and frontend unit test documentAware.test.ts:61"
+  }
+]
