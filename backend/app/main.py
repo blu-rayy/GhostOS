@@ -1,9 +1,15 @@
 """Minimal FastAPI entry point for GhostOS Phase 1."""
 
 from fastapi import FastAPI
+from app.routes import scan
+
+from app.routes.contracts import router as contracts_router
 
 
 app = FastAPI(title="GhostOS")
+app.include_router(contracts_router)
+
+app.include_router(scan.router)
 
 
 @app.get("/")
