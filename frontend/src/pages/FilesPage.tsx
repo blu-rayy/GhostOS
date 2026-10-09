@@ -4,7 +4,7 @@ import { useApp } from '../state/AppState'
 import { ReviewChoiceDialog } from './ReviewChoiceDialog'
 import type { DocumentCorrection } from '../types/api'
 import { basename, buildTransactionCorrection, documentKindLabel, fieldProfile, NON_TRANSACTION_DECISIONS, type FileRow } from '../lib/viewModel'
-import { formatBytes } from '../lib/format'
+import { correctionErrorText, formatBytes } from '../lib/format'
 import { Chip } from '../components/paper/Chip'
 import { PageFooter } from '../components/paper/PageFooter'
 import { PaperButton } from '../components/paper/Button'
@@ -44,6 +44,8 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
     await correct(doc.file_id, { ...correction, accept: true }, 'review')
     setSaving(false)
   }
+  // Leave for review accepts nothing: the file goes to Uncategorized/, uncounted, keeping its flags.
+  const leave = () => save(NON_TRANSACTION_DECISIONS.leave)
   const { details, clearedStoredAmount } = buildTransactionCorrection({
     initial: {
       merchant: doc.classification?.merchant ?? null,
@@ -67,26 +69,32 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
     if (!manual) return save({ category: 'uncertain' })
     return save({ category: manualKind, document_kind: manualKind, ...details })
   }
-  const sticky = isInjection ? '⚠ This file has text that tries to give Pip orders… Pip ignored it — files are only ever moved by you.' : isFailedDoc ? `${doc.review_flags[0]?.message ?? 'The local AI took too long on this file and gave up.'} Pip didn't guess anything, so there are no numbers to trust here.` : isMissingDate ? 'Pip found a shop and a total, but no date anywhere on the receipt. When did you buy this?' : isConflict ? "The subtotal and the amount due don't match, and there's no tax line explaining it. Which one did you pay?" : (doc.review_flags[0]?.message ?? 'Check the extracted details before this file is filed.')
+  const sticky = isInjection ? '⚠ This file has text that tries to give Pip orders… Pip ignored it — files are only ever moved by you.' : isFailedDoc ? `${doc.review_flags[0]?.message ?? 'The local AI took too long on this file and gave up.'} Pip didn't guess anything, so there are no numbers to trust here.` : isMissingDate ? 'Pip found a shop and a total, but no date anywhere on the receipt. When did you buy this?' : isConflict ? "The subtotal and the amount due don't match, and there's no tax line explaining it. Pip won't pick one, so this can't be counted. Leave it for review and check the paper later." : (doc.review_flags[0]?.message ?? 'Check the extracted details before this file is filed.')
   const failedLeft = isFailedDoc && doc.user_corrected && !doc.classification?.merchant && !doc.classification?.date && !doc.classification?.amount
   const filedUncounted = doc.review_disposition === 'filed_uncounted'
-  const status = doc.user_corrected ? (failedLeft ? 'left for later' : filedUncounted ? 'filed without amount' : '✓ checked') : isFailedDoc ? "couldn't read" : 'check this'
+  const leftForReview = doc.review_disposition === 'leave_for_review'
+  const status = doc.user_corrected ? (failedLeft ? 'left for later' : leftForReview ? 'left for review' : filedUncounted ? 'filed without amount' : '✓ checked') : isFailedDoc ? "couldn't read" : 'check this'
   return <aside className="flex w-[500px] min-h-0 shrink-0 flex-col border-l-[2.5px] border-ink bg-paper" aria-label="File details">
-    <div className="flex items-start gap-3 border-b-[2.5px] border-ink px-5 py-4"><div className="min-w-0 flex-1"><h2 className="truncate font-display text-[26px] font-normal">{basename(doc.relative_path)}</h2><p className="m-0 text-[16px] text-graphite">{doc.file_type.toUpperCase()} · {formatBytes(doc.size_bytes)}</p></div><Chip tone={doc.user_corrected ? (failedLeft || filedUncounted ? 'muted' : 'done') : isFailedDoc ? 'oops' : 'check'} size="sm">{status}</Chip><button type="button" onClick={onClose} aria-label="Close file details" className="flex h-10 w-10 items-center justify-center rounded-[10px] border-[2.5px] border-ink bg-paper">×</button></div>
+    <div className="flex items-start gap-3 border-b-[2.5px] border-ink px-5 py-4"><div className="min-w-0 flex-1"><h2 className="truncate font-display text-[26px] font-normal">{basename(doc.relative_path)}</h2><p className="m-0 text-[16px] text-graphite">{doc.file_type.toUpperCase()} · {formatBytes(doc.size_bytes)}</p></div><Chip tone={doc.user_corrected ? (failedLeft || filedUncounted || leftForReview ? 'muted' : 'done') : isFailedDoc ? 'oops' : 'check'} size="sm">{status}</Chip><button type="button" onClick={onClose} aria-label="Close file details" className="flex h-10 w-10 items-center justify-center rounded-[10px] border-[2.5px] border-ink bg-paper">×</button></div>
     <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-4">
       <div role={isInjection ? 'alert' : 'note'} className={`rotate-[-0.6deg] border-[2.5px] border-ink p-4 shadow-sticky ${isInjection || isFailedDoc ? 'bg-note-oops' : 'bg-note-check'}`}><p className="m-0 text-[19px] leading-6">{sticky}</p></div>
       {isInjection && <><p className="m-0 text-[16px]">the text, shown as plain words only:</p><EvidenceExcerpt text={doc.excerpt} quote={doc.classification?.evidence_quote} tone="pink" /></>}
       {isFailedDoc && <div role="radiogroup" aria-label="What to do with this file" className="space-y-2"><RadioCard checked={!manual} onChange={() => setManual(false)}>Leave it for later<br /><span className="text-graphite">goes to Uncategorized/ and is not counted</span></RadioCard><RadioCard checked={manual} onChange={() => setManual(true)}>Type the details myself</RadioCard></div>}
-      {!isInjection && (!isFailedDoc || manual) && <div className="space-y-3">
+      {!isInjection && !isConflict && (!isFailedDoc || manual) && <div className="space-y-3">
         {isFailedDoc && <div role="radiogroup" aria-label="What kind of paper is it" className="flex gap-2">{(['receipt', 'invoice'] as const).map((k) => <button key={k} type="button" role="radio" aria-checked={manualKind === k} onClick={() => setManualKind(k)} className={`flex-1 rounded-full border-[2.5px] border-ink px-3 py-1.5 text-[17px] ${manualKind === k ? 'bg-ink text-paper' : 'bg-paper'}`}>{k}</button>)}</div>}
         <label className="block">Shop<input value={merchant} onChange={(e) => setMerchant(e.target.value)} className="mt-1 block h-11 w-full rounded-[8px] border-[2.5px] border-ink bg-paper px-3" /></label>
         <label className="block">Amount<input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" className="mt-1 block h-11 w-full rounded-[8px] border-[2.5px] border-ink bg-paper px-3 font-mono text-[15px]" /></label>
         {(isMissingDate || !isConflict) && <label className={`block ${isMissingDate ? 'rounded-[8px] bg-hl-check p-2' : ''}`}>Date<input value={date} onChange={(e) => setDate(e.target.value)} placeholder="YYYY-MM-DD" className="mt-1 block h-11 w-full rounded-[8px] border-[2.5px] border-ink bg-paper px-3 font-mono text-[15px]" /></label>}
       </div>}
       {!isInjection && <><p className="m-0 text-[16px] text-graphite">what Pip read in the file:</p><EvidenceExcerpt text={doc.excerpt} quote={doc.classification?.evidence_quote} /></>}
-      <p className="m-0 text-[16px] text-graphite">goes to <span className="font-mono">{row.destination ?? (isInjection ? 'Other/' : 'Uncategorized/')}</span> once checked</p>
+      <p className="m-0 text-[16px] text-graphite">goes to <span className="font-mono">{row.destination ?? (isInjection ? 'Other/' : 'Uncategorized/')}</span> {isConflict ? '· not counted in totals' : 'once checked'}</p>
     </div>
-    <div className="border-t-[2.5px] border-ink p-4">{state.actionError && <p className="mb-2 text-center text-[16px] text-danger">{state.actionError}</p>}{saveBlocked && <p className="mb-2 text-center text-[16px] text-graphite" role="alert">You cleared the amount. Enter the amount shown in the file — an empty amount can't be saved.</p>}<PanelAction disabled={saving || saveBlocked} onClick={() => isInjection ? save() : isFailedDoc ? saveFailed() : save(details)}>{isFailedDoc && !manual ? 'Leave it for later · mark checked' : isInjection ? 'Got it · file under Other' : isMissingDate ? 'Save date · mark checked' : 'Looks right · mark checked'}</PanelAction></div>
+    <div className="space-y-2 border-t-[2.5px] border-ink p-4">{state.actionError && <p className="mb-2 text-center text-[16px] text-danger" role="alert">{correctionErrorText(state.actionError)}</p>}{saveBlocked && <p className="mb-2 text-center text-[16px] text-graphite" role="alert">You cleared the amount. Enter the amount shown in the file — an empty amount can't be saved.</p>}
+      {isConflict
+        ? <PanelAction disabled={saving || leftForReview} onClick={() => void leave()}>{leftForReview ? '✓ Left for review' : 'Leave for review · not counted'}</PanelAction>
+        : <PanelAction disabled={saving || saveBlocked} onClick={() => isInjection ? save() : isFailedDoc ? saveFailed() : save(details)}>{isFailedDoc && !manual ? 'Leave it for later · mark checked' : isInjection ? 'Got it · file under Other' : isMissingDate ? 'Save date · mark checked' : 'Looks right · mark checked'}</PanelAction>}
+      {transactional && !isConflict && !isInjection && !isFailedDoc && <PaperButton variant="secondary" className="w-full" disabled={saving || leftForReview} onClick={() => void leave()}>{leftForReview ? '✓ Left for review' : 'Leave for review'}</PaperButton>}
+    </div>
   </aside>
 }
 
@@ -120,7 +128,7 @@ function NonTransactionalDetailPanel({ row, onClose }: { row: FileRow; onClose: 
       <p className="m-0 text-[16px] text-graphite">{decided ? <>goes to <span className="font-mono">{row.destination ?? (decided === 'file' ? 'Other/' : 'Uncategorized/')}</span> · not counted in totals</> : 'Not counted in totals either way. Nothing moves until you press Move.'}</p>
     </div>
     <div className="space-y-2 border-t-[2.5px] border-ink p-4">
-      {state.actionError && <p className="mb-2 text-center text-[16px] text-danger">{state.actionError}</p>}
+      {state.actionError && <p className="mb-2 text-center text-[16px] text-danger" role="alert">{correctionErrorText(state.actionError)}</p>}
       <PaperButton variant={decided === 'file' ? 'secondary' : 'primary'} className="w-full" disabled={saving !== null || decided === 'file'} onClick={() => decide('file')}>{decided === 'file' ? '✓ Filed under Other' : 'File it · no payment details'}</PaperButton>
       <PaperButton variant="secondary" className="w-full" disabled={saving !== null || decided === 'leave'} onClick={() => decide('leave')}>{decided === 'leave' ? '✓ Left for review' : 'Leave for review'}</PaperButton>
       <p className="m-0 text-center text-[15px] text-graphite">File it → Other/ · Leave for review → Uncategorized/</p>

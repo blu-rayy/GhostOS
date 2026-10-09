@@ -312,7 +312,8 @@ export const mockApi: GhostApi = {
     // demo mock approximates it with the record's amount-related review flags.)
     const AMOUNT_FLAGS = ['amount_conflict', 'amount_unparseable', 'missing_amount', 'invalid_currency', 'currency_mismatch', 'missing_currency', 'evidence_not_found']
     let allowFiledUncounted = false
-    if (correction.accept && profileOf(proposed) === 'transaction' && !('amount' in body)) {
+    // Leave for review (category 'uncertain') accepts nothing, so it skips this guard (backend parity).
+    if (correction.accept && profileOf(proposed) === 'transaction' && correction.category !== 'uncertain' && !('amount' in body)) {
       const storedAmount = proposed.amount ?? null
       const storedAmountText = (proposed.amount_text ?? '').trim()
       if (storedAmount === null && storedAmountText === '') {

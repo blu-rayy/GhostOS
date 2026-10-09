@@ -46,3 +46,14 @@ export function isValidIsoDate(s: string): boolean {
 export function errorText(e: unknown): string {
   return e instanceof Error ? e.message : String(e)
 }
+
+/** Plain words for the Check panel's correction errors; unknown errors keep their backend text. */
+export function correctionErrorText(raw: string): string {
+  if (raw.includes('Cannot accept transaction while source validation findings remain unresolved')) {
+    return "Pip can't back up this total with the text in the file, so it can't be counted. Leave it for review instead: it goes to Uncategorized/ and isn't counted."
+  }
+  if (raw.includes('amount correction is not supported by validated source evidence')) {
+    return "That amount isn't the total written in the file, so it can't be counted. Check the number, or leave it for review."
+  }
+  return `Couldn't save that (${raw}).`
+}

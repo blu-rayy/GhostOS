@@ -412,7 +412,11 @@ def correct_document(file_id: str, body: dict) -> dict:
             )
 
     allow_filed_uncounted = False
-    if body.get("accept") and profile == "transaction":
+    # Leave for Review (category "uncertain") is a filing choice, not acceptance: it
+    # clears nothing, the record stays needs_review and goes to Uncategorized/ uncounted,
+    # so a transaction with conflicting amounts must still be able to take it.
+    leave_for_review = body.get("category") == "uncertain"
+    if body.get("accept") and profile == "transaction" and not leave_for_review:
         # Acceptance is not a second source of truth. Revalidate the complete
         # proposed transaction before clearing any review state. A canonical
         # amount from an earlier validation may be used as the temporary
