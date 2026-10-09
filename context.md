@@ -41,6 +41,29 @@ GhostOS is a **local-AI file organization and expense reporting workspace**. A u
 
 **Out of scope:** arbitrary shell commands, unrestricted desktop control, automatic deletion, scanned-PDF OCR, cloud sync, tax calculation, payment advice. Stretch only after stable core: DOCX extraction, OCR for one image format, second language.
 
+**Document-aware review is required for the safety pitch:** the Check flow must
+not assume that every sensitive paper is a transaction. Keep `category` as the
+backend-owned folder/totals decision, and add a separate `document_kind` to
+describe the paper: `receipt`, `invoice`, `statement`, `identity_or_civil`,
+`legal`, `medical`, `other`, or `uncertain`. The backend derives a
+`field_profile` (`transaction`, `reference`, or `none`) in code; the model may
+not provide an arbitrary field list or destination path.
+
+- `transaction` may expose merchant, date, amount, and currency correction
+  fields.
+- `reference` may expose only metadata explicitly supported by the contract.
+- `none` must expose no editable transaction fields.
+
+Statements, birth certificates, identity records, legal papers, medical
+records, and other non-transactional documents must have a Check state that
+shows kind, evidence, explanation, and an explicit file/leave-for-review
+decision without asking the user to invent financial data. They do not enter
+currency totals by default. An uncertain document may remain in
+`Needs Review/`. Destinations remain generated from the fixed category map, and
+all decisions must remain reviewable, reversible, and offline. The detailed
+contract and cross-developer task breakdown live in
+`docs/design/document-aware-review.md`.
+
 ## Architecture and trust boundaries
 
 Original recommended stack:
@@ -61,6 +84,7 @@ AI JSON contract (one call per file):
 ```json
 {
   "category": "invoice",
+  "document_kind": "invoice",
   "merchant": "Example Store",
   "date": "2026-10-09",
   "amount_text": "PHP 123.45",
@@ -74,6 +98,9 @@ These are illustrative values, not measured model output. The actual shared sche
 - Bind `source_id`/`file_id` in application code, not in model output.
 - Model sees only bounded text, **not absolute paths or executable instructions**.
 - Backend checks `evidence_quote` exists in source text; parses money with `Decimal`; conflicting/missing fields require review. Confidence is a review flag, not calibrated probability.
+- Backend validates `document_kind` separately from `category`, derives the
+  `field_profile`, and rejects transaction-only corrections for
+  non-transactional kinds.
 - Proposed operation: `file_id`, `original_relative_path`, `destination_relative_path`, `reason`.
 - Backend generates paths using a fixed category map (e.g. `Invoices/YYYY-MM`, `Receipts/YYYY-MM`, `Needs Review`). Model must **never** supply executable paths.
 - Resolve/recheck paths inside selected root before each move; reject symlinks; never overwrite; handle collisions; preserve file identity in manifest.
