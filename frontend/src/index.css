@@ -1,33 +1,57 @@
 @import 'tailwindcss';
 
 /*
- * GhostOS design tokens (Tailwind v4, CSS-first).
- * Raw RGB channels live on :root so arbitrary values like rgb(var(--accent)) keep working;
- * @theme exposes them as utilities (bg-surface-1, text-fg-muted, border-line, bg-accent/15 …).
- * Use these tokens instead of raw hex values in components.
+ * GhostOS design tokens: "Paper sketch + Pip" (Brand v3).
+ * Black ink on white paper, a dotted grid, handwriting for voice and a typewriter
+ * mono for numbers. Colour only appears as highlighter behind ink text, and only
+ * when it means something (check / done / oops / info).
+ *
+ * Raw RGB channels live on :root so arbitrary values like rgb(var(--ink)) keep working;
+ * @theme exposes them as utilities (bg-paper, text-fg-muted, bg-hl-check, shadow-card ...).
+ * The older names (surface-*, line, accent, success ...) are kept and re-pointed at the
+ * paper palette so screens that have not been redrawn yet still render legibly.
+ * Fonts are bundled from @fontsource (imported in main.tsx); nothing loads from a CDN.
  */
 :root {
-  --bg: 14 17 23; /* app shell */
-  --surface-1: 19 23 31; /* sidebar, panels */
-  --surface-2: 25 30 40; /* raised: inputs, table header */
-  --surface-3: 33 39 52; /* hover / selected */
-  --line: 38 45 59;
-  --line-strong: 52 61 79;
+  /* Paper palette */
+  --ink: 26 26 26; /* #1A1A1A text, outlines, primary buttons */
+  --paper: 255 255 255; /* #FFFFFF */
+  --pencil: 241 241 239; /* #F1F1EF quiet fills, disabled */
+  --graphite: 107 107 107; /* #6B6B6B secondary text (5.3:1 on paper) */
+  --dots: 212 212 212; /* dotted grid */
 
-  --fg: 231 234 240;
-  --fg-muted: 160 168 184;
-  --fg-subtle: 112 121 140;
+  /* Highlighters: only ever behind ink text */
+  --hl-check: 255 224 102; /* #FFE066 needs you */
+  --hl-done: 155 232 184; /* #9BE8B8 ready / done */
+  --hl-oops: 255 179 179; /* #FFB3B3 couldn't read, careful actions */
+  --hl-info: 201 215 255; /* #C9D7FF demo data, duplicates */
+  --note-check: 255 243 168; /* #FFF3A8 sticky note */
+  --note-oops: 255 214 214; /* #FFD6D6 sticky note */
+  --row-selected: 255 251 230; /* #FFFBE6 */
 
-  --accent: 124 108 242; /* indigo-violet */
-  --accent-hover: 141 127 247;
-  --accent-fg: 255 255 255;
+  /* Legacy names, re-pointed at paper */
+  --bg: var(--paper);
+  --surface-1: var(--paper);
+  --surface-2: var(--pencil);
+  --surface-3: 231 231 227;
+  --line: 189 189 189;
+  --line-strong: var(--ink);
 
-  --success: 63 185 122;
-  --warning: 227 163 59;
-  --danger: 229 83 75;
-  --info: 86 156 230;
+  --fg: var(--ink);
+  --fg-muted: 68 68 68;
+  --fg-subtle: var(--graphite);
 
-  color-scheme: dark;
+  --accent: var(--ink);
+  --accent-hover: 0 0 0;
+  --accent-fg: var(--paper);
+
+  /* Text-safe status inks for legacy screens (highlighters are too light for text) */
+  --success: 31 122 69;
+  --warning: 138 90 0;
+  --danger: 180 35 24;
+  --info: 47 85 201;
+
+  color-scheme: light;
 }
 
 @theme inline {
@@ -36,6 +60,19 @@
   --color-current: currentColor;
   --color-black: #000;
   --color-white: #fff;
+
+  --color-ink: rgb(var(--ink));
+  --color-paper: rgb(var(--paper));
+  --color-pencil: rgb(var(--pencil));
+  --color-graphite: rgb(var(--graphite));
+  --color-hl-check: rgb(var(--hl-check));
+  --color-hl-done: rgb(var(--hl-done));
+  --color-hl-oops: rgb(var(--hl-oops));
+  --color-hl-info: rgb(var(--hl-info));
+  --color-note-check: rgb(var(--note-check));
+  --color-note-oops: rgb(var(--note-oops));
+  --color-row-selected: rgb(var(--row-selected));
+
   --color-bg: rgb(var(--bg));
   --color-surface-1: rgb(var(--surface-1));
   --color-surface-2: rgb(var(--surface-2));
@@ -55,32 +92,42 @@
 }
 
 @theme {
-  --font-sans: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --font-mono: 'Cascadia Mono', 'JetBrains Mono', Consolas, ui-monospace, monospace;
+  --font-sans: 'Patrick Hand', 'Segoe Print', 'Comic Sans MS', cursive;
+  --font-display: 'Gochi Hand', 'Patrick Hand', cursive;
+  --font-mono: 'Space Mono', 'Cascadia Mono', Consolas, ui-monospace, monospace;
 
-  /* Type scale (px): 11 / 12 / 13 / 14 / 16 / 20 / 24 */
-  --text-2xs: 11px;
-  --text-2xs--line-height: 16px;
-  --text-xs: 12px;
-  --text-xs--line-height: 16px;
-  --text-sm: 13px;
-  --text-sm--line-height: 20px;
-  --text-base: 14px;
-  --text-base--line-height: 20px;
-  --text-lg: 16px;
-  --text-lg--line-height: 24px;
-  --text-xl: 20px;
-  --text-xl--line-height: 28px;
-  --text-2xl: 24px;
-  --text-2xl--line-height: 32px;
+  /* Type scale (px). Body text never below 16; mono data is 15 per the component sheet. */
+  --text-data: 15px;
+  --text-data--line-height: 22px;
+  --text-2xs: 16px;
+  --text-2xs--line-height: 20px;
+  --text-xs: 16px;
+  --text-xs--line-height: 22px;
+  --text-sm: 17px;
+  --text-sm--line-height: 24px;
+  --text-base: 18px;
+  --text-base--line-height: 26px;
+  --text-lg: 20px;
+  --text-lg--line-height: 28px;
+  --text-xl: 26px;
+  --text-xl--line-height: 30px;
+  --text-2xl: 36px;
+  --text-2xl--line-height: 38px;
 
-  /* Radius scale: 4 / 6 / 8 */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
+  /* Spacing follows Tailwind's 4px grid (4 8 12 16 24 32). */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
 
-  --shadow-panel: 0 1px 0 0 rgb(255 255 255 / 0.03) inset, 0 1px 2px rgb(0 0 0 / 0.3);
-  --shadow-overlay: 0 12px 32px rgb(0 0 0 / 0.45), 0 0 0 1px rgb(52 61 79);
+  /* Offset ink shadows: raised (buttons) · card (panels) · sheet (dialogs) */
+  --shadow-raised: 4px 4px 0 rgb(26 26 26);
+  --shadow-raised-soft: 4px 4px 0 rgb(154 154 154);
+  --shadow-card: 6px 6px 0 rgb(26 26 26);
+  --shadow-sheet: 8px 8px 0 rgb(26 26 26);
+  /* Legacy names */
+  --shadow-panel: none;
+  --shadow-overlay: 8px 8px 0 rgb(26 26 26);
 
   --animate-fade-in: fade-in 120ms ease-out;
   --animate-slide-in: slide-in 140ms ease-out;
@@ -106,7 +153,6 @@
 }
 
 @layer base {
-  /* Tailwind v4 defaults borders to currentColor; GhostOS uses the line token. */
   *,
   ::before,
   ::after {
@@ -119,8 +165,8 @@
   }
   body {
     margin: 0;
-    background: var(--color-bg);
-    color: var(--color-fg);
+    background: var(--color-paper);
+    color: var(--color-ink);
     font-family: var(--font-sans);
     font-size: var(--text-base);
     line-height: var(--text-base--line-height);
@@ -128,11 +174,12 @@
     overflow: hidden;
   }
   ::selection {
-    background: rgb(var(--accent) / 0.35);
+    background: rgb(var(--hl-check));
+    color: rgb(var(--ink));
   }
   :focus-visible {
-    outline: 2px solid rgb(var(--accent));
-    outline-offset: 1px;
+    outline: 3px solid rgb(var(--ink));
+    outline-offset: 3px;
   }
   button:not(:disabled) {
     cursor: pointer;
@@ -140,44 +187,99 @@
   button:disabled {
     cursor: not-allowed;
   }
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 1ms !important;
+      transition-duration: 1ms !important;
+    }
+  }
 }
 
 @layer components {
+  /* The sketchbook page: white paper with a dotted grid. */
+  .paper-grid {
+    background-color: rgb(var(--paper));
+    background-image: radial-gradient(rgb(var(--dots)) 1.3px, transparent 1.4px);
+    background-size: 22px 22px;
+  }
+
+  /* Hand-drawn outlines: irregular radii make boxes look inked, not machined. */
+  .sketch-a {
+    border-radius: 255px 16px 225px 16px / 16px 225px 16px 255px;
+  }
+  .sketch-b {
+    border-radius: 16px 225px 16px 255px / 255px 16px 225px 16px;
+  }
+  .ink-border {
+    border: 2.5px solid rgb(var(--ink));
+  }
+
+  /* Highlighter stroke behind inline text (always paired with a word, never colour alone). */
+  .hl-check,
+  .hl-done,
+  .hl-oops,
+  .hl-info {
+    padding: 0 3px;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+  .hl-check {
+    background: linear-gradient(transparent 50%, rgb(var(--hl-check)) 50%, rgb(var(--hl-check)) 90%, transparent 90%);
+  }
+  .hl-done {
+    background: linear-gradient(transparent 50%, rgb(var(--hl-done)) 50%, rgb(var(--hl-done)) 90%, transparent 90%);
+  }
+  .hl-oops {
+    background: linear-gradient(transparent 50%, rgb(var(--hl-oops)) 50%, rgb(var(--hl-oops)) 90%, transparent 90%);
+  }
+  .hl-info {
+    background: linear-gradient(transparent 50%, rgb(var(--hl-info)) 50%, rgb(var(--hl-info)) 90%, transparent 90%);
+  }
+
   .scroll-area {
     overflow: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgb(var(--line-strong)) transparent;
+    scrollbar-color: rgb(var(--graphite)) transparent;
   }
   .tabular {
     font-variant-numeric: tabular-nums;
   }
+
+  /* Text input: ink outline, yellow halo when focused. */
   .input {
-    height: 2rem;
+    height: 44px;
     width: 100%;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--color-line);
-    background: var(--color-surface-2);
-    padding: 0 0.625rem;
-    font-size: var(--text-sm);
-    color: var(--color-fg);
-    transition: border-color 120ms;
+    box-sizing: border-box;
+    border-radius: var(--radius-md);
+    border: 2.5px solid rgb(var(--ink));
+    background: rgb(var(--paper));
+    padding: 0 12px;
+    font-size: var(--text-base);
+    color: rgb(var(--ink));
   }
   .input::placeholder {
-    color: var(--color-fg-subtle);
+    color: rgb(var(--graphite));
   }
-  .input:hover {
-    border-color: var(--color-line-strong);
-  }
-  .input:focus {
-    border-color: var(--color-accent);
+  .input:focus,
+  .input:focus-visible {
     outline: none;
+    border-width: 3px;
+    box-shadow: 0 0 0 4px rgb(var(--hl-check));
+  }
+  .input[aria-invalid='true'] {
+    background: rgb(255 228 228);
   }
   .label {
-    font-size: var(--text-2xs);
-    line-height: var(--text-2xs--line-height);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
-    color: var(--color-fg-subtle);
+    font-size: var(--text-xs);
+    line-height: var(--text-xs--line-height);
+    color: rgb(var(--graphite));
   }
 }
