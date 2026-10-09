@@ -1,0 +1,52 @@
+{
+  "d7/invoices/INV-1043_Pixelforge_Studio.pdf": {
+    "status": "ok",
+    "user_corrected": false,
+    "review_disposition": "none",
+    "category": "invoice",
+    "document_kind": "invoice",
+    "field_profile": "transaction",
+    "merchant": "PIXELFORGE DESIGN STUDIO",
+    "date": "2026-10-02",
+    "amount": "18648.00",
+    "amount_text": "PHP 18,648.00",
+    "currency": "PHP",
+    "evidence_quote": "Total Amount Due: PHP 18,648.00",
+    "evidence_verified": true,
+    "flags": []
+  },
+  "d7/receipts/bayside-office-mart.pdf": {
+    "status": "needs_review",
+    "user_corrected": false,
+    "review_disposition": "none",
+    "category": "receipt",
+    "document_kind": "receipt",
+    "field_profile": "transaction",
+    "merchant": "BAYSIDE OFFICE MART",
+    "date": "2026-09-05",
+    "amount": null,
+    "amount_text": "PHP 1,520.00",
+    "currency": "PHP",
+    "evidence_quote": "AMOUNT DUE: PHP 1,520.00",
+    "evidence_verified": true,
+    "flags": [
+      "amount_conflict"
+    ]
+  },
+  "d7/receipts/sunbeam-cafe-receipt.pdf": {
+    "status": "ok",
+    "user_corrected": false,
+    "review_disposition": "none",
+    "category": "receipt",
+    "document_kind": "receipt",
+    "field_profile": "transaction",
+    "merchant": "SUNBEAM CAFE",
+    "date": "2026-09-21",
+    "amount": "683.20",
+    "amount_text": "PHP 683.20",
+    "currency": "PHP",
+    "evidence_quote": "FINAL TOTAL: PHP 683.20",
+    "evidence_verified": true,
+    "flags": []
+  }
+}

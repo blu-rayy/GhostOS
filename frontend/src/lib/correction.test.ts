@@ -3,8 +3,9 @@ import { mockApi } from '../api/mock'
 import { resetMockScenario, settle } from '../test/mockHarness'
 import { buildTransactionCorrection } from './viewModel'
 
-// UI1 regression against the demo mock, which rejects amount: null like the backend (e5a7a06).
-// The builder's own rules are tested in viewModel.test.ts.
+// UI1 + DA-7 regression against the demo mock: the panel never sends an
+// untouched empty amount as null, and accepting as-is a transaction with an
+// unresolved amount is rejected (mirrors the backend DA-7 guard).
 describe('regression: marking a transaction checked with no amount entered', () => {
   beforeEach(() => {
     vi.useFakeTimers()
@@ -14,10 +15,11 @@ describe('regression: marking a transaction checked with no amount entered', () 
     vi.useRealTimers()
   })
 
-  it('omits amount, and the correction is accepted (the old amount: null payload was a 422)', async () => {
+  it('omits amount, and a conflicting amount cannot be accepted as-is', async () => {
     const progress = await settle(mockApi.startScan('C:/GhostOS-fixture-root'), 250)
     const scan = await settle(mockApi.getScan(progress.scan_id), 250)
-    // f07 (Office Warehouse) is a transaction whose amount box is empty: the reported case.
+    // f07 (Office Warehouse) is a transaction with an empty amount box and an
+    // amount_conflict flag: the reported DA-7 case.
     const c = scan.documents.find((d) => d.file_id === 'f07')!.classification!
     expect(c.amount).toBeNull()
 
@@ -33,8 +35,10 @@ describe('regression: marking a transaction checked with no amount entered', () 
     expect(clearedStoredAmount).toBe(false)
     const body = { ...details, accept: true }
     expect(body).not.toHaveProperty('amount')
-    const updated = await settle(mockApi.correctDocument('f07', body), 150)
-    expect(updated.user_corrected).toBe(true)
-    expect(updated.classification).toMatchObject({ amount: null, field_profile: 'transaction' })
+
+    // DA-7: the omitted-amount accept must be rejected, not revived as a value.
+    await expect(settle(mockApi.correctDocument('f07', body), 150)).rejects.toThrow(
+      /^422 Cannot accept transaction while source validation findings remain unresolved/,
+    )
   })
 })

@@ -1,0 +1,68 @@
+{
+  "plan_id": "plan_scan_a3287543f63b",
+  "scan_id": "scan_a3287543f63b",
+  "mode": "blocking",
+  "operations": [
+    {
+      "file_id": "c488917e",
+      "original_relative_path": "d7/invoices/INV-1043_Pixelforge_Studio.pdf",
+      "destination_relative_path": "Invoices/2026-10/INV-1043_Pixelforge_Studio.pdf",
+      "reason": "invoice dated 2026-10-02",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "76e83e58",
+      "original_relative_path": "d7/receipts/bayside-office-mart.pdf",
+      "destination_relative_path": "Uncategorized/bayside-office-mart.pdf",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "0622b208",
+      "original_relative_path": "d7/receipts/sunbeam-cafe-receipt.pdf",
+      "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "reason": "receipt dated 2026-09-21",
+      "collision_suffixed": false
+    }
+  ],
+  "report_rows": [
+    {
+      "file_id": "c488917e",
+      "source_filename": "d7/invoices/INV-1043_Pixelforge_Studio.pdf",
+      "category": "invoice",
+      "date": "2026-10-02",
+      "merchant": "PIXELFORGE DESIGN STUDIO",
+      "amount": "18648.00",
+      "currency": "PHP",
+      "status": "accepted"
+    },
+    {
+      "file_id": "76e83e58",
+      "source_filename": "d7/receipts/bayside-office-mart.pdf",
+      "category": "receipt",
+      "date": "2026-09-05",
+      "merchant": "BAYSIDE OFFICE MART",
+      "amount": null,
+      "currency": "PHP",
+      "status": "needs_review"
+    },
+    {
+      "file_id": "0622b208",
+      "source_filename": "d7/receipts/sunbeam-cafe-receipt.pdf",
+      "category": "receipt",
+      "date": "2026-09-21",
+      "merchant": "SUNBEAM CAFE",
+      "amount": "683.20",
+      "currency": "PHP",
+      "status": "accepted"
+    }
+  ],
+  "totals": [
+    {
+      "currency": "PHP",
+      "amount": "19331.20",
+      "row_count": 2
+    }
+  ],
+  "blocking_review_count": 1
+}

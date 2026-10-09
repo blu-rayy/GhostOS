@@ -304,12 +304,35 @@ export const mockApi: GhostApi = {
     }
     if ('document_kind' in body) doc.classification.document_kind = proposed.document_kind
     doc.classification.field_profile = profileOf(doc.classification)
+
+    // DA-7 accept-guard parity: acceptance is not a second source of truth for
+    // a transaction. Filing without a usable amount is allowed only when there
+    // is nothing anywhere to revive; otherwise unresolved amount findings keep
+    // the document blocked. (The real backend revalidates the source text; the
+    // demo mock approximates it with the record's amount-related review flags.)
+    const AMOUNT_FLAGS = ['amount_conflict', 'amount_unparseable', 'missing_amount', 'invalid_currency', 'currency_mismatch', 'missing_currency', 'evidence_not_found']
+    let allowFiledUncounted = false
+    if (correction.accept && profileOf(proposed) === 'transaction' && !('amount' in body)) {
+      const storedAmount = proposed.amount ?? null
+      const storedAmountText = (proposed.amount_text ?? '').trim()
+      if (storedAmount === null && storedAmountText === '') {
+        allowFiledUncounted = true
+      } else if (doc.review_flags.some((f) => AMOUNT_FLAGS.includes(f.code))) {
+        throw unprocessable('Cannot accept transaction while source validation findings remain unresolved')
+      }
+    }
+
     if (correction.accept) {
       doc.user_corrected = true
       if (correction.category === 'uncertain') {
         // Leave for review (backend bf99c68): flags kept, still needs_review, still blocking.
         doc.review_disposition = 'leave_for_review'
         doc.status = 'needs_review'
+      } else if (allowFiledUncounted) {
+        // Filed without a usable amount (backend DA-7 + UI1): safe, uncounted.
+        doc.review_disposition = 'filed_uncounted'
+        doc.review_flags = []
+        doc.status = 'ok'
       } else {
         doc.review_disposition = 'filed'
         doc.review_flags = []

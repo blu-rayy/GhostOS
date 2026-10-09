@@ -411,41 +411,60 @@ def correct_document(file_id: str, body: dict) -> dict:
                 detail="amount correction is not supported by validated source evidence",
             )
 
+    allow_filed_uncounted = False
     if body.get("accept") and profile == "transaction":
         # Acceptance is not a second source of truth. Revalidate the complete
         # proposed transaction before clearing any review state. A canonical
         # amount from an earlier validation may be used as the temporary
         # candidate, but the original amount_text is never overwritten.
-        candidate_data = {
-            field: proposed_classification.get(field)
-            for field in (
-                "category", "document_kind", "merchant", "date", "amount_text",
-                "currency", "evidence_quote", "explanation",
+        #
+        # Filed-uncounted (UI1 + DA-7): a transaction with no usable amount
+        # anywhere may be filed as a distinct, safe outcome only when nothing
+        # can ever become a counted amount. In that narrow case we skip the
+        # revalidation gate and mark the disposition `filed_uncounted`; the
+        # plan builder then refuses to accept the row (amount stays null) and
+        # it is never totaled. Conflicting/unsupported amounts keep the full
+        # guard below.
+        no_amount_supplied = "amount" not in body
+        stored_amount = proposed_classification.get("amount")
+        stored_amount_text = str(proposed_classification.get("amount_text") or "").strip()
+        # Filed-uncounted is only for a genuinely amount-less paper: no amount
+        # in the request, none stored, and nothing in amount_text to revive.
+        # A non-empty amount_text (even an unparseable "1,250.00 / 1,520.00")
+        # is a rejected/conflicting amount and must stay behind the full guard.
+        if no_amount_supplied and stored_amount is None and stored_amount_text == "":
+            allow_filed_uncounted = True
+        else:
+            candidate_data = {
+                field: proposed_classification.get(field)
+                for field in (
+                    "category", "document_kind", "merchant", "date", "amount_text",
+                    "currency", "evidence_quote", "explanation",
+                )
+                if field in proposed_classification
+            }
+            for field in ("merchant", "date", "currency"):
+                if field in normalized_updates:
+                    candidate_data[field] = normalized_updates[field]
+            candidate_data["amount_text"] = (
+                body.get("amount")
+                or proposed_classification.get("amount_text")
+                or proposed_classification.get("amount")
             )
-            if field in proposed_classification
-        }
-        for field in ("merchant", "date", "currency"):
-            if field in normalized_updates:
-                candidate_data[field] = normalized_updates[field]
-        candidate_data["amount_text"] = (
-            body.get("amount")
-            or proposed_classification.get("amount_text")
-            or proposed_classification.get("amount")
-        )
-        try:
-            candidate = ClassificationRecord.model_validate(candidate_data)
-        except Exception as exc:
-            raise HTTPException(status_code=422, detail="Transaction correction failed schema validation") from exc
-        candidate_validation = validate_classification(doc.excerpt, candidate)
-        if (
-            candidate_validation.flags
-            or not candidate_validation.is_valid
-            or candidate_validation.parsed_amount is None
-        ):
-            raise HTTPException(
-                status_code=422,
-                detail="Cannot accept transaction while source validation findings remain unresolved",
-            )
+            try:
+                candidate = ClassificationRecord.model_validate(candidate_data)
+            except Exception as exc:
+                raise HTTPException(status_code=422, detail="Transaction correction failed schema validation") from exc
+            candidate_validation = validate_classification(doc.excerpt, candidate)
+            if (
+                candidate_validation.flags
+                or not candidate_validation.is_valid
+                or candidate_validation.parsed_amount is None
+            ):
+                raise HTTPException(
+                    status_code=422,
+                    detail="Cannot accept transaction while source validation findings remain unresolved",
+                )
 
     # Apply the correction fields
     if doc.classification is None:
@@ -478,6 +497,11 @@ def correct_document(file_id: str, body: dict) -> dict:
         if body.get("category") == "uncertain":
             doc.review_disposition = "leave_for_review"
             doc.status = "needs_review"
+        elif allow_filed_uncounted:
+            # Filed without a usable amount: an explicit, safe, uncounted outcome.
+            doc.review_disposition = "filed_uncounted"
+            doc.review_flags = []
+            doc.status = "ok"
         else:
             doc.review_disposition = "filed"
             doc.review_flags = []

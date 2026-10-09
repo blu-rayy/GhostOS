@@ -348,9 +348,9 @@ def test_corrected_amount_is_used_in_plan(tmp_path):
 
 
 def test_accept_without_amount_field_files_uncounted_and_null_is_rejected(tmp_path):
-    """UI1: the Check panel omits an untouched empty amount instead of sending
-    ``amount: null``. Accepting with the field omitted files the document
-    without counting it; sending null is still 422 with no mutation."""
+    """UI1 + DA-7: omitting the amount on a genuinely amount-less transaction
+    files it as an explicit, safe, uncounted outcome (``filed_uncounted``).
+    Sending ``amount: null`` is still 422 with no mutation."""
     from app.services.session_store import DocumentRecord, ScanSession, store as ss
 
     sess = ScanSession(
@@ -392,12 +392,13 @@ def test_accept_without_amount_field_files_uncounted_and_null_is_rejected(tmp_pa
     assert doc.user_corrected is False
     assert doc.classification["amount"] is None
 
-    # The UI1 payload — accept with the amount field omitted — succeeds.
+    # The UI1 payload — accept with the amount field omitted — files uncounted.
     resp = client.patch("/api/documents/ui1-no-amount", json={"accept": True})
     assert resp.status_code == 200, resp.text
     body = resp.json()
     assert body["status"] == "ok"
     assert body["user_corrected"] is True
+    assert body["review_disposition"] == "filed_uncounted"
     assert body["classification"]["amount"] is None
 
     plan = client.get("/api/scans/test_ui1_no_amount/plan").json()
@@ -406,6 +407,157 @@ def test_accept_without_amount_field_files_uncounted_and_null_is_rejected(tmp_pa
     assert row["status"] == "needs_review"
     assert row["amount"] is None
     assert plan["totals"] == []
+
+
+def test_accept_as_is_on_conflicting_amount_is_rejected_without_mutation(tmp_path):
+    """DA-7: accepting as-is a transaction whose scan found conflicting amounts
+    (a revivable ``amount_text``) must stay 422 with no mutation — the rejected
+    amount must never enter the report."""
+    from copy import deepcopy
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_da7_accept_as_is",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    classification = {
+        "category": "receipt",
+        "merchant": "Office Warehouse",
+        "date": "2026-09-05",
+        "amount_text": "1,250.00 / 1,520.00",
+        "amount": None,
+        "currency": "PHP",
+        "evidence_quote": "AMOUNT DUE          1,520.00",
+        "evidence_verified": True,
+        "explanation": "Subtotal and amount due disagree.",
+    }
+    flags = [{"code": "amount_conflict", "message": "Subtotal 1,250.00 and amount due 1,520.00 disagree."}]
+    sess.documents.append(DocumentRecord(
+        file_id="da7-conflict",
+        relative_path="receipt.txt",
+        file_type="txt",
+        size_bytes=10,
+        sha256="c" * 64,
+        excerpt="SUBTOTAL 1,250.00\nAMOUNT DUE 1,520.00",
+        status="needs_review",
+        classification=deepcopy(classification),
+        review_flags=deepcopy(flags),
+    ))
+    ss.put_scan(sess)
+    preview = client.get("/api/scans/test_da7_accept_as_is/plan").json()
+
+    resp = client.patch("/api/documents/da7-conflict", json={"accept": True})
+    assert resp.status_code == 422, resp.text
+
+    doc = ss.find_document("da7-conflict")
+    assert doc is not None
+    assert doc.status == "needs_review"
+    assert doc.user_corrected is False
+    assert doc.review_disposition == "none"
+    assert doc.classification == classification
+    assert doc.review_flags == flags
+    assert client.get("/api/scans/test_da7_accept_as_is/plan").json() == preview
+
+
+def test_accept_as_is_on_parseable_conflicting_amount_is_rejected(tmp_path):
+    """DA-7: accepting as-is must be rejected when the source has conflicting
+    authoritative amounts, even if the stored ``amount_text`` is a single
+    parseable number. The amount can never be revived by accept."""
+    from copy import deepcopy
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_da7_parseable_accept_as_is",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    classification = {
+        "category": "receipt",
+        "merchant": "Office Warehouse",
+        "date": "2026-09-05",
+        "amount_text": "PHP 1,520.00",
+        "amount": None,
+        "currency": "PHP",
+        "evidence_quote": "AMOUNT DUE          1,520.00",
+        "evidence_verified": True,
+        "explanation": "Subtotal and amount due disagree.",
+    }
+    flags = [{"code": "amount_conflict", "message": "Conflicting totals found."}]
+    sess.documents.append(DocumentRecord(
+        file_id="da7-parseable",
+        relative_path="receipt.txt",
+        file_type="txt",
+        size_bytes=10,
+        sha256="d" * 64,
+        excerpt="SUBTOTAL            1,250.00\nAMOUNT DUE          1,520.00",
+        status="needs_review",
+        classification=deepcopy(classification),
+        review_flags=deepcopy(flags),
+    ))
+    ss.put_scan(sess)
+
+    resp = client.patch("/api/documents/da7-parseable", json={"accept": True})
+    assert resp.status_code == 422, resp.text
+
+    doc = ss.find_document("da7-parseable")
+    assert doc is not None
+    assert doc.status == "needs_review"
+    assert doc.user_corrected is False
+    assert doc.review_disposition == "none"
+    assert doc.classification["amount"] is None
+
+    plan = client.get("/api/scans/test_da7_parseable_accept_as_is/plan").json()
+    assert plan["totals"] == []
+    assert plan["report_rows"][0]["status"] == "needs_review"
+
+
+def test_valid_amount_correction_still_accepted(tmp_path):
+    """Regression guard: a source-validated amount correction is still accepted
+    and counted, not swept into filed_uncounted."""
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_da7_valid_amount",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    sess.documents.append(DocumentRecord(
+        file_id="valid-amount",
+        relative_path="receipt.txt",
+        file_type="txt",
+        size_bytes=10,
+        sha256="e" * 64,
+        excerpt="Total: PHP 500.00",
+        status="needs_review",
+        classification={
+            "category": "receipt",
+            "merchant": "Shop",
+            "date": "2026-10-09",
+            "amount_text": "PHP 500.00",
+            "amount": "500.00",
+            "currency": "PHP",
+            "evidence_quote": "Total: PHP 500.00",
+            "evidence_verified": True,
+            "explanation": "",
+        },
+        review_flags=[{"code": "amount_conflict", "message": "conflict"}],
+    ))
+    ss.put_scan(sess)
+
+    resp = client.patch("/api/documents/valid-amount", json={"amount": "500.00", "accept": True})
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["review_disposition"] == "filed"
+    assert body["classification"]["amount"] == "500.00"
+
+    plan = client.get("/api/scans/test_da7_valid_amount/plan").json()
+    assert plan["report_rows"][0]["status"] == "accepted"
+    assert plan["report_rows"][0]["amount"] == "500.00"
+    assert [t["amount"] for t in plan["totals"]] == ["500.00"]
 
 
 def test_invalid_transaction_corrections_are_rejected_atomically(tmp_path):
