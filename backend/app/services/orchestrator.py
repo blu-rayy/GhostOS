@@ -271,6 +271,17 @@ def _build_plan(session: ScanSession, mode: SortMode = "blocking") -> Plan:
                 and c.get("currency") is not None
                 and doc.status == "ok"
                 and not duplicate
+                and not any(
+                    flag.get("code") in {
+                        "amount_conflict",
+                        "amount_unparseable",
+                        "invalid_currency",
+                        "currency_mismatch",
+                        "missing_amount",
+                        "missing_currency",
+                    }
+                    for flag in doc.review_flags
+                )
             )
             report_rows.append(ReportRow(
                 file_id=doc.file_id,

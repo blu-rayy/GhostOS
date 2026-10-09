@@ -313,7 +313,7 @@ def test_corrected_amount_is_used_in_plan(tmp_path):
         file_type="txt",
         size_bytes=10,
         sha256="a" * 64,
-        excerpt="Total: N/A",
+        excerpt="Total: PHP 500.00",
         status="needs_review",
         classification={
             "category": "receipt",
@@ -322,8 +322,8 @@ def test_corrected_amount_is_used_in_plan(tmp_path):
             "amount_text": None,
             "amount": None,
             "currency": "PHP",
-            "evidence_quote": None,
-            "evidence_verified": False,
+            "evidence_quote": "Total: PHP 500.00",
+            "evidence_verified": True,
             "explanation": "",
         },
         review_flags=[],
@@ -345,6 +345,143 @@ def test_corrected_amount_is_used_in_plan(tmp_path):
     assert row["amount"] == "500.00"
     assert row["status"] == "accepted"
     assert plan["blocking_review_count"] == 0
+
+
+def test_invalid_transaction_corrections_are_rejected_atomically(tmp_path):
+    from copy import deepcopy
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_invalid_transaction_correction",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    classification = {
+        "category": "receipt",
+        "merchant": "Shop",
+        "date": "2026-10-09",
+        "amount_text": "PHP 100.00",
+        "amount": "100.00",
+        "currency": "PHP",
+        "evidence_quote": "Total: PHP 100.00",
+        "evidence_verified": True,
+        "explanation": "Receipt",
+    }
+    flags = [{"code": "review", "message": "review"}]
+    sess.documents.append(DocumentRecord(
+        file_id="invalid-correction",
+        relative_path="receipt.txt",
+        file_type="txt",
+        size_bytes=1,
+        sha256="4" * 64,
+        excerpt="Total: PHP 100.00",
+        status="needs_review",
+        classification=deepcopy(classification),
+        review_flags=deepcopy(flags),
+    ))
+    ss.put_scan(sess)
+    preview = client.get("/api/scans/test_invalid_transaction_correction/plan").json()
+    revision_before = sess.plan_revision
+
+    for body in (
+        {"date": "2026-99-99", "accept": True},
+        {"amount": "not-an-amount", "accept": True},
+        {"currency": "ABC", "accept": True},
+    ):
+        response = client.patch("/api/documents/invalid-correction", json=body)
+        assert response.status_code == 422
+        doc = ss.find_document("invalid-correction")
+        assert doc is not None
+        assert doc.classification == classification
+        assert doc.review_flags == flags
+        assert doc.status == "needs_review"
+        assert doc.user_corrected is False
+        assert sess.plan_revision == revision_before
+        assert client.get("/api/scans/test_invalid_transaction_correction/plan").json() == preview
+
+
+def test_ambiguous_amount_flag_cannot_be_accepted_by_plan(tmp_path):
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_ambiguous_amount_plan",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    sess.documents.append(DocumentRecord(
+        file_id="ambiguous-plan",
+        relative_path="receipt.txt",
+        file_type="txt",
+        size_bytes=1,
+        sha256="5" * 64,
+        excerpt="Total: PHP 100.00\nTotal: PHP 200.00",
+        status="ok",
+        classification={
+            "category": "receipt",
+            "merchant": "Shop",
+            "date": "2026-10-09",
+            "amount_text": "PHP 100.00",
+            "amount": "100.00",
+            "currency": "PHP",
+            "evidence_quote": "Total: PHP 100.00",
+            "evidence_verified": True,
+            "explanation": "Receipt",
+        },
+        review_flags=[{"code": "amount_conflict", "message": "Multiple conflicting amounts found; none was selected"}],
+    ))
+    ss.put_scan(sess)
+
+    plan = client.get("/api/scans/test_ambiguous_amount_plan/plan").json()
+    assert plan["report_rows"][0]["status"] == "needs_review"
+    assert plan["totals"] == []
+
+
+def test_ambiguous_source_rejects_amount_correction(tmp_path):
+    from copy import deepcopy
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_ambiguous_amount_correction",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    original = {
+        "category": "receipt",
+        "merchant": "Shop",
+        "date": "2026-10-09",
+        "amount_text": "PHP 100.00",
+        "amount": None,
+        "currency": "PHP",
+        "evidence_quote": "Total: PHP 100.00",
+        "evidence_verified": True,
+        "explanation": "Receipt",
+    }
+    sess.documents.append(DocumentRecord(
+        file_id="ambiguous-correction",
+        relative_path="receipt.txt",
+        file_type="txt",
+        size_bytes=1,
+        sha256="6" * 64,
+        excerpt="Total: PHP 100.00\nTotal: PHP 200.00",
+        status="needs_review",
+        classification=deepcopy(original),
+        review_flags=[{"code": "amount_conflict", "message": "conflict"}],
+    ))
+    ss.put_scan(sess)
+
+    response = client.patch(
+        "/api/documents/ambiguous-correction",
+        json={"amount": "100.00", "accept": True},
+    )
+    assert response.status_code == 422
+    doc = ss.find_document("ambiguous-correction")
+    assert doc is not None
+    assert doc.classification == original
+    assert doc.status == "needs_review"
+    assert doc.user_corrected is False
 
 
 def test_non_transactional_corrections_are_rejected(tmp_path):

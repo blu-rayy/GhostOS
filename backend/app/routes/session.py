@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import shutil
-from datetime import datetime, timezone
+from datetime import date as date_type, datetime, timezone
 from pathlib import Path
 import hashlib
 import os
@@ -25,7 +25,12 @@ from app.services.document_awareness import (
     document_kind_for_classification,
     field_profile_for_classification,
 )
-from app.schemas import ApprovalRequest, SortMode, normalize_document_kind
+from app.services.classification_validation import (
+    canonical_currency,
+    parse_amount,
+    validate_classification,
+)
+from app.schemas import ClassificationRecord, ApprovalRequest, SortMode, normalize_document_kind
 
 
 def _classification_response(classification: dict | None) -> dict | None:
@@ -345,6 +350,65 @@ def correct_document(file_id: str, body: dict) -> dict:
             ),
         )
 
+    normalized_updates: dict[str, object] = {}
+    if "accept" in body and not isinstance(body["accept"], bool):
+        raise HTTPException(status_code=422, detail="accept must be a boolean")
+    if "merchant" in body and body["merchant"] is not None and not isinstance(body["merchant"], str):
+        raise HTTPException(status_code=422, detail="merchant must be a string or null")
+    if "date" in body:
+        if body["date"] is not None:
+            if not isinstance(body["date"], str):
+                raise HTTPException(status_code=422, detail="date must be an ISO date or null")
+            try:
+                date_type.fromisoformat(body["date"])
+            except ValueError as exc:
+                raise HTTPException(status_code=422, detail="date must be an ISO date (YYYY-MM-DD)") from exc
+        normalized_updates["date"] = body["date"]
+    if "currency" in body:
+        raw_currency = body["currency"]
+        if not isinstance(raw_currency, str) or canonical_currency(raw_currency) is None:
+            raise HTTPException(status_code=422, detail="currency must be a supported currency code")
+        normalized_updates["currency"] = canonical_currency(raw_currency)
+    if "amount" in body:
+        raw_amount = body["amount"]
+        if not isinstance(raw_amount, str) or not raw_amount.strip() or parse_amount(raw_amount) is None:
+            raise HTTPException(status_code=422, detail="amount must be a parseable monetary value")
+        normalized_updates["amount"] = raw_amount
+
+        # A corrected amount can clear an ambiguity only when the source text
+        # supports it through the same authoritative-total validator used by
+        # the scan worker. The temporary amount_text is never stored.
+        candidate_data = {
+            field: proposed_classification.get(field)
+            for field in (
+                "category", "document_kind", "merchant", "date", "amount_text",
+                "currency", "evidence_quote", "explanation",
+            )
+            if field in proposed_classification
+        }
+        candidate_data["amount_text"] = raw_amount
+        if "currency" in normalized_updates:
+            candidate_data["currency"] = normalized_updates["currency"]
+        candidate = ClassificationRecord.model_validate(candidate_data)
+        amount_validation = validate_classification(doc.excerpt, candidate)
+        blocked_amount_flags = {
+            "ambiguous_amount",
+            "invalid_amount_format",
+            "invalid_currency",
+            "currency_mismatch",
+            "missing_currency",
+        }
+        if (
+            amount_validation.parsed_amount is None
+            or blocked_amount_flags.intersection(amount_validation.flags)
+            or "evidence_quote_not_found" in amount_validation.flags
+            or "missing_evidence_quote" in amount_validation.flags
+        ):
+            raise HTTPException(
+                status_code=422,
+                detail="amount correction is not supported by validated source evidence",
+            )
+
     # Apply the correction fields
     if doc.classification is None:
         doc.classification = {
@@ -363,7 +427,7 @@ def correct_document(file_id: str, body: dict) -> dict:
 
     for field in ("category", "merchant", "date", "amount", "currency"):
         if field in body:
-            doc.classification[field] = body[field]
+            doc.classification[field] = normalized_updates.get(field, body[field])
     if "document_kind" in body:
         doc.classification["document_kind"] = proposed_classification["document_kind"]
     doc.classification["field_profile"] = field_profile_for_classification(doc.classification)
