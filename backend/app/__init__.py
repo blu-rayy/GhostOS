@@ -1,0 +1,1 @@
+"""GhostOS backend application package."""
