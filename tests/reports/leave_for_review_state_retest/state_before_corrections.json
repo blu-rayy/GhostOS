@@ -1,0 +1,63 @@
+{
+  "ls/identity/birth-certificate.pdf": {
+    "status": "needs_review",
+    "user_corrected": false,
+    "review_disposition": "none",
+    "flags": [
+      "missing_evidence_quote",
+      "non_transactional_document"
+    ],
+    "category": "other",
+    "document_kind": "identity_or_civil",
+    "field_profile": "none",
+    "merchant": null,
+    "date": null,
+    "amount": null,
+    "currency": null
+  },
+  "ls/legal/lease-agreement-summary.pdf": {
+    "status": "needs_review",
+    "user_corrected": false,
+    "review_disposition": "none",
+    "flags": [
+      "missing_evidence_quote",
+      "missing_currency",
+      "non_transactional_document"
+    ],
+    "category": "other",
+    "document_kind": "legal",
+    "field_profile": "none",
+    "merchant": null,
+    "date": null,
+    "amount": null,
+    "currency": null
+  },
+  "ls/receipts/bayside-office-mart.pdf": {
+    "status": "needs_review",
+    "user_corrected": false,
+    "review_disposition": "none",
+    "flags": [
+      "amount_conflict"
+    ],
+    "category": "receipt",
+    "document_kind": "receipt",
+    "field_profile": "transaction",
+    "merchant": "BAYSIDE OFFICE MART",
+    "date": "2026-09-05",
+    "amount": null,
+    "currency": "PHP"
+  },
+  "ls/receipts/sunbeam-cafe-receipt.pdf": {
+    "status": "ok",
+    "user_corrected": false,
+    "review_disposition": "none",
+    "flags": [],
+    "category": "receipt",
+    "document_kind": "receipt",
+    "field_profile": "transaction",
+    "merchant": "SUNBEAM CAFE",
+    "date": "2026-09-21",
+    "amount": "683.20",
+    "currency": "PHP"
+  }
+}

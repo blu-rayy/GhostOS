@@ -1,0 +1,182 @@
+{
+  "scan_id": "scan_01f5e1f4a0d0",
+  "root": "<TEST_BASE>\\DA67-L",
+  "scanned_at": "2026-10-09T20:42:48.222168+00:00",
+  "files_seen": 6,
+  "max_files": 100,
+  "documents": [
+    {
+      "file_id": "84138b68",
+      "relative_path": "d67/archive/2026/invoice.pdf",
+      "file_type": "pdf",
+      "size_bytes": 1211,
+      "sha256": "0bec9fe8f96693999451669e264d62772ffe2de3ea48548fec5d6c4957ac8024",
+      "excerpt": "CARABAO PAPER SUPPLY CO.\nUnit 5, Sample Industrial Park, Valenzuela City (fictional)\nSALES INVOICE No. 000784\nDate: 18 Sep 2026\nSold to: Mara Villanueva Studio\nA4 bond paper 80gsm, 10 reams @ PHP 265.00 = PHP 2,650.00\nKraft envelopes, 2 boxes @ PHP 410.00 = PHP 820.00\nTOTAL AMOUNT DUE: PHP 3,470.00\nTerms: 30 days",
+      "status": "ok",
+      "classification": {
+        "category": "invoice",
+        "merchant": "CARABAO PAPER SUPPLY CO.",
+        "date": "2026-09-18",
+        "amount_text": "PHP 3,470.00",
+        "amount": "3470.00",
+        "currency": "PHP",
+        "evidence_quote": "TOTAL AMOUNT DUE: PHP 3,470.00",
+        "evidence_verified": true,
+        "explanation": "The document is a sales invoice with a clear total amount due, vendor name, and date, matching the definition of an invoice.",
+        "document_kind": "invoice",
+        "field_profile": "transaction"
+      },
+      "review_flags": [],
+      "duplicate_of": null,
+      "user_corrected": false
+    },
+    {
+      "file_id": "296929c3",
+      "relative_path": "d67/invoices/INV-1043_Pixelforge_Studio.pdf",
+      "file_type": "pdf",
+      "size_bytes": 1331,
+      "sha256": "a4a03b73a0af92d7de9299e61083648b42a130492841fb12f22688751638cff7",
+      "excerpt": "PIXELFORGE DESIGN STUDIO (fictional)\nInvoice: INV-1043\nDate issued: 02-Oct-2026\nClient: Mara Villanueva Studio\nLogo refinement, 8 hrs @ PHP 1,500.00: PHP 12,000.00\nSocial media template set: PHP 6,500.00\nSubtotal: PHP 18,500.00\nLess 10% loyalty discount: -PHP 1,850.00\nNet of discount: PHP 16,650.00\nVAT 12%: PHP 1,998.00\nTotal Amount Due: PHP 18,648.00\nPlease pay within 15 days.",
+      "status": "ok",
+      "classification": {
+        "category": "invoice",
+        "merchant": "PIXELFORGE DESIGN STUDIO",
+        "date": "2026-10-02",
+        "amount_text": "PHP 18,648.00",
+        "amount": "18648.00",
+        "currency": "PHP",
+        "evidence_quote": "Total Amount Due: PHP 18,648.00",
+        "evidence_verified": true,
+        "explanation": "The document is clearly labeled as an invoice with a total amount due, vendor name, and issue date, matching the definition of an invoice.",
+        "document_kind": "invoice",
+        "field_profile": "transaction"
+      },
+      "review_flags": [],
+      "duplicate_of": null,
+      "user_corrected": false
+    },
+    {
+      "file_id": "3d62afcd",
+      "relative_path": "d67/misc/card-statement-sep2026.pdf",
+      "file_type": "pdf",
+      "size_bytes": 1296,
+      "sha256": "af2bda441bd6a6c020cf481ddcb7b95713d533616b71f1175da380f7e0b2cac5",
+      "excerpt": "HARBOR FEDERAL BANK (fictional)\nCredit Card Statement\nCard number: XXXX-XXXX-XXXX-0000\nStatement date: 2026-09-25\n2026-09-03 BRIGHTLINE WEB HOSTING: PHP 3,421.36\n2026-09-14 GREENLEAF GROCER: PHP 1,286.50\n2026-09-21 SUNBEAM CAFE: PHP 683.20\nTotal new charges: PHP 5,391.06\nStatement balance: PHP 5,391.06\nMinimum amount due: PHP 850.00\nPayment due date: 2026-10-15",
+      "status": "needs_review",
+      "classification": {
+        "category": "invoice",
+        "merchant": null,
+        "date": "2026-09-25",
+        "amount_text": "PHP 5,391.06",
+        "amount": null,
+        "currency": "PHP",
+        "evidence_quote": "Total new charges: PHP 5,391.06",
+        "evidence_verified": true,
+        "explanation": "This is a bank credit card statement, which is categorized as a statement document, not a transaction receipt or invoice. The total amount is clearly stated and matches the final charge amount.",
+        "document_kind": "statement",
+        "field_profile": "reference"
+      },
+      "review_flags": [
+        {
+          "code": "amount_conflict",
+          "message": "Multiple conflicting amounts found; none was selected"
+        },
+        {
+          "code": "missing_merchant",
+          "message": "No merchant found in the document"
+        },
+        {
+          "code": "non_transactional_document",
+          "message": "This is not a transaction document and has no expense fields"
+        },
+        {
+          "code": "transaction_fields_on_non_transactional",
+          "message": "Transaction fields were reported for a non-transactional document"
+        }
+      ],
+      "duplicate_of": null,
+      "user_corrected": false
+    },
+    {
+      "file_id": "b477e9e1",
+      "relative_path": "d67/receipts/bayside-office-mart.pdf",
+      "file_type": "pdf",
+      "size_bytes": 1124,
+      "sha256": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+      "excerpt": "BAYSIDE OFFICE MART (fictional)\nSales Receipt No. 55-20931\nDate: 2026-09-05\nA4 bond paper, 3 reams: PHP 675.00\nInk cartridge, black: PHP 575.00\nSubtotal: PHP 1,250.00\nAMOUNT DUE: PHP 1,520.00\nCash: PHP 1,600.00\nChange: PHP 80.00",
+      "status": "needs_review",
+      "classification": {
+        "category": "receipt",
+        "merchant": "BAYSIDE OFFICE MART",
+        "date": "2026-09-05",
+        "amount_text": "PHP 1,520.00",
+        "amount": null,
+        "currency": "PHP",
+        "evidence_quote": "AMOUNT DUE: PHP 1,520.00",
+        "evidence_verified": true,
+        "explanation": "The document is a sales receipt with a merchant name, date, and a final amount due, clearly indicating it is a transactional receipt.",
+        "document_kind": "receipt",
+        "field_profile": "transaction"
+      },
+      "review_flags": [
+        {
+          "code": "amount_conflict",
+          "message": "Multiple conflicting amounts found; none was selected"
+        }
+      ],
+      "duplicate_of": null,
+      "user_corrected": false
+    },
+    {
+      "file_id": "e0c19c6c",
+      "relative_path": "d67/receipts/sunbeam-cafe-receipt.pdf",
+      "file_type": "pdf",
+      "size_bytes": 1217,
+      "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+      "excerpt": "SUNBEAM CAFE (fictional)\nSample Street, Quezon City\nOR No. 2026-118204\nDate: 09/21/2026 10:15 AM\n1 x Flat white: PHP 180.00\n1 x Spanish latte: PHP 190.00\n2 x Butter croissant @ 120.00: PHP 240.00\nSubtotal: PHP 610.00\nVAT 12%: PHP 73.20\nFINAL TOTAL: PHP 683.20\nPaid by card ending 0000",
+      "status": "ok",
+      "classification": {
+        "category": "receipt",
+        "merchant": "SUNBEAM CAFE",
+        "date": "2026-09-21",
+        "amount_text": "PHP 683.20",
+        "amount": "683.20",
+        "currency": "PHP",
+        "evidence_quote": "FINAL TOTAL: PHP 683.20",
+        "evidence_verified": true,
+        "explanation": "The document is a transaction record from a caf\u00e9 showing a final total amount, which classifies it as a receipt.",
+        "document_kind": "receipt",
+        "field_profile": "transaction"
+      },
+      "review_flags": [],
+      "duplicate_of": null,
+      "user_corrected": false
+    },
+    {
+      "file_id": "dc9d2726",
+      "relative_path": "d67/receipts/tibay-hardware-receipt.csv",
+      "file_type": "csv",
+      "size_bytes": 293,
+      "sha256": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9",
+      "excerpt": "store,Tibay Hardware (fictional)\nreceipt_no,TH-000912\ndate,27-09-2026\ncurrency,PHP\nitem,qty,unit_price,line_total\nWall plug set,2,85.00,170.00\nExtension cord 5m,1,525.00,525.00\nLED bulb 9W,6,95.00,570.00\nPaint roller kit,1,880.00,880.00\ngrand_total,,,2145.00\npaid,cash,,2200.00\nchange,,,55.00",
+      "status": "ok",
+      "classification": {
+        "category": "receipt",
+        "merchant": "Tibay Hardware (fictional)",
+        "date": "2026-09-27",
+        "amount_text": "2145.00",
+        "amount": "2145.00",
+        "currency": "PHP",
+        "evidence_quote": "grand_total,,,2145.0",
+        "evidence_verified": true,
+        "explanation": "The document lists items purchased and shows a final total amount, which matches the definition of a receipt.",
+        "document_kind": "receipt",
+        "field_profile": "transaction"
+      },
+      "review_flags": [],
+      "duplicate_of": null,
+      "user_corrected": false
+    }
+  ],
+  "skipped": []
+}

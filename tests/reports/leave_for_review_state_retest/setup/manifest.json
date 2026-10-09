@@ -1,0 +1,48 @@
+{
+  "commit": "bf99c68514763c6d6e528891e515cbc3438abbf9",
+  "created_at": "2026-10-09T20:56:48.644110+00:00",
+  "root": "<TEST_BASE>/LS1",
+  "fixture_source": {
+    "ls/receipts/bayside-office-mart.pdf": "receipts/bayside-office-mart.pdf",
+    "ls/legal/lease-agreement-summary.pdf": "legal/lease-agreement-summary.pdf",
+    "ls/identity/birth-certificate.pdf": "identity/birth-certificate.pdf",
+    "ls/receipts/sunbeam-cafe-receipt.pdf": "receipts/sunbeam-cafe-receipt.pdf"
+  },
+  "snapshot": {
+    "ls/identity/birth-certificate.pdf": {
+      "sha256": "df083a5d7500220e94e943891489ab6dc100a88a783426a351e864ef6c4edd1b",
+      "size": 1095
+    },
+    "ls/legal/lease-agreement-summary.pdf": {
+      "sha256": "4538c2e2306137414f574f3a216ea56da1c71756255c94fbc6c506e5b00516f9",
+      "size": 1020
+    },
+    "ls/receipts/bayside-office-mart.pdf": {
+      "sha256": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+      "size": 1124
+    },
+    "ls/receipts/sunbeam-cafe-receipt.pdf": {
+      "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+      "size": 1217
+    }
+  },
+  "inprocess_snapshot": {
+    "ls/identity/birth-certificate.pdf": {
+      "sha256": "df083a5d7500220e94e943891489ab6dc100a88a783426a351e864ef6c4edd1b",
+      "size": 1095
+    },
+    "ls/legal/lease-agreement-summary.pdf": {
+      "sha256": "4538c2e2306137414f574f3a216ea56da1c71756255c94fbc6c506e5b00516f9",
+      "size": 1020
+    },
+    "ls/receipts/bayside-office-mart.pdf": {
+      "sha256": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+      "size": 1124
+    },
+    "ls/receipts/sunbeam-cafe-receipt.pdf": {
+      "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+      "size": 1217
+    }
+  },
+  "canary_sha256": "b68a50163a1648b006e00bc1913bf693bef8e4e06434d4030af626bd641aae07"
+}

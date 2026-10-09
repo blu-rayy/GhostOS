@@ -1,0 +1,67 @@
+{
+  "commit": "e5a7a063147840c9dc787ac597abffbdc2d5c5f5",
+  "created_at": "2026-10-09T20:42:48.162370+00:00",
+  "canary_sha256": "719780eb2aeb348dc097acfe01d51f750f7c41a53890838d5eda351738a2b9f6",
+  "expected_amounts": {
+    "d67/receipts/tibay-hardware-receipt.csv": "2145.00",
+    "d67/archive/2026/invoice.pdf": "3470.00",
+    "d67/receipts/bayside-office-mart.pdf": null,
+    "d67/misc/card-statement-sep2026.pdf": null,
+    "d67/invoices/INV-1043_Pixelforge_Studio.pdf": "18648.00",
+    "d67/receipts/sunbeam-cafe-receipt.pdf": "683.20"
+  },
+  "roots": {
+    "DA67-L": {
+      "d67/archive/2026/invoice.pdf": {
+        "sha256": "0bec9fe8f96693999451669e264d62772ffe2de3ea48548fec5d6c4957ac8024",
+        "size": 1211
+      },
+      "d67/invoices/INV-1043_Pixelforge_Studio.pdf": {
+        "sha256": "a4a03b73a0af92d7de9299e61083648b42a130492841fb12f22688751638cff7",
+        "size": 1331
+      },
+      "d67/misc/card-statement-sep2026.pdf": {
+        "sha256": "af2bda441bd6a6c020cf481ddcb7b95713d533616b71f1175da380f7e0b2cac5",
+        "size": 1296
+      },
+      "d67/receipts/bayside-office-mart.pdf": {
+        "sha256": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+        "size": 1124
+      },
+      "d67/receipts/sunbeam-cafe-receipt.pdf": {
+        "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+        "size": 1217
+      },
+      "d67/receipts/tibay-hardware-receipt.csv": {
+        "sha256": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9",
+        "size": 293
+      }
+    },
+    "DA67-M": {
+      "d67/archive/2026/invoice.pdf": {
+        "sha256": "0bec9fe8f96693999451669e264d62772ffe2de3ea48548fec5d6c4957ac8024",
+        "size": 1211
+      },
+      "d67/invoices/INV-1043_Pixelforge_Studio.pdf": {
+        "sha256": "a4a03b73a0af92d7de9299e61083648b42a130492841fb12f22688751638cff7",
+        "size": 1331
+      },
+      "d67/misc/card-statement-sep2026.pdf": {
+        "sha256": "af2bda441bd6a6c020cf481ddcb7b95713d533616b71f1175da380f7e0b2cac5",
+        "size": 1296
+      },
+      "d67/receipts/bayside-office-mart.pdf": {
+        "sha256": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+        "size": 1124
+      },
+      "d67/receipts/sunbeam-cafe-receipt.pdf": {
+        "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+        "size": 1217
+      },
+      "d67/receipts/tibay-hardware-receipt.csv": {
+        "sha256": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9",
+        "size": 293
+      }
+    }
+  }
+}
