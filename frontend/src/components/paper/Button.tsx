@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import type { ButtonHTMLAttributes, ReactNode, Ref } from 'react'
 import { cx } from '../ui/cx'
 
 /**
@@ -38,6 +38,8 @@ export interface PaperButtonProps extends ButtonHTMLAttributes<HTMLButtonElement
   /** Visible reason shown next to a disabled button, linked via aria-describedby. */
   disabledReason?: ReactNode
   reasonId?: string
+  /** React 19 passes `ref` as a prop; it lands on the <button> (e.g. a dialog's initial focus). */
+  ref?: Ref<HTMLButtonElement>
   children: ReactNode
 }
 

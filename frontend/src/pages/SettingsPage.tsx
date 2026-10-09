@@ -123,6 +123,13 @@ export function SettingsPage() {
                 description="The mock reports one file whose original path is now taken."
               />
               <Switch
+                checked={scenario.moveFailures}
+                onChange={(v) => setFlag('moveFailures', v)}
+                disabled={!usingFixtures}
+                label="Fixture: two files don't move"
+                description="The mock reports two failed moves on the next Move."
+              />
+              <Switch
                 checked={state.simulateActivityError}
                 onChange={(v) => dispatch({ type: 'patch', patch: { simulateActivityError: v } })}
                 label="Activity log failure"

@@ -11,7 +11,7 @@ import { cx } from '../ui/cx'
  * "ink" wobble filter rendered once by <InkDefs /> in the app shell.
  */
 
-export type PipMood = 'hello' | 'waiting' | 'reading' | 'suspicious' | 'done' | 'sigh' | 'guard'
+export type PipMood = 'hello' | 'waiting' | 'reading' | 'suspicious' | 'done' | 'sigh' | 'guard' | 'carrying' | 'shrug'
 
 const INK = '#1a1a1a'
 export const INK_FILTER_ID = 'ghostos-ink'
@@ -137,17 +137,38 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
       </>
     ),
   },
+  /** Step 4 · Done 4a, exact SVG from docs/design/step4-done/4a-all-tidy.html. */
   done: {
-    label: 'Pip reluctantly satisfied, one tiny party streamer',
+    label: 'Pip holding a clipboard with a check mark, looking smug',
     art: (
       <>
-        <path d="M104 22q4 4 0 8t0 8" {...line} strokeWidth={2.5} />
-        <Body />
-        <path d="M99 76c5-3 7-8 6-14M21 80c-5 2-8 6-7 11" {...line} strokeWidth={3} />
-        <Glasses />
-        <path d="M41 63q6-4 12 0M67 63q6-4 12 0" {...line} strokeWidth={2.6} />
+        <Ground />
+        <Body w={3} />
+        <Hair />
+        <Glasses w={2.6} />
+        <Lids y={60} />
         <Bags />
-        <path d="M55 86q6 3 11-1" {...line} strokeWidth={3} />
+        <path d="M54 86q6 3 11-1" {...line} strokeWidth={2.4} />
+        <path d="M70 88h22v28H70Z" fill="#9be8b8" stroke={INK} strokeWidth="2.6" strokeLinejoin="round" />
+        <path d="M76 86h10v5H76Z" fill="#fff" stroke={INK} strokeWidth="2" />
+        <path d="M75 102l4 4 8-9" {...line} strokeWidth={2.8} strokeLinejoin="round" />
+        <path d="M21 80c-5 2-8 6-7 11" {...line} strokeWidth={2.6} />
+      </>
+    ),
+  },
+  /** Step 4 · Done 4c, exact SVG from docs/design/step4-done/4c-put-back.html. */
+  shrug: {
+    label: 'Pip shrugging',
+    art: (
+      <>
+        <Ground />
+        <Body w={3} />
+        <Hair />
+        <Glasses w={2.6} />
+        <Lids />
+        <Bags />
+        <path d="M53 87h14" {...line} strokeWidth={2.6} />
+        <path d="M21 80q-9-2-12-10M99 80q9-2 12-10" {...line} strokeWidth={2.6} />
       </>
     ),
   },
@@ -180,6 +201,24 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
         <Lids y={59} />
         <path d="M53 80h14" {...line} strokeWidth={3} />
         <path d="M24 96q20-8 44 2M96 96q-20-8-44 2M24 96q20 6 40 0M96 96q-18 7-36 1" {...line} strokeWidth={3} />
+      </>
+    ),
+  },
+  /** Step 3 · Totals 3c, exact SVG from docs/design/step3-totals/3c-moving.html. */
+  carrying: {
+    label: 'Pip carrying a box of files',
+    art: (
+      <>
+        <Ground />
+        <Body w={3} />
+        <Hair />
+        <Glasses y={58} w={2.6} />
+        <Lids y={57} />
+        <path d="M54 76q6-3 12 0" {...line} strokeWidth={2.4} />
+        <path d="M101 40q3 5 0 7q-3-2 0-7Z" fill="#c9d7ff" stroke={INK} strokeWidth="1.6" />
+        <path d="M30 84h60v30H30Z" fill="#ffe066" stroke={INK} strokeWidth="2.6" strokeLinejoin="round" />
+        <path d="M30 92h60M54 84v8M66 84v8" stroke={INK} strokeWidth="2.2" />
+        <path d="M22 92q4 6 8 8M98 92q-4 6-8 8" {...line} strokeWidth={2.6} />
       </>
     ),
   },

@@ -245,11 +245,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     async approve() {
       const s = stateRef.current
       if (!s.plan) return
-      patch({ busy: 'approve', actionError: null, phase: 'organizing', view: 'completion', approvedPlan: s.plan })
+      // Totals shows "moving" (3c) while this runs; failures stay on Totals (3d), success opens Done.
+      patch({ busy: 'approve', actionError: null, phase: 'organizing', view: 'report', approvedPlan: s.plan })
       try {
         const batch = await api.approvePlan(s.plan.plan_id)
-        patch({ batch, busy: null, phase: 'organized' })
-        log({ type: 'plan_approved', level: 'info', title: `Plan approved (${s.plan.operations.length} moves)`, detail: `Batch ${batch.batch_id}` })
+        const onTotals = stateRef.current.view === 'report'
+        patch({ batch, busy: null, phase: 'organized', ...(onTotals && batch.failed.length === 0 ? { view: 'completion' as const } : {}) })
+        log({ type: 'plan_approved', level: 'info', title: `Move approved (${s.plan.operations.length} files)`, detail: `Batch ${batch.batch_id}` })
         for (const op of s.plan.operations) {
           const failed = batch.failed.find((f) => f.file_id === op.file_id)
           log(
@@ -258,9 +260,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
               : { type: 'file_moved', level: 'success', title: `Moved ${op.original_relative_path}`, detail: `→ ${op.destination_relative_path}`, fileId: op.file_id },
           )
         }
-        log({ type: 'report_generated', level: 'success', title: 'Expense report written', detail: batch.report_relative_path })
+        log({ type: 'report_generated', level: 'success', title: 'Totals list written', detail: batch.report_relative_path })
       } catch (e) {
-        patch({ busy: null, phase: 'reviewing', actionError: errorText(e), view: 'plan', approvedPlan: null })
+        patch({ busy: null, phase: 'reviewing', actionError: errorText(e), view: 'report', approvedPlan: null })
         log({ type: 'action_failed', level: 'error', title: 'Approval failed. Nothing was moved.', detail: errorText(e) })
       }
     },
@@ -269,7 +271,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const s = stateRef.current
       if (!s.batch) return
       patch({ busy: 'undo', actionError: null, phase: 'undoing' })
-      log({ type: 'undo_started', level: 'info', title: `Undo started for ${s.batch.batch_id}` })
+      log({ type: 'undo_started', level: 'info', title: 'Putting files back', detail: `Batch ${s.batch.batch_id}` })
       try {
         const undo = await api.undoBatch(s.batch.batch_id)
         patch({ undo, busy: null, phase: 'undone' })
@@ -279,7 +281,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         log({
           type: 'undo_completed',
           level: undo.conflicts.length ? 'warning' : 'success',
-          title: undo.conflicts.length ? 'Undo partially completed' : 'Undo completed',
+          title: undo.conflicts.length ? 'Put back (some files stayed)' : 'Put back',
           detail: `${undo.restored} restored, ${undo.conflicts.length} left in organized location.`,
         })
       } catch (e) {

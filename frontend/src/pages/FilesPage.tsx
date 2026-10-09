@@ -73,7 +73,8 @@ export function FilesPage() {
   const checked = rows.filter((row) => row.doc?.user_corrected).length
   const allChecked = countsBy.needs === 0
   const selectedRow = rows.find((row) => row.id === selected) ?? null
-  useEffect(() => { if (selected) selectDoc(selected) }, [selected, selectDoc])
+  // Only sync when it differs: selectDoc is a new function every render, so an unconditional patch loops.
+  useEffect(() => { if (selected && selected !== state.selectedDocId) selectDoc(selected) }, [selected, selectDoc, state.selectedDocId])
   const handleKey = (event: React.KeyboardEvent<HTMLButtonElement>, index: number) => { if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return; event.preventDefault(); const next = visibleRows[(index + (event.key === 'ArrowDown' ? 1 : visibleRows.length - 1)) % visibleRows.length]; if (next) { setSelected(next.id); rowRefs.current[next.id]?.focus() } }
   if (!state.scan) return <div className="p-8"><h1 className="font-display text-[40px] font-normal">Check what Pip found</h1><p>Run a scan first.</p></div>
   return <div className="flex min-h-0 flex-1 flex-col"><div className="mx-auto flex min-h-0 w-full max-w-[1280px] flex-1 flex-col">

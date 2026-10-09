@@ -24,6 +24,8 @@ const clone = <T>(v: T): T => structuredClone(v)
 let scan: ScanResult | null = null
 let scanStartedAt = 0
 let batchCounter = 0
+/** Files the last approve actually moved (so undo restores only those). */
+let lastBatchMoved: string[] | null = null
 
 /**
  * Opt-in demo scenarios (default off, so default fixture behaviour is unchanged).
@@ -34,7 +36,14 @@ export const mockScenario = {
   scanError: false,
   /** Undo reports one restore conflict (original path now occupied). */
   undoConflict: false,
+  /** Approve reports two files that didn't move (Totals 3d). */
+  moveFailures: false,
 }
+
+const SIMULATED_MOVE_ERRORS = [
+  'Open in another app. Close it, then try again. (simulated)',
+  "Windows didn't allow the move (no permission). (simulated)",
+]
 
 function requireScan(scanId: string): ScanResult {
   if (!scan || scan.scan_id !== scanId) throw new Error(`Unknown scan ${scanId}`)
@@ -141,6 +150,7 @@ export const mockApi: GhostApi = {
     await delay()
     scan = { ...(clone(scanFixture) as ScanResult), root, scanned_at: new Date().toISOString() }
     scanStartedAt = Date.now()
+    lastBatchMoved = null
     return mockApi.getScanProgress(scan.scan_id)
   },
 
@@ -214,10 +224,15 @@ export const mockApi: GhostApi = {
     if (plan.plan_id !== planId) throw new Error(`Unknown plan ${planId}`)
     if (plan.blocking_review_count > 0) throw new Error('Plan has unresolved review items')
     const stamp = new Date().toISOString().slice(0, 16).replace(/[-:]/g, '')
+    const failed = mockScenario.moveFailures
+      ? plan.operations.slice(0, SIMULATED_MOVE_ERRORS.length).map((op, i) => ({ file_id: op.file_id, error: SIMULATED_MOVE_ERRORS[i] }))
+      : []
+    const failedIds = new Set(failed.map((f) => f.file_id))
+    lastBatchMoved = plan.operations.filter((op) => !failedIds.has(op.file_id)).map((op) => op.file_id)
     return {
       batch_id: `batch_${++batchCounter}`,
-      moved: plan.operations.length,
-      failed: [],
+      moved: lastBatchMoved.length,
+      failed,
       report_relative_path: `GhostOS Reports/expenses-${stamp}.csv`,
       committed_at: new Date().toISOString(),
     }
@@ -226,7 +241,8 @@ export const mockApi: GhostApi = {
   async undoBatch(batchId) {
     await delay(600)
     if (!scan) throw new Error('No scan')
-    const ops = buildPlan(scan).operations
+    const moved = lastBatchMoved
+    const ops = buildPlan(scan).operations.filter((op) => moved === null || moved.includes(op.file_id))
     if (mockScenario.undoConflict && ops.length > 0) {
       const op = ops[Math.min(1, ops.length - 1)]
       return {
@@ -236,7 +252,7 @@ export const mockApi: GhostApi = {
           {
             file_id: op.file_id,
             relative_path: op.original_relative_path,
-            reason: 'A different file now exists at the original path (content hash differs). Left at its organized location.',
+            reason: 'a different file with this name is in the old spot now (simulated)',
           },
         ],
       }
