@@ -5,6 +5,7 @@ import type {
   PlanPreview,
   ScanProgress,
   ScanResult,
+  SortMode,
   SystemStatus,
   UndoResult,
 } from '../types/api'
@@ -16,7 +17,7 @@ export interface GhostApi {
   getScanProgress(scanId: string): Promise<ScanProgress>
   getScan(scanId: string): Promise<ScanResult>
   correctDocument(fileId: string, correction: DocumentCorrection): Promise<DocumentRecord>
-  getPlan(scanId: string): Promise<PlanPreview>
-  approvePlan(planId: string): Promise<BatchResult>
+  getPlan(scanId: string, mode?: SortMode): Promise<PlanPreview>
+  approvePlan(planId: string, mode?: SortMode): Promise<BatchResult>
   undoBatch(batchId: string): Promise<UndoResult>
 }

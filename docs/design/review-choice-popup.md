@@ -84,8 +84,9 @@ and every set-aside file can still be opened and decided individually in Check.
    `resetSession`).
 2. Reload the plan with `?mode=partial`. Every later plan reload (after any
    correction) must pass the same mode.
-3. Open Check. Set-aside files stay listed under "needs you" with a "set aside ·
-   goes to Uncategorized/" note; **Continue to totals** is enabled.
+3. Go straight to **Step 3 · Totals** (nothing is left to decide). "← back to
+   check" still opens Check, where the set-aside files are listed as "set aside ·
+   goes to Uncategorized/" and **Continue to totals** is enabled.
 4. **Move** approves with `{"mode": "partial"}`. If the backend answers 409
    (stale or mismatched snapshot), reload the plan in the same mode and ask the
    user to press Move again. Never retry silently.

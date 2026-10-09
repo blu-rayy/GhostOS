@@ -30,7 +30,8 @@ export const httpApi: GhostApi = {
   getScan: (scanId) => request(`/api/scans/${scanId}`),
   correctDocument: (fileId, correction) =>
     request(`/api/documents/${fileId}`, { method: 'PATCH', body: JSON.stringify(correction) }),
-  getPlan: (scanId) => request(`/api/scans/${scanId}/plan`),
-  approvePlan: (planId) => request(`/api/plans/${planId}/approve`, json({})),
+  // Blocking is the backend default, so it is left out and today's requests stay exactly the same.
+  getPlan: (scanId, mode) => request(`/api/scans/${scanId}/plan${mode === 'partial' ? '?mode=partial' : ''}`),
+  approvePlan: (planId, mode) => request(`/api/plans/${planId}/approve`, json(mode === 'partial' ? { mode } : {})),
   undoBatch: (batchId) => request(`/api/batches/${batchId}/undo`, json({})),
 }

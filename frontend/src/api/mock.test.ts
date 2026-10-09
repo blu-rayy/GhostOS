@@ -71,9 +71,10 @@ describe('fixture mock plan rules', () => {
     expect(accepted.user_corrected).toBe(true)
     expect(accepted.review_flags).toEqual([])
 
-    // Unreadable file typed in by hand: first say it's an invoice (making it a transaction), then the details.
-    await settle(mockApi.correctDocument('f10', { category: 'invoice', accept: false }), 150)
+    // Unreadable file typed in by hand: what it is (category + kind) and the details in one call.
     const failed = await settle(mockApi.correctDocument('f10', {
+      category: 'invoice',
+      document_kind: 'invoice',
       merchant: 'Manual Merchant',
       date: '2026-10-01',
       amount: '10.00',

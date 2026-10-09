@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { useApp } from '../state/AppState'
+import { ReviewChoiceDialog } from './ReviewChoiceDialog'
 import type { DocumentCorrection } from '../types/api'
 import { basename, documentKindLabel, fieldProfile, NON_TRANSACTION_DECISIONS, type FileRow } from '../lib/viewModel'
 import { formatBytes } from '../lib/format'
@@ -45,16 +46,14 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
   }
   const details = { amount: amount || null, date: date || null, merchant: merchant || null }
   /**
-   * Unreadable file. The backend only accepts a shop/date/amount on a 'transaction' record, so
-   * typing them in is two steps: say it's a receipt/invoice (which makes it one), then the details.
-   * "Leave it for later" sends no money fields at all.
+   * Unreadable file. Its record has an explicit null kind (profile 'none'), so the backend only
+   * takes a shop/date/amount together with what the paper is: one call with category and
+   * document_kind set to the person's receipt/invoice choice. "Leave it for later" sends no
+   * money fields at all.
    */
   const saveFailed = async () => {
     if (!manual) return save({ category: 'uncertain' })
-    setSaving(true)
-    const ok = await correct(doc.file_id, { category: manualKind, accept: false }, 'kind')
-    if (ok) await correct(doc.file_id, { ...details, accept: true }, 'details')
-    setSaving(false)
+    return save({ category: manualKind, document_kind: manualKind, ...details })
   }
   const sticky = isInjection ? '⚠ This file has text that tries to give Pip orders… Pip ignored it — files are only ever moved by you.' : isFailedDoc ? `${doc.review_flags[0]?.message ?? 'The local AI took too long on this file and gave up.'} Pip didn't guess anything, so there are no numbers to trust here.` : isMissingDate ? 'Pip found a shop and a total, but no date anywhere on the receipt. When did you buy this?' : isConflict ? "The subtotal and the amount due don't match, and there's no tax line explaining it. Which one did you pay?" : (doc.review_flags[0]?.message ?? 'Check the extracted details before this file is filed.')
   const failedLeft = isFailedDoc && doc.user_corrected && !doc.classification?.merchant && !doc.classification?.date && !doc.classification?.amount
@@ -122,7 +121,7 @@ function ResolvedPanel({ plan, scanCount, unsupportedCount }: { plan: NonNullabl
 }
 
 export function FilesPage() {
-  const { state, rows, selectDoc, navigate, counts, usingFixtures } = useApp()
+  const { state, rows, selectDoc, navigate, counts, usingFixtures, reviewTheRest } = useApp()
   const [filter, setFilter] = useState<CheckFilter>('all')
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState<string | null>(state.selectedDocId)
@@ -131,6 +130,9 @@ export function FilesPage() {
   const countsBy = { all: rows.length, needs: rows.filter(isNeeds).length, failed: rows.filter(isFailed).length, ready: rows.filter(isReady).length, unsupported: rows.filter(isUnsupported).length }
   const checked = rows.filter((row) => row.doc?.user_corrected).length
   const allChecked = countsBy.needs === 0
+  // Set aside (partial mode): unchecked files go to Uncategorized/ and Totals is open.
+  const setAside = state.sortMode === 'partial' && countsBy.needs > 0
+  const canContinue = allChecked || setAside
   const selectedRow = rows.find((row) => row.id === selected) ?? null
   // Only the rows actually rendered as ReviewRow take part in arrow-key
   // navigation, in the order they appear on screen (needs section first,
@@ -158,12 +160,13 @@ export function FilesPage() {
     <div className="flex shrink-0 items-end justify-between gap-4 px-8 pb-3 pt-5"><h1 className="m-0 font-display text-[40px] font-normal">{allChecked ? 'All decided. Nice.' : 'Check what Pip found'}</h1><p className="m-0 text-[17px]">{state.folder?.name ?? 'Folder'} · {counts.documents} files{usingFixtures && <span className="ml-2"><Chip tone="info" size="sm">demo data</Chip></span>}</p></div>
     <div className="flex shrink-0 flex-wrap items-center gap-3 px-8 pb-4"><SegmentedFilter value={filter} counts={countsBy} onChange={setFilter} /><SearchPill value={query} onChange={setQuery} /></div>
     <div className="flex min-h-0 flex-1"><section className="min-w-0 flex-1 overflow-y-auto px-8 pb-4" role="listbox" aria-label="Files to check">
-      {countsBy.needs > 0 && <><h2 className="mb-2 mt-1 font-display text-[24px] font-normal">needs you · {countsBy.needs}</h2><div className="space-y-2">{visibleRows.filter(isNeeds).map((row) => <ReviewRow key={row.id} row={row} selected={selected === row.id} onClick={() => setSelected(row.id)} onKeyDown={handleKeyFor(row.id)} buttonRef={(element) => { rowRefs.current[row.id] = element }} />)}</div></>}
+      {countsBy.needs > 0 && <><h2 className="mb-2 mt-1 font-display text-[24px] font-normal">{setAside ? 'set aside' : 'needs you'} · {countsBy.needs}{setAside && <span className="ml-2 font-sans text-[16px] text-graphite">(not counted · goes to Uncategorized/ unless you check it · <button type="button" className="underline" onClick={() => void reviewTheRest()}>check them all instead</button>)</span>}</h2><div className="space-y-2">{visibleRows.filter(isNeeds).map((row) => <ReviewRow key={row.id} row={row} selected={selected === row.id} onClick={() => setSelected(row.id)} onKeyDown={handleKeyFor(row.id)} buttonRef={(element) => { rowRefs.current[row.id] = element }} />)}</div></>}
       {countsBy.failed > 0 && <><h2 className="mb-2 mt-5 font-display text-[24px] font-normal">couldn't read · {countsBy.failed} <span className="font-sans text-[16px] text-graphite">(doesn't block you · goes to Uncategorized/)</span></h2><div className="space-y-2">{visibleRows.filter(isFailed).map((row) => <ReviewRow key={row.id} row={row} selected={selected === row.id} onClick={() => setSelected(row.id)} onKeyDown={handleKeyFor(row.id)} buttonRef={(element) => { rowRefs.current[row.id] = element }} />)}</div></>}
       {filter === 'ready' && <div className="mt-5 space-y-2">{visibleRows.filter(isReady).map((row) => <ReviewRow key={row.id} row={row} selected={selected === row.id} onClick={() => setSelected(row.id)} onKeyDown={handleKeyFor(row.id)} buttonRef={(element) => { rowRefs.current[row.id] = element }} />)}</div>}
       {filter === 'unsupported' && <div className="mt-5 space-y-2">{visibleRows.filter(isUnsupported).map((row) => <ReviewRow key={row.id} row={row} selected={selected === row.id} onClick={() => setSelected(row.id)} onKeyDown={handleKeyFor(row.id)} buttonRef={(element) => { rowRefs.current[row.id] = element }} />)}</div>}
       <div className="mt-5 space-y-2">{countsBy.ready > 0 && <button type="button" className="flex w-full items-center justify-between rounded-[10px] border-[2.5px] border-dashed border-ink bg-paper px-4 py-3 text-left" onClick={() => setFilter('ready')}>{countsBy.ready} ready files · show <ChevronDown size={20} aria-hidden /></button>}{countsBy.unsupported > 0 && <button type="button" className="flex w-full items-center justify-between rounded-[10px] border-[2.5px] border-dashed border-ink bg-paper px-4 py-3 text-left" onClick={() => setFilter('unsupported')}>{countsBy.unsupported} not supported · show <ChevronDown size={20} aria-hidden /></button>}</div>
     </section>{selectedRow?.doc ? <DetailPanel key={selectedRow.id} row={selectedRow} onClose={() => { setSelected(null); selectDoc(null) }} /> : allChecked && state.plan ? <ResolvedPanel plan={state.plan} scanCount={counts.documents} unsupportedCount={countsBy.unsupported} /> : null}</div></div>
-    <PageFooter className="!h-[72px]" left={<><PaperButton variant="link" className="mr-3" onClick={() => navigate('dashboard')}>← back to start</PaperButton><ProgressDots checked={checked} total={counts.documents} /><span>{checked} of {counts.documents} decided · nothing has moved</span></>} right={<PaperButton variant="primary" disabled={!allChecked} disabledReason={!allChecked ? `check ${counts.blocking} more file(s) first` : undefined} reasonId="check-next-reason" onClick={() => navigate('plan')}>{allChecked ? 'Continue to totals →' : 'Totals →'}</PaperButton>} />
+    <PageFooter className="!h-[72px]" left={<><PaperButton variant="link" className="mr-3" onClick={() => navigate('dashboard')}>← back to start</PaperButton><ProgressDots checked={checked} total={counts.documents} /><span>{checked} of {counts.documents} decided · nothing has moved</span></>} right={<PaperButton variant="primary" disabled={!canContinue} disabledReason={!canContinue ? `check ${counts.blocking} more file(s) first` : undefined} reasonId="check-next-reason" onClick={() => navigate('plan')}>{canContinue ? 'Continue to totals →' : 'Totals →'}</PaperButton>} />
+    <ReviewChoiceDialog />
   </div>
 }

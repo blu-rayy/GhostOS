@@ -47,7 +47,7 @@ describe('totals display helpers', () => {
       { folder: 'Uncategorized/', count: 1 },
     ])
     expect(folderNote('Other/')).toBe('not counted')
-    expect(folderNote('Uncategorized/')).toBe("couldn't read")
+    expect(folderNote('Uncategorized/')).toBe('look later')
   })
 
   it('counts files that stay, including unsupported ones', () => {

@@ -130,8 +130,13 @@ export interface DocumentCorrection {
   date?: string | null
   amount?: string | null
   currency?: string | null
-  // No document_kind or field_profile: the backend rejects both (422) and derives them itself.
-  // merchant/date/amount/currency are also a 422 unless the record is already a 'transaction'.
+  /**
+   * What the paper is, when a person says so (typing in an unreadable receipt). The backend
+   * normalises it and derives field_profile from it; a profile can never be sent (422).
+   * A non-payment kind with category invoice/receipt is a 422, and merchant/date/amount/currency
+   * are a 422 unless the record after this change is a 'transaction'.
+   */
+  document_kind?: DocumentKind | null
   /** Mark as reviewed by a human; clears review flags. */
   accept: boolean
 }
@@ -164,9 +169,17 @@ export interface CurrencyTotal {
   row_count: number
 }
 
+/**
+ * How unchecked files are handled (backend SortMode). blocking: Move waits until every flagged file
+ * is decided. partial: unchecked files go to Uncategorized/, aren't counted, and Move may go ahead.
+ */
+export type SortMode = 'blocking' | 'partial'
+
 export interface PlanPreview {
   plan_id: string
   scan_id: string
+  /** The mode this plan was built in; approval must send the same one. */
+  mode?: SortMode
   operations: ProposedOperation[]
   report_rows: ReportRow[]
   totals: CurrencyTotal[]

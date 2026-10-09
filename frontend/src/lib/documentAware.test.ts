@@ -87,32 +87,29 @@ describe('document-aware review', () => {
     expect(plan.report_rows.find((r) => r.file_id === RECEIPT)?.status).toBe('accepted')
   })
 
-  it('never counts a non-transaction paper, even when its category says invoice', async () => {
+  it('refuses to relabel a non-transaction paper as an invoice or receipt', async () => {
     const scan = await startScan()
-    // A statement relabelled as an invoice outside the Check panel: the backend files it by its
-    // profile (Other/) and keeps it out of the totals.
-    await settle(mockApi.correctDocument(STATEMENT, { category: 'invoice', accept: true }), 150)
+    // A statement can't become an expense: the backend rejects the contradiction and changes nothing.
+    await expect(settle(mockApi.correctDocument(STATEMENT, { category: 'invoice', accept: true }), 150)).rejects.toThrow(/422 document_kind 'statement' cannot use transaction category 'invoice'/)
     const plan = await settle(mockApi.getPlan(scan.scan_id), 200)
-    expect(plan.operations.find((o) => o.file_id === STATEMENT)?.destination_relative_path).toBe('Other/statement_0921.pdf')
     expect(plan.report_rows.find((r) => r.file_id === STATEMENT)).toBeUndefined()
+    expect(plan.blocking_review_count).toBe(7)
   })
 
-  it('types in an unreadable file in two steps and derives the profile on the backend side', async () => {
+  it('types in an unreadable file in one call that says what it is', async () => {
     await startScan()
-    // Details first: the bare record is 'uncertain' / 'none', so they're refused.
+    // The unreadable record has an explicit null kind ('none'): details alone, or with only a category, are refused.
     await expect(settle(mockApi.correctDocument('f10', { merchant: 'Somewhere', accept: false }), 150)).rejects.toThrow(/422.*'none'/)
-    const kinded = await settle(mockApi.correctDocument('f10', { category: 'receipt', accept: false }), 150)
-    expect(kinded.classification).toMatchObject({ category: 'receipt', document_kind: 'receipt', field_profile: 'transaction' })
-    const typed = await settle(mockApi.correctDocument('f10', { merchant: 'Somewhere', amount: '12.00', accept: true }), 150)
-    expect(typed.classification).toMatchObject({ merchant: 'Somewhere', amount: '12.00', field_profile: 'transaction' })
+    await expect(settle(mockApi.correctDocument('f10', { category: 'receipt', merchant: 'Somewhere', accept: false }), 150)).rejects.toThrow(/422.*'none'/)
+    const typed = await settle(mockApi.correctDocument('f10', { category: 'receipt', document_kind: 'receipt', merchant: 'Somewhere', amount: '12.00', accept: true }), 150)
+    expect(typed.classification).toMatchObject({ category: 'receipt', document_kind: 'receipt', field_profile: 'transaction', merchant: 'Somewhere', amount: '12.00' })
   })
 
-  it('rejects payment details on non-transaction papers and any client-sent kind or profile', async () => {
+  it('rejects payment details on non-transaction papers, contradictions, and any client-sent profile', async () => {
     await startScan()
     await expect(settle(mockApi.correctDocument(BIRTH_CERT, { amount: '100.00', accept: true }), 150)).rejects.toThrow(/422/)
     await expect(settle(mockApi.correctDocument(STATEMENT, { merchant: 'BDO', accept: true }), 150)).rejects.toThrow(/422.*'reference'/)
-    const withKind = { document_kind: 'receipt', accept: true } as unknown as Parameters<typeof mockApi.correctDocument>[1]
-    await expect(settle(mockApi.correctDocument(UNCERTAIN, withKind), 150)).rejects.toThrow(/Unsupported correction fields: document_kind/)
+    await expect(settle(mockApi.correctDocument(UNCERTAIN, { document_kind: 'medical', category: 'receipt', accept: true }), 150)).rejects.toThrow(/422 document_kind 'medical' cannot use transaction category 'receipt'/)
     const withProfile = { field_profile: 'transaction', accept: true } as unknown as Parameters<typeof mockApi.correctDocument>[1]
     await expect(settle(mockApi.correctDocument(UNCERTAIN, withProfile), 150)).rejects.toThrow(/backend-controlled fields: field_profile/)
   })

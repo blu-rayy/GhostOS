@@ -42,6 +42,7 @@ export type ActivityType =
   | 'undo_completed'
   | 'undo_conflict'
   | 'action_failed'
+  | 'reviews_set_aside'
 
 /** Session-local audit entry. There is no activity endpoint in the API contract yet. */
 export interface ActivityEvent {

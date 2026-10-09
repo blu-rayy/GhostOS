@@ -9,6 +9,7 @@ import type {
   ProposedOperation,
   ReportRow,
   ScanResult,
+  SortMode,
   SystemStatus,
 } from '../types/api'
 import { sumAmounts } from '../lib/money'
@@ -27,6 +28,8 @@ const clone = <T>(v: T): T => structuredClone(v)
 
 let scan: ScanResult | null = null
 let scanStartedAt = 0
+/** Mode of the most recent plan preview; approval must match it (backend: snapshot.mode). */
+let previewMode: SortMode = 'blocking'
 let batchCounter = 0
 /** Files the last approve actually moved (so undo restores only those). */
 let lastBatchMoved: string[] | null = null
@@ -67,10 +70,19 @@ function needsReview(doc: DocumentRecord): boolean {
 const DOCUMENT_KINDS: DocumentKind[] = ['receipt', 'invoice', 'statement', 'identity_or_civil', 'legal', 'medical', 'other', 'uncertain']
 
 /** Mirrors document_awareness.document_kind_for_classification: the explicit kind, else the category. */
-function kindOf(c: Classification): DocumentKind {
-  const k = c.document_kind
-  if (k) return DOCUMENT_KINDS.includes(k) ? k : 'other'
+/**
+ * Mirrors document_awareness.document_kind_for_classification: a stored kind (null included,
+ * which means 'none'); only records that predate the field fall back to their category.
+ */
+function kindOf(c: Classification): DocumentKind | null {
+  if ('document_kind' in c) return normalizeKind(c.document_kind)
   return c.category
+}
+
+/** Mirrors schemas.normalize_document_kind (unknown strings become 'other'). */
+function normalizeKind(k: unknown): DocumentKind | null {
+  if (typeof k !== 'string') return null
+  return DOCUMENT_KINDS.includes(k as DocumentKind) ? (k as DocumentKind) : 'other'
 }
 
 /** Mirrors derive_field_profile: always from the kind, never from the client. */
@@ -111,7 +123,7 @@ function withSuffix(name: string, n: number): string {
   return dot > 0 ? `${name.slice(0, dot)} (${n})${name.slice(dot)}` : `${name} (${n})`
 }
 
-function buildPlan(s: ScanResult): PlanPreview {
+function buildPlan(s: ScanResult, mode: SortMode = 'blocking'): PlanPreview {
   const taken = new Set<string>()
   const operations: ProposedOperation[] = []
 
@@ -138,6 +150,8 @@ function buildPlan(s: ScanResult): PlanPreview {
     if (!c || (c.category !== 'invoice' && c.category !== 'receipt')) continue
     // Non-transaction papers never reach the totals, whatever the category says.
     if (profileOf(c) !== 'transaction') continue
+    // Partial mode: unchecked files are set aside in Uncategorized/ and not counted at all.
+    if (mode === 'partial' && needsReview(doc)) continue
     const complete = c.amount !== null && c.currency !== null && c.date !== null
     const accepted = complete && !needsReview(doc) && doc.duplicate_of === null
     report_rows.push({
@@ -165,6 +179,7 @@ function buildPlan(s: ScanResult): PlanPreview {
 
   return {
     plan_id: `plan_${s.scan_id}`,
+    mode,
     scan_id: s.scan_id,
     operations,
     report_rows,
@@ -223,22 +238,39 @@ export const mockApi: GhostApi = {
     await delay(150)
     const doc = scan?.documents.find((d) => d.file_id === fileId)
     if (!doc) throw new Error(`Unknown file ${fileId}`)
-    // Mirrors PATCH /api/documents/{id} (bc6a5d6): backend-controlled and unknown fields are a
-    // 422; shop/date/amount/currency only when the CURRENT record is a transaction.
+    // Mirrors PATCH /api/documents/{id} on main (0dfdb65): backend-controlled and unknown fields
+    // are a 422; document_kind is accepted and normalised; a non-payment kind with an invoice/
+    // receipt category is a 422; shop/date/amount/currency only when the record AFTER this
+    // change is a transaction.
     const body = Object.fromEntries(Object.entries(correction).filter(([, v]) => v !== undefined)) as Record<string, unknown>
     const forbidden = ['field_profile', 'editable_fields', 'allowed_fields', 'destination_relative_path', 'operations'].filter((k) => k in body)
     if (forbidden.length) throw unprocessable(`Unsupported backend-controlled fields: ${forbidden.join(', ')}`)
-    const unknown = Object.keys(body).filter((k) => !['category', 'merchant', 'date', 'amount', 'currency', 'accept'].includes(k)).sort()
+    const unknown = Object.keys(body).filter((k) => !['category', 'document_kind', 'merchant', 'date', 'amount', 'currency', 'accept'].includes(k)).sort()
     if (unknown.length) throw unprocessable(`Unsupported correction fields: ${unknown.join(', ')}`)
-    const profile = profileOf(doc.classification ?? { category: 'uncertain' } as Classification)
+    const proposed = { ...(doc.classification ?? { category: 'uncertain', document_kind: null, field_profile: 'none' }) } as Classification
+    if ('category' in body) {
+      if (!['invoice', 'receipt', 'other', 'uncertain'].includes(body.category as string)) throw unprocessable('category must be a supported value')
+      proposed.category = body.category as Classification['category']
+    }
+    if ('document_kind' in body) {
+      if (body.document_kind !== null && typeof body.document_kind !== 'string') throw unprocessable('document_kind must be a supported string or null')
+      proposed.document_kind = normalizeKind(body.document_kind)
+    }
+    const proposedKind = kindOf(proposed)
+    if (proposedKind && ['statement', 'identity_or_civil', 'legal', 'medical', 'other', 'uncertain'].includes(proposedKind) && (proposed.category === 'invoice' || proposed.category === 'receipt')) {
+      throw unprocessable(`document_kind '${proposedKind}' cannot use transaction category '${proposed.category}'`)
+    }
+    const profile = profileOf(proposed)
     const money = ['merchant', 'date', 'amount', 'currency'].filter((k) => k in body).sort()
     if (money.length && profile !== 'transaction') {
       throw unprocessable(`Document field profile '${profile}' does not allow transaction corrections: ${money.join(', ')}`)
     }
     if (!doc.classification) {
-      // Failed extraction: the backend creates a bare record (no kind, so it derives 'uncertain'/'none').
+      // Failed extraction: the backend creates a record with an explicit null kind ('none').
       doc.classification = {
         category: 'uncertain',
+        document_kind: null,
+        field_profile: 'none',
         merchant: null,
         date: null,
         amount_text: null,
@@ -252,6 +284,8 @@ export const mockApi: GhostApi = {
     for (const k of ['category', 'merchant', 'date', 'amount', 'currency'] as const) {
       if (k in body) (doc.classification as unknown as Record<string, unknown>)[k] = body[k]
     }
+    if ('document_kind' in body) doc.classification.document_kind = proposed.document_kind
+    doc.classification.field_profile = profileOf(doc.classification)
     if (correction.accept) {
       doc.user_corrected = true
       doc.review_flags = []
@@ -260,17 +294,22 @@ export const mockApi: GhostApi = {
     return clone(withDerived(doc))
   },
 
-  async getPlan(scanId) {
+  async getPlan(scanId, mode = 'blocking') {
     await delay(200)
-    return buildPlan(requireScan(scanId))
+    previewMode = mode
+    return buildPlan(requireScan(scanId), mode)
   },
 
-  async approvePlan(planId) {
+  async approvePlan(planId, mode = 'blocking') {
     await delay(800)
     if (!scan) throw new Error('No scan')
-    const plan = buildPlan(scan)
+    // Like the backend: the approval must match the mode of the last preview.
+    if (mode !== previewMode) {
+      throw new Error(`409 Plan mode is '${previewMode}' but approval requested '${mode}'; refresh the preview before approval`)
+    }
+    const plan = buildPlan(scan, mode)
     if (plan.plan_id !== planId) throw new Error(`Unknown plan ${planId}`)
-    if (plan.blocking_review_count > 0) throw new Error('Plan has unresolved review items')
+    if (mode === 'blocking' && plan.blocking_review_count > 0) throw new Error(`409 Plan has ${plan.blocking_review_count} unresolved review items`)
     const stamp = new Date().toISOString().slice(0, 16).replace(/[-:]/g, '')
     const failed = mockScenario.moveFailures
       ? plan.operations.slice(0, SIMULATED_MOVE_ERRORS.length).map((op, i) => ({ file_id: op.file_id, error: SIMULATED_MOVE_ERRORS[i] }))

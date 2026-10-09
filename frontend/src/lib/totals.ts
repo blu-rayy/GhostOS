@@ -23,7 +23,8 @@ export const UNCATEGORIZED_FOLDER = 'Uncategorized/'
 /** Plain note shown under a destination folder. */
 export function folderNote(folder: string): string {
   if (folder === OTHER_FOLDER) return 'not counted'
-  if (folder === UNCATEGORIZED_FOLDER) return "couldn't read"
+  // Not just unreadable files: flagged files set aside land here too.
+  if (folder === UNCATEGORIZED_FOLDER) return 'look later'
   return ''
 }
 

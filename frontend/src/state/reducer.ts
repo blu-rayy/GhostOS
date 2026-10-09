@@ -4,6 +4,7 @@ import type {
   PlanPreview,
   ScanProgress,
   ScanResult,
+  SortMode,
   SystemStatus,
   UndoResult,
 } from '../types/api'
@@ -42,6 +43,13 @@ export interface AppState {
   panel: Panel | null
   /** Settings toggle: Pip appears in File Explorer while reading and after moving (desktop only). */
   desktopPip: boolean
+  /**
+   * Review choice for this scan (docs/design/review-choice-popup.md). 'blocking': every flagged
+   * file must be decided before Move. 'partial': unchecked files are set aside in Uncategorized/.
+   */
+  sortMode: SortMode
+  /** True right after reading when files are blocking and the user hasn't chosen yet. */
+  reviewChoicePending: boolean
 }
 
 const DESKTOP_PIP_KEY = 'ghostos.desktopPip'
@@ -84,6 +92,8 @@ export const initialState: AppState = {
   activity: [],
   panel: null,
   desktopPip: false,
+  sortMode: 'blocking',
+  reviewChoicePending: false,
 }
 
 export type Action =

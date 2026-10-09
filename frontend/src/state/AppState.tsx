@@ -3,6 +3,7 @@ import { api, USING_FIXTURES } from '../api'
 import { mockTiming } from '../api/mock'
 import { DEMO_FOLDER_NAME } from '../lib/copy'
 import { errorText } from '../lib/format'
+import { files } from '../lib/totals'
 import { basename, buildFileRows, buildPlanRows, docStatus, type FileRow, type PlanRow } from '../lib/viewModel'
 import { resolvePlatform } from '../platform/electron'
 import type { GhostOSPlatform } from '../platform/types'
@@ -56,6 +57,10 @@ interface AppApi {
   logExport(filename: string, rows: number): void
   resetSession(): void
   setDesktopPip(on: boolean): void
+  /** The review-choice pop-up: check flagged files one by one, or set them all aside. */
+  chooseReview(choice: 'one-by-one' | 'set-aside'): Promise<void>
+  /** Leave partial mode: Move waits for every flagged file again. */
+  reviewTheRest(): Promise<void>
 }
 
 const Ctx = createContext<AppApi | null>(null)
@@ -116,10 +121,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     async (scanId: string) => {
       patch({ planLoading: true, planError: null })
       try {
-        const plan = await api.getPlan(scanId)
+        // Always in the scan's chosen mode, so the approval that follows matches the preview.
+        const plan = await api.getPlan(scanId, stateRef.current.sortMode)
         patch({ plan, planLoading: false })
+        return plan
       } catch (e) {
         patch({ planLoading: false, planError: errorText(e) })
+        return null
       }
     },
     [patch],
@@ -175,7 +183,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return
       }
       stopPolling()
-      patch({ phase: 'scanning', view: 'scanning', scan: null, plan: null, progress: null, scanError: null, batch: null, undo: null, approvedPlan: null, selectedDocId: null })
+      patch({ phase: 'scanning', view: 'scanning', sortMode: 'blocking', reviewChoicePending: false, scan: null, plan: null, progress: null, scanError: null, batch: null, undo: null, approvedPlan: null, selectedDocId: null })
       log({ type: 'scan_started', level: 'info', title: `Scan started: ${s.folder.name}`, detail: USING_FIXTURES ? 'Fixture mock. Processed in this app only.' : 'Sent to the local backend at 127.0.0.1.' })
 
       let lastProcessed = 0
@@ -211,7 +219,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
               title: `Scan complete: ${scan.documents.length} documents, ${scan.skipped.length} skipped`,
               detail: 'Plan drafted. No files have been moved.',
             })
-            await loadPlan(scanId)
+            const plan = await loadPlan(scanId)
+            // Files need a look: ask once whether to review them or set them all aside.
+            if (plan && plan.blocking_review_count > 0) patch({ reviewChoicePending: true })
             return
           }
           pollTimer.current = window.setTimeout(() => poll(scanId), POLL_MS)
@@ -261,7 +271,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       // Totals shows "moving" (3c) while this runs; failures stay on Totals (3d), success opens Done.
       patch({ busy: 'approve', actionError: null, phase: 'organizing', view: 'report', approvedPlan: s.plan })
       try {
-        const batch = await api.approvePlan(s.plan.plan_id)
+        const batch = await api.approvePlan(s.plan.plan_id, s.sortMode)
         const onTotals = stateRef.current.view === 'report'
         patch({ batch, busy: null, phase: 'organized', ...(onTotals && batch.failed.length === 0 ? { view: 'completion' as const } : {}) })
         log({ type: 'plan_approved', level: 'info', title: `Move approved (${s.plan.operations.length} files)`, detail: `Batch ${batch.batch_id}` })
@@ -277,6 +287,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       } catch (e) {
         patch({ busy: null, phase: 'reviewing', actionError: errorText(e), view: 'report', approvedPlan: null })
         log({ type: 'action_failed', level: 'error', title: 'Approval failed. Nothing was moved.', detail: errorText(e) })
+        // 409: the preview is stale or in another mode. Refresh it so the next Move matches; never retry by itself.
+        if (/^409\b/.test(errorText(e)) && s.scan) await loadPlan(s.scan.scan_id)
       }
     },
 
@@ -316,6 +328,28 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setDesktopPip(on) {
       saveDesktopPip(on)
       patch({ desktopPip: on })
+    },
+
+    async chooseReview(choice) {
+      const s = stateRef.current
+      if (choice === 'one-by-one') return patch({ reviewChoicePending: false })
+      // Set aside: no document is changed. The plan is rebuilt in partial mode, where unchecked
+      // files go to Uncategorized/, aren't counted, and Move may go ahead.
+      const n = s.plan?.blocking_review_count ?? 0
+      patch({ reviewChoicePending: false, sortMode: 'partial' })
+      stateRef.current = { ...stateRef.current, sortMode: 'partial' }
+      log({ type: 'reviews_set_aside', level: 'info', title: `Set ${files(n)} aside in Uncategorized/`, detail: "They won't be counted. You can still check any of them before moving." })
+      if (s.scan) await loadPlan(s.scan.scan_id)
+      // Nothing left to decide: go straight to Step 3 · Totals. "← back to check" still opens them.
+      patch({ view: 'plan', panel: null })
+    },
+
+    async reviewTheRest() {
+      const s = stateRef.current
+      patch({ sortMode: 'blocking' })
+      stateRef.current = { ...stateRef.current, sortMode: 'blocking' }
+      log({ type: 'reviews_set_aside', level: 'info', title: 'Back to checking every file', detail: 'Move waits until each flagged file is decided.' })
+      if (s.scan) await loadPlan(s.scan.scan_id)
     },
   }
 

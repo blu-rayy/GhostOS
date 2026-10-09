@@ -40,6 +40,17 @@ export const NON_TRANSACTION_DECISIONS = {
   leave: { category: 'uncertain', accept: true },
 } as const satisfies Record<'file' | 'leave', DocumentCorrection>
 
+/**
+ * Counts for the review-choice pop-up, from the scan's documents (the plan has no per-file
+ * flags). Only files still blocking Move: status needs_review and not yet decided.
+ */
+export function reviewChoiceGroups(docs: DocumentRecord[]): { total: number; confirm: number; notReceipts: number; suspicious: number } {
+  const open = docs.filter((d) => d.status === 'needs_review' && !d.user_corrected)
+  const suspicious = open.filter((d) => d.review_flags.some((f) => f.code === 'possible_injection'))
+  const notReceipts = open.filter((d) => !suspicious.includes(d) && fieldProfile(d) !== 'transaction')
+  return { total: open.length, confirm: open.length - suspicious.length - notReceipts.length, notReceipts: notReceipts.length, suspicious: suspicious.length }
+}
+
 /** document_kind in plain words ("identity or civil record"); "document" when the backend sent none. */
 export function documentKindLabel(d: DocumentRecord): string {
   const kind = d.classification?.document_kind ?? null

@@ -37,7 +37,8 @@ export function TotalsSummary({ plan }: { plan: PlanPreview }) {
   const moves = plan.operations.length
   const stay = stayCount(state.scan?.documents.length ?? 0, state.scan?.skipped.length ?? 0, moves)
   const moved = state.batch !== null
-  const blocking = plan.blocking_review_count
+  // Set aside (partial mode): unchecked files go to Uncategorized/ uncounted, so they don't block Move.
+  const blocking = state.sortMode === 'partial' ? 0 : plan.blocking_review_count
 
   const exportCsv = () => {
     const filename = `ghostos_totals_${folderName.replace(/\W+/g, '_')}.csv`
