@@ -31,11 +31,11 @@ to it. At most one Pip per slide.
 | `pip-waiting` | coffee mug | "…go on, pick a folder." |
 | `pip-reading` | reading a receipt | "reading 18 files. riveting. (still on this computer)" |
 | `pip-suspicious` | one eyebrow up | "two totals disagree. which one did you actually pay?" |
-| `pip-carrying` | carrying a box | "carrying 17 files. my back." |
+| `pip-carrying` | carrying a box, sweating | "carrying 17 files. my back." |
 | `pip-done` | clipboard with a check | "17 files. sorted. you're welcome." |
 | `pip-shrug` | shrugging | "fine. undone. as if i never tried." |
-| `pip-sigh` | crooked glasses | "couldn't read this one. nothing changed." |
-| `pip-guard` | arms crossed | "offline. your files stay right here. so do I." |
+| `pip-sigh` | crooked glasses, frazzled hair | "couldn't read this one. nothing changed." |
+| `pip-guard` | holding a shield | "offline. your files stay right here. so do I." |
 | `pip-mark` | logo mark | Header logo, next to the lowercase wordmark "ghostos". |
 
 Good fits: `guard` for the "why local AI" slide, `suspicious` for evidence

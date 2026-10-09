@@ -14,7 +14,8 @@
     "lint": "oxlint",
     "test": "vitest run",
     "preview": "vite preview --host 127.0.0.1",
-    "electron:preview": "npm run build && electron ."
+    "electron:preview": "npm run build && electron .",
+    "pip-lab": "vite --host 127.0.0.1 --open /pip-lab.html"
   },
   "dependencies": {
     "@fontsource/gochi-hand": "5.3.0",
