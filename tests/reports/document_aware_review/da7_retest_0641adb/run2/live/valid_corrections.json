@@ -1,0 +1,132 @@
+{
+  "d7b/invoices/INV-1043_Pixelforge_Studio.pdf": {
+    "request": {
+      "amount": "18648.00",
+      "accept": true
+    },
+    "status": 200,
+    "response": {
+      "file_id": "5cf9dc0d",
+      "relative_path": "d7b/invoices/INV-1043_Pixelforge_Studio.pdf",
+      "file_type": "pdf",
+      "size_bytes": 1331,
+      "sha256": "a4a03b73a0af92d7de9299e61083648b42a130492841fb12f22688751638cff7",
+      "excerpt": "PIXELFORGE DESIGN STUDIO (fictional)\nInvoice: INV-1043\nDate issued: 02-Oct-2026\nClient: Mara Villanueva Studio\nLogo refinement, 8 hrs @ PHP 1,500.00: PHP 12,000.00\nSocial media template set: PHP 6,500.00\nSubtotal: PHP 18,500.00\nLess 10% loyalty discount: -PHP 1,850.00\nNet of discount: PHP 16,650.00\nVAT 12%: PHP 1,998.00\nTotal Amount Due: PHP 18,648.00\nPlease pay within 15 days.",
+      "status": "ok",
+      "classification": {
+        "category": "invoice",
+        "merchant": "PIXELFORGE DESIGN STUDIO",
+        "date": "2026-10-02",
+        "amount_text": "PHP 18,648.00",
+        "amount": "18648.00",
+        "currency": "PHP",
+        "evidence_quote": "Total Amount Due: PHP 18,648.00",
+        "evidence_verified": true,
+        "explanation": "The document is clearly labeled as an invoice with a total amount due, vendor name, and issue date, matching the definition of an invoice.",
+        "document_kind": "invoice",
+        "field_profile": "transaction"
+      },
+      "review_flags": [],
+      "duplicate_of": null,
+      "user_corrected": true,
+      "review_disposition": "filed"
+    },
+    "state_before": {
+      "status": "ok",
+      "user_corrected": false,
+      "review_disposition": "none",
+      "category": "invoice",
+      "document_kind": "invoice",
+      "field_profile": "transaction",
+      "merchant": "PIXELFORGE DESIGN STUDIO",
+      "date": "2026-10-02",
+      "amount": "18648.00",
+      "amount_text": "PHP 18,648.00",
+      "currency": "PHP",
+      "evidence_quote": "Total Amount Due: PHP 18,648.00",
+      "evidence_verified": true,
+      "flags": []
+    },
+    "state_after": {
+      "status": "ok",
+      "user_corrected": true,
+      "review_disposition": "filed",
+      "category": "invoice",
+      "document_kind": "invoice",
+      "field_profile": "transaction",
+      "merchant": "PIXELFORGE DESIGN STUDIO",
+      "date": "2026-10-02",
+      "amount": "18648.00",
+      "amount_text": "PHP 18,648.00",
+      "currency": "PHP",
+      "evidence_quote": "Total Amount Due: PHP 18,648.00",
+      "evidence_verified": true,
+      "flags": []
+    }
+  },
+  "d7b/receipts/sunbeam-cafe-receipt.pdf": {
+    "request": {
+      "amount": "683.20",
+      "accept": true
+    },
+    "status": 200,
+    "response": {
+      "file_id": "f4e98403",
+      "relative_path": "d7b/receipts/sunbeam-cafe-receipt.pdf",
+      "file_type": "pdf",
+      "size_bytes": 1217,
+      "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+      "excerpt": "SUNBEAM CAFE (fictional)\nSample Street, Quezon City\nOR No. 2026-118204\nDate: 09/21/2026 10:15 AM\n1 x Flat white: PHP 180.00\n1 x Spanish latte: PHP 190.00\n2 x Butter croissant @ 120.00: PHP 240.00\nSubtotal: PHP 610.00\nVAT 12%: PHP 73.20\nFINAL TOTAL: PHP 683.20\nPaid by card ending 0000",
+      "status": "ok",
+      "classification": {
+        "category": "receipt",
+        "merchant": "SUNBEAM CAFE",
+        "date": "2026-09-21",
+        "amount_text": "PHP 683.20",
+        "amount": "683.20",
+        "currency": "PHP",
+        "evidence_quote": "FINAL TOTAL: PHP 683.20",
+        "evidence_verified": true,
+        "explanation": "The document is a transaction record from a caf\u00e9 showing a final total amount, which classifies it as a receipt.",
+        "document_kind": "receipt",
+        "field_profile": "transaction"
+      },
+      "review_flags": [],
+      "duplicate_of": null,
+      "user_corrected": true,
+      "review_disposition": "filed"
+    },
+    "state_before": {
+      "status": "ok",
+      "user_corrected": false,
+      "review_disposition": "none",
+      "category": "receipt",
+      "document_kind": "receipt",
+      "field_profile": "transaction",
+      "merchant": "SUNBEAM CAFE",
+      "date": "2026-09-21",
+      "amount": "683.20",
+      "amount_text": "PHP 683.20",
+      "currency": "PHP",
+      "evidence_quote": "FINAL TOTAL: PHP 683.20",
+      "evidence_verified": true,
+      "flags": []
+    },
+    "state_after": {
+      "status": "ok",
+      "user_corrected": true,
+      "review_disposition": "filed",
+      "category": "receipt",
+      "document_kind": "receipt",
+      "field_profile": "transaction",
+      "merchant": "SUNBEAM CAFE",
+      "date": "2026-09-21",
+      "amount": "683.20",
+      "amount_text": "PHP 683.20",
+      "currency": "PHP",
+      "evidence_quote": "FINAL TOTAL: PHP 683.20",
+      "evidence_verified": true,
+      "flags": []
+    }
+  }
+}
