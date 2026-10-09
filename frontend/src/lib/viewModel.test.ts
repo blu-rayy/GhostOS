@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import scanFixture from '../fixtures/scan.json'
 import type { PlanPreview, ScanResult } from '../types/api'
-import { buildFileRows, docStatus, flagsFor, isBlocking, isInsideRoot, reviewChipState, reviewReasonText } from './viewModel'
+import { buildFileRows, buildTransactionCorrection, docStatus, flagsFor, isBlocking, isInsideRoot, reviewChipState, reviewReasonText } from './viewModel'
 
 const scan = scanFixture as unknown as ScanResult
 const emptyPlan: PlanPreview = {
@@ -88,5 +88,50 @@ describe('view model logic', () => {
     expect(reviewChipState(leftFailed)).toMatchObject({ text: 'left for later', tone: 'muted' })
     const verified = { ...byId.get('f07')!.doc!, user_corrected: true }
     expect(reviewChipState(verified)).toMatchObject({ text: '✓ checked', tone: 'done' })
+  })
+
+  it('UI1: never sends an untouched empty amount as an explicit null', () => {
+    // Missing amount, field left empty: amount is omitted, action not blocked.
+    expect(buildTransactionCorrection({
+      initial: { merchant: 'Shop', date: '2026-10-09', amount: null },
+      current: { merchant: 'Shop', date: '2026-10-09', amount: '' },
+    })).toEqual({ details: {}, clearedStoredAmount: false })
+    // Whitespace-only input is also "empty", never sent.
+    expect(buildTransactionCorrection({
+      initial: { merchant: null, date: null, amount: null },
+      current: { merchant: '', date: '', amount: '   ' },
+    })).toEqual({ details: {}, clearedStoredAmount: false })
+    // Untouched merchant/date empties are omitted too.
+    expect(buildTransactionCorrection({
+      initial: { merchant: 'Shop', date: '2026-10-09', amount: '100.00' },
+      current: { merchant: 'Shop', date: '2026-10-09', amount: '100.00' },
+    })).toEqual({ details: {}, clearedStoredAmount: false })
+  })
+
+  it('UI1: preserves intentional amount edits for source validation', () => {
+    // Edited amount is sent as a string for the backend's source check.
+    expect(buildTransactionCorrection({
+      initial: { merchant: 'Shop', date: '2026-10-09', amount: null },
+      current: { merchant: 'Shop', date: '2026-10-09', amount: '500.00' },
+    })).toEqual({ details: { amount: '500.00' }, clearedStoredAmount: false })
+    // Whitespace-only differences are not edits.
+    expect(buildTransactionCorrection({
+      initial: { merchant: null, date: null, amount: '100.00' },
+      current: { merchant: '', date: '', amount: '100.00  ' },
+    })).toEqual({ details: {}, clearedStoredAmount: false })
+    // Changed date/merchant keep their null semantics.
+    expect(buildTransactionCorrection({
+      initial: { merchant: 'Shop', date: '2026-10-09', amount: '100.00' },
+      current: { merchant: '', date: '', amount: '100.00' },
+    })).toEqual({ details: { merchant: null, date: null }, clearedStoredAmount: false })
+  })
+
+  it('UI1: clearing a stored amount is blocked, never sent as null', () => {
+    const result = buildTransactionCorrection({
+      initial: { merchant: 'Shop', date: '2026-10-09', amount: '100.00' },
+      current: { merchant: 'Shop', date: '2026-10-09', amount: '' },
+    })
+    expect(result.clearedStoredAmount).toBe(true)
+    expect(result.details).not.toHaveProperty('amount')
   })
 })

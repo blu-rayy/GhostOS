@@ -3,7 +3,7 @@ import { ChevronDown } from 'lucide-react'
 import { useApp } from '../state/AppState'
 import { ReviewChoiceDialog } from './ReviewChoiceDialog'
 import type { DocumentCorrection } from '../types/api'
-import { basename, documentKindLabel, fieldProfile, NON_TRANSACTION_DECISIONS, type FileRow } from '../lib/viewModel'
+import { basename, buildTransactionCorrection, documentKindLabel, fieldProfile, NON_TRANSACTION_DECISIONS, type FileRow } from '../lib/viewModel'
 import { formatBytes } from '../lib/format'
 import { Chip } from '../components/paper/Chip'
 import { PageFooter } from '../components/paper/PageFooter'
@@ -44,7 +44,19 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
     await correct(doc.file_id, { ...correction, accept: true }, 'review')
     setSaving(false)
   }
-  const details = { amount: amount || null, date: date || null, merchant: merchant || null }
+  const { details, clearedStoredAmount } = buildTransactionCorrection({
+    initial: {
+      merchant: doc.classification?.merchant ?? null,
+      date: doc.classification?.date ?? null,
+      amount: doc.classification?.amount ?? null,
+    },
+    current: { merchant, date, amount },
+  })
+  // UI1: clearing a stored amount is not supported — the API 422s null/empty
+  // amounts, and omitting the field would keep a value the screen no longer
+  // shows. Block the transactional action instead of sending a doomed payload.
+  // (Failed-file manual entry starts from empty, so it can never "clear".)
+  const saveBlocked = !isInjection && !isFailedDoc && clearedStoredAmount
   /**
    * Unreadable file. Its record has an explicit null kind (profile 'none'), so the backend only
    * takes a shop/date/amount together with what the paper is: one call with category and
@@ -73,7 +85,7 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
       {!isInjection && <><p className="m-0 text-[16px] text-graphite">what Pip read in the file:</p><EvidenceExcerpt text={doc.excerpt} quote={doc.classification?.evidence_quote} /></>}
       <p className="m-0 text-[16px] text-graphite">goes to <span className="font-mono">{row.destination ?? (isInjection ? 'Other/' : 'Uncategorized/')}</span> once checked</p>
     </div>
-    <div className="border-t-[2.5px] border-ink p-4">{state.actionError && <p className="mb-2 text-center text-[16px] text-danger">{state.actionError}</p>}<PanelAction disabled={saving} onClick={() => isInjection ? save() : isFailedDoc ? saveFailed() : save(details)}>{isFailedDoc && !manual ? 'Leave it for later · mark checked' : isInjection ? 'Got it · file under Other' : isMissingDate ? 'Save date · mark checked' : 'Looks right · mark checked'}</PanelAction></div>
+    <div className="border-t-[2.5px] border-ink p-4">{state.actionError && <p className="mb-2 text-center text-[16px] text-danger">{state.actionError}</p>}{saveBlocked && <p className="mb-2 text-center text-[16px] text-graphite" role="alert">You cleared the amount. Enter the amount shown in the file — an empty amount can't be saved.</p>}<PanelAction disabled={saving || saveBlocked} onClick={() => isInjection ? save() : isFailedDoc ? saveFailed() : save(details)}>{isFailedDoc && !manual ? 'Leave it for later · mark checked' : isInjection ? 'Got it · file under Other' : isMissingDate ? 'Save date · mark checked' : 'Looks right · mark checked'}</PanelAction></div>
   </aside>
 }
 

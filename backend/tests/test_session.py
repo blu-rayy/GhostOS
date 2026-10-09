@@ -347,6 +347,67 @@ def test_corrected_amount_is_used_in_plan(tmp_path):
     assert plan["blocking_review_count"] == 0
 
 
+def test_accept_without_amount_field_files_uncounted_and_null_is_rejected(tmp_path):
+    """UI1: the Check panel omits an untouched empty amount instead of sending
+    ``amount: null``. Accepting with the field omitted files the document
+    without counting it; sending null is still 422 with no mutation."""
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_ui1_no_amount",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    sess.documents.append(DocumentRecord(
+        file_id="ui1-no-amount",
+        relative_path="receipt.txt",
+        file_type="txt",
+        size_bytes=10,
+        sha256="b" * 64,
+        excerpt="Shop receipt 2026-10-09, no total printed",
+        status="needs_review",
+        classification={
+            "category": "receipt",
+            "merchant": "Shop",
+            "date": "2026-10-09",
+            "amount_text": None,
+            "amount": None,
+            "currency": "PHP",
+            "evidence_quote": "Shop receipt",
+            "evidence_verified": True,
+            "explanation": "",
+        },
+        review_flags=[{"code": "missing_amount", "message": "No amount found in the document"}],
+    ))
+    ss.put_scan(sess)
+
+    # The old UI payload stays rejected: null carries no clearing semantics.
+    for body in ({"amount": None, "accept": True}, {"amount": "   ", "accept": True}):
+        resp = client.patch("/api/documents/ui1-no-amount", json=body)
+        assert resp.status_code == 422, resp.text
+    doc = ss.find_document("ui1-no-amount")
+    assert doc is not None
+    assert doc.status == "needs_review"
+    assert doc.user_corrected is False
+    assert doc.classification["amount"] is None
+
+    # The UI1 payload — accept with the amount field omitted — succeeds.
+    resp = client.patch("/api/documents/ui1-no-amount", json={"accept": True})
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["status"] == "ok"
+    assert body["user_corrected"] is True
+    assert body["classification"]["amount"] is None
+
+    plan = client.get("/api/scans/test_ui1_no_amount/plan").json()
+    assert plan["blocking_review_count"] == 0
+    row = plan["report_rows"][0]
+    assert row["status"] == "needs_review"
+    assert row["amount"] is None
+    assert plan["totals"] == []
+
+
 def test_invalid_transaction_corrections_are_rejected_atomically(tmp_path):
     from copy import deepcopy
     from app.services.session_store import DocumentRecord, ScanSession, store as ss
