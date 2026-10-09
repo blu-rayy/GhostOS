@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { useApp } from '../state/AppState'
 import type { DocumentCorrection } from '../types/api'
-import { basename, type FileRow } from '../lib/viewModel'
+import { basename, documentKindLabel, fieldProfile, NON_TRANSACTION_DECISIONS, type FileRow } from '../lib/viewModel'
 import { formatBytes } from '../lib/format'
 import { Chip } from '../components/paper/Chip'
 import { PageFooter } from '../components/paper/PageFooter'
@@ -32,6 +32,10 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
   const isConflict = flag === 'amount_conflict'
   const isMissingDate = flag === 'missing_date'
   const isFailedDoc = doc.status === 'failed'
+  // Shop/date/amount inputs only for the backend's 'transaction' profile. Unreadable files keep
+  // their own "type it yourself" flow, and suspicious files their own warning.
+  const transactional = fieldProfile(doc) === 'transaction'
+  if (!transactional && !isFailedDoc && !isInjection) return <NonTransactionalDetailPanel row={row} onClose={onClose} />
   const save = async (correction: Omit<DocumentCorrection, 'accept'> = {}) => {
     setSaving(true)
     await correct(doc.file_id, { ...correction, accept: true }, 'review')
@@ -54,6 +58,44 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
       <p className="m-0 text-[16px] text-graphite">goes to <span className="font-mono">{row.destination ?? (isInjection ? 'Other/' : 'Needs Review/')}</span> once checked</p>
     </div>
     <div className="border-t-[2.5px] border-ink p-4">{state.actionError && <p className="mb-2 text-center text-[16px] text-danger">{state.actionError}</p>}<PanelAction disabled={saving} onClick={() => isInjection ? save() : save({ amount: amount || null, date: date || null, merchant: merchant || null })}>{isFailedDoc && !manual ? 'Leave it for later · mark checked' : isInjection ? 'Got it · file under Other' : isMissingDate ? 'Save date · mark checked' : 'Looks right · mark checked'}</PanelAction></div>
+  </aside>
+}
+
+/** Statements, IDs, legal, medical and unclear papers: what it is, the evidence, and a decision. No money fields. */
+function NonTransactionalDetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
+  const { state, correct } = useApp()
+  const [saving, setSaving] = useState<'file' | 'leave' | null>(null)
+  const doc = row.doc
+  if (!doc) return null
+  const c = doc.classification
+  const kind = documentKindLabel(doc)
+  const unclear = (c?.document_kind ?? 'uncertain') === 'uncertain'
+  const ignoredFields = doc.review_flags.some((f) => f.code === 'transaction_fields_on_non_transactional')
+  const decided = doc.user_corrected ? (c?.category === 'other' ? 'file' : 'leave') : null
+  const decide = async (choice: 'file' | 'leave') => {
+    setSaving(choice)
+    await correct(doc.file_id, NON_TRANSACTION_DECISIONS[choice], choice === 'file' ? 'filing' : 'review')
+    setSaving(null)
+  }
+  return <aside className="flex w-[500px] min-h-0 shrink-0 flex-col border-l-[2.5px] border-ink bg-paper" aria-label="File details">
+    <div className="flex items-start gap-3 border-b-[2.5px] border-ink px-5 py-4"><div className="min-w-0 flex-1"><h2 className="truncate font-display text-[26px] font-normal">{basename(doc.relative_path)}</h2><p className="m-0 text-[16px] text-graphite">{doc.file_type.toUpperCase()} · {formatBytes(doc.size_bytes)}</p></div><Chip tone={decided ? 'done' : 'check'} size="sm">{decided ? '✓ checked' : 'check this'}</Chip><button type="button" onClick={onClose} aria-label="Close file details" className="flex h-10 w-10 items-center justify-center rounded-[10px] border-[2.5px] border-ink bg-paper">×</button></div>
+    <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-4">
+      <div role="note" className="rotate-[-0.6deg] border-[2.5px] border-ink bg-note-check p-4 shadow-sticky"><p className="m-0 text-[19px] leading-6">{unclear ? "Pip can't tell what kind of paper this is. It won't guess a shop, date or amount." : `This looks like ${kind === 'other document' ? 'a document' : `${/^[aeiou]/.test(kind) ? 'an' : 'a'} ${kind}`}, not a payment. There's no shop, date or amount to check.`}</p></div>
+      <div className="rounded-[10px] border-[2.5px] border-ink bg-paper px-3 py-2" aria-label="What Pip thinks this is">
+        <div className="text-[15px] text-graphite">what it is</div>
+        <div className="text-[20px]">{kind}</div>
+        {c?.explanation && <div className="mt-1 text-[16px] text-graphite">{c.explanation}</div>}
+        {ignoredFields && <div className="mt-2 rounded-[6px] bg-hl-info px-2 py-1 text-[15px]">The AI also wrote down payment details for this file. GhostOS ignores them: they aren't shown, counted or filed.</div>}
+      </div>
+      <div><p className="m-0 mb-1 text-[16px] text-graphite">what Pip read in the file:</p><EvidenceExcerpt text={doc.excerpt} quote={c?.evidence_quote} /></div>
+      <p className="m-0 text-[16px] text-graphite">{decided ? <>goes to <span className="font-mono">{row.destination ?? (decided === 'file' ? 'Other/' : 'Needs Review/')}</span> · not counted in totals</> : 'Not counted in totals either way. Nothing moves until you press Move.'}</p>
+    </div>
+    <div className="space-y-2 border-t-[2.5px] border-ink p-4">
+      {state.actionError && <p className="mb-2 text-center text-[16px] text-danger">{state.actionError}</p>}
+      <PaperButton variant={decided === 'file' ? 'secondary' : 'primary'} className="w-full" disabled={saving !== null || decided === 'file'} onClick={() => decide('file')}>{decided === 'file' ? '✓ Filed under Other' : 'File it · no payment details'}</PaperButton>
+      <PaperButton variant="secondary" className="w-full" disabled={saving !== null || decided === 'leave'} onClick={() => decide('leave')}>{decided === 'leave' ? '✓ Left for review' : 'Leave for review'}</PaperButton>
+      <p className="m-0 text-center text-[15px] text-graphite">File it → Other/ · Leave for review → Needs Review/</p>
+    </div>
   </aside>
 }
 
@@ -86,7 +128,7 @@ export function FilesPage() {
       {filter === 'ready' && <div className="mt-5 space-y-2">{visibleRows.filter(isReady).map((row, index) => <ReviewRow key={row.id} row={row} selected={selected === row.id} onClick={() => setSelected(row.id)} onKeyDown={(e) => handleKey(e, index)} buttonRef={(element) => { rowRefs.current[row.id] = element }} />)}</div>}
       {filter === 'unsupported' && <div className="mt-5 space-y-2">{visibleRows.filter(isUnsupported).map((row, index) => <ReviewRow key={row.id} row={row} selected={selected === row.id} onClick={() => setSelected(row.id)} onKeyDown={(e) => handleKey(e, index)} buttonRef={(element) => { rowRefs.current[row.id] = element }} />)}</div>}
       <div className="mt-5 space-y-2">{countsBy.ready > 0 && <button type="button" className="flex w-full items-center justify-between rounded-[10px] border-[2.5px] border-dashed border-ink bg-paper px-4 py-3 text-left" onClick={() => setFilter('ready')}>{countsBy.ready} ready files · show <ChevronDown size={20} aria-hidden /></button>}{countsBy.unsupported > 0 && <button type="button" className="flex w-full items-center justify-between rounded-[10px] border-[2.5px] border-dashed border-ink bg-paper px-4 py-3 text-left" onClick={() => setFilter('unsupported')}>{countsBy.unsupported} not supported · show <ChevronDown size={20} aria-hidden /></button>}</div>
-    </section>{allChecked && state.plan ? <ResolvedPanel plan={state.plan} scanCount={counts.documents} unsupportedCount={countsBy.unsupported} /> : selectedRow?.doc ? <DetailPanel row={selectedRow} onClose={() => { setSelected(null); selectDoc(null) }} /> : null}</div></div>
+    </section>{allChecked && state.plan ? <ResolvedPanel plan={state.plan} scanCount={counts.documents} unsupportedCount={countsBy.unsupported} /> : selectedRow?.doc ? <DetailPanel key={selectedRow.id} row={selectedRow} onClose={() => { setSelected(null); selectDoc(null) }} /> : null}</div></div>
     <PageFooter className="!h-[72px]" left={<><PaperButton variant="link" className="mr-3" onClick={() => navigate('dashboard')}>← back to start</PaperButton><ProgressDots checked={checked} total={counts.documents} /><span>{checked} of {counts.documents} checked · nothing has moved</span></>} right={<PaperButton variant="primary" disabled={!allChecked} disabledReason={!allChecked ? `check ${counts.blocking} more file(s) first` : undefined} reasonId="check-next-reason" onClick={() => navigate('plan')}>{allChecked ? 'Continue to totals →' : 'Totals →'}</PaperButton>} />
   </div>
 }

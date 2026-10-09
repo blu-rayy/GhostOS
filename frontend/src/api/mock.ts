@@ -192,7 +192,8 @@ export const mockApi: GhostApi = {
     const { accept, ...fields } = correction
     if (doc.classification) Object.assign(doc.classification, fields)
     else if (Object.keys(fields).length > 0) {
-      // Failed extraction: a person is entering the values by hand.
+      // Failed extraction: a person is entering the values by hand. Like the backend, this
+      // record carries no document_kind/field_profile (the frontend then treats it as 'none').
       doc.classification = {
         category: 'uncertain',
         merchant: null,

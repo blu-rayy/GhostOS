@@ -5,6 +5,8 @@
 // Field names are snake_case to match the Python side verbatim.
 
 export type Category = 'invoice' | 'receipt' | 'other' | 'uncertain'
+export type DocumentKind = 'receipt' | 'invoice' | 'statement' | 'identity_or_civil' | 'legal' | 'medical' | 'other' | 'uncertain'
+export type FieldProfile = 'transaction' | 'reference' | 'none'
 
 export type FileType = 'pdf' | 'txt' | 'csv'
 
@@ -64,6 +66,13 @@ export interface ScanResult {
 /** Output of the model call AFTER backend validation. source_id is bound in code, not by the model. */
 export interface Classification {
   category: Category
+  /** What kind of paper the backend thinks this is (advisory; separate from the filing category). */
+  document_kind?: DocumentKind | null
+  /**
+   * Which fields the user may edit, derived by the backend from document_kind. Never set or
+   * guessed by the frontend; missing (e.g. a hand-entered record) means 'none'.
+   */
+  field_profile?: FieldProfile
   merchant: string | null
   date: string | null // ISO yyyy-mm-dd, null if not found/unparseable
   amount_text: string | null // raw text as it appears in the document
@@ -89,6 +98,9 @@ export type ReviewFlagCode =
   | 'low_confidence'
   | 'model_error'
   | 'possible_injection'
+  | 'non_transactional_document'
+  | 'transaction_fields_on_non_transactional'
+  | 'uncertain_document_kind'
 
 export interface ReviewFlag {
   code: ReviewFlagCode

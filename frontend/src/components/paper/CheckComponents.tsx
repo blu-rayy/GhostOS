@@ -2,7 +2,7 @@ import { Search, X, Folder } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { DocumentRecord } from '../../types/api'
 import type { FileRow } from '../../lib/viewModel'
-import { basename } from '../../lib/viewModel'
+import { basename, documentKindLabel } from '../../lib/viewModel'
 import { formatBytes, money } from '../../lib/format'
 import { Chip } from './Chip'
 import { PaperButton } from './Button'
@@ -31,11 +31,14 @@ export function ReviewRow({ row, selected, onClick, onKeyDown, buttonRef }: { ro
   const failed = doc?.status === 'failed'
   const checked = Boolean(doc?.user_corrected)
   const reason = checked ? (doc?.classification?.date ? `date added: ${doc.classification.date}` : 'you checked this file') : (doc?.review_flags[0]?.message ?? doc?.classification?.explanation ?? row.skip?.detail ?? 'Ready to file.')
-  const amount = doc?.review_flags.some((flag) => flag.code === 'amount_conflict') ? '₱?,???.??' : money(row.amount, row.currency)
+  const transactional = row.fieldProfile === 'transaction'
+  const amount = !transactional ? '' : doc?.review_flags.some((flag) => flag.code === 'amount_conflict') ? '₱?,???.??' : money(row.amount, row.currency)
+  // Non-transaction papers say what they are instead of naming a shop.
+  const what = transactional || !doc ? `${row.category ?? 'other'} · ${row.merchant ?? 'unknown shop'}` : documentKindLabel(doc)
   return <button ref={buttonRef} type="button" role="option" aria-selected={selected} onClick={onClick} onKeyDown={onKeyDown} style={{ boxShadow: selected ? '4px 4px 0 #1a1a1a' : `inset 8px 0 0 ${failed ? '#ffb3b3' : checked ? '#9be8b8' : '#ffe066'}` }} className={`group relative flex w-full items-center gap-4 border-[2.5px] border-transparent bg-paper px-4 py-3 text-left ${selected ? 'border-ink bg-row-selected' : ''}`}>
     <span className="min-w-0 flex-1 pl-2">
       <span className="block truncate text-[19px] leading-6">{row.relPath}</span>
-      <span className="block truncate text-[16px] text-graphite">{row.category ?? 'other'} · {row.merchant ?? 'unknown shop'} · {reason}</span>
+      <span className="block truncate text-[16px] text-graphite">{what} · {reason}</span>
     </span>
     <span className="font-mono text-[13px]">{amount}</span>
     <Chip tone={checked ? 'done' : failed ? 'oops' : 'check'} size="sm">{checked ? '✓ checked' : failed ? "couldn't read" : 'check this'}</Chip>

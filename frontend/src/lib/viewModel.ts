@@ -4,7 +4,9 @@
  */
 import type {
   Category,
+  DocumentCorrection,
   DocumentRecord,
+  FieldProfile,
   PlanPreview,
   ProposedOperation,
   ReviewFlag,
@@ -16,6 +18,42 @@ import type { RowStatus } from '../types/ui'
 
 export function basename(path: string): string {
   return path.slice(path.lastIndexOf('/') + 1)
+}
+
+/**
+ * The backend's editable-field policy for a document. Only the backend sets it; when it is
+ * missing (no classification, or a record typed in by hand) the answer is 'none'. It is
+ * never inferred from `category`.
+ */
+export function fieldProfile(d: DocumentRecord): FieldProfile {
+  return d.classification?.field_profile ?? 'none'
+}
+
+/**
+ * The two explicit decisions for a document that isn't a single payment. Each sends only a
+ * safe filing category and accept: never shop, date, amount, document_kind or field_profile.
+ * The backend's fixed folder rules then decide the path (other -> Other/, uncertain ->
+ * Needs Review/), and neither category is ever counted in the totals.
+ */
+export const NON_TRANSACTION_DECISIONS = {
+  file: { category: 'other', accept: true },
+  leave: { category: 'uncertain', accept: true },
+} as const satisfies Record<'file' | 'leave', DocumentCorrection>
+
+/** document_kind in plain words ("identity or civil record"); "document" when the backend sent none. */
+export function documentKindLabel(d: DocumentRecord): string {
+  const kind = d.classification?.document_kind ?? null
+  const labels: Record<string, string> = {
+    receipt: 'receipt',
+    invoice: 'invoice',
+    statement: 'statement',
+    identity_or_civil: 'identity or civil record',
+    legal: 'legal paper',
+    medical: 'medical record',
+    other: 'other document',
+    uncertain: 'unclear document',
+  }
+  return kind ? labels[kind] ?? kind.replaceAll('_', ' ') : 'document'
 }
 
 export function dirname(path: string): string {
@@ -53,6 +91,9 @@ export const FLAG_TARGET: Record<ReviewFlagCode, FlagTarget> = {
   low_confidence: 'category',
   model_error: 'document',
   possible_injection: 'document',
+  non_transactional_document: 'category',
+  transaction_fields_on_non_transactional: 'category',
+  uncertain_document_kind: 'category',
 }
 
 /**
@@ -75,6 +116,8 @@ export interface FileRow {
   dir: string
   fileType: string
   category: Category | null
+  /** Backend field policy. Shop, date and amount are only filled in for 'transaction'. */
+  fieldProfile: FieldProfile
   merchant: string | null
   date: string | null
   amount: string | null
@@ -93,6 +136,9 @@ export function buildFileRows(scan: ScanResult | null, plan: PlanPreview | null)
   const ops = new Map((plan?.operations ?? []).map((o) => [o.file_id, o]))
   const docs: FileRow[] = scan.documents.map((d) => {
     const c = d.classification
+    const profile = fieldProfile(d)
+    // Statements, IDs, legal and medical papers have no shop/date/amount, even if the model wrote some.
+    const tx = profile === 'transaction' ? c : null
     return {
       id: d.file_id,
       filename: basename(d.relative_path),
@@ -100,10 +146,11 @@ export function buildFileRows(scan: ScanResult | null, plan: PlanPreview | null)
       dir: dirname(d.relative_path),
       fileType: d.file_type,
       category: c?.category ?? null,
-      merchant: c?.merchant ?? null,
-      date: c?.date ?? null,
-      amount: c?.amount ?? null,
-      currency: c?.currency ?? null,
+      fieldProfile: profile,
+      merchant: tx?.merchant ?? null,
+      date: tx?.date ?? null,
+      amount: tx?.amount ?? null,
+      currency: tx?.currency ?? null,
       status: docStatus(d),
       flags: d.user_corrected ? [] : d.review_flags,
       duplicateOf: d.duplicate_of,
@@ -119,6 +166,7 @@ export function buildFileRows(scan: ScanResult | null, plan: PlanPreview | null)
     dir: dirname(s.relative_path),
     fileType: s.relative_path.includes('.') ? s.relative_path.slice(s.relative_path.lastIndexOf('.') + 1) : '—',
     category: null,
+    fieldProfile: 'none',
     merchant: null,
     date: null,
     amount: null,

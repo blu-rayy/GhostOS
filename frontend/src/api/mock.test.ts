@@ -40,7 +40,7 @@ describe('fixture mock plan rules', () => {
     expect(rows.get('f15')).toBeUndefined()
     expect(rows.get('f17')?.status).toBe('needs_review')
     expect(rows.get('f18')?.status).toBe('needs_review')
-    expect(plan.blocking_review_count).toBe(5)
+    expect(plan.blocking_review_count).toBe(7) // incl. f19 birth certificate and f20 uncertain
   })
 
   it('computes independent currency totals from accepted rows only', async () => {
@@ -83,7 +83,7 @@ describe('fixture mock plan rules', () => {
     expect(failed.user_corrected).toBe(true)
 
     const plan = await settle(mockApi.getPlan(progress.scan_id), 200)
-    expect(plan.blocking_review_count).toBe(4)
+    expect(plan.blocking_review_count).toBe(6)
     expect(plan.report_rows.find((row) => row.file_id === 'f10')?.status).toBe('accepted')
   })
 

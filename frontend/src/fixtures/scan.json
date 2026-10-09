@@ -2,7 +2,7 @@
   "scan_id": "scan_fixture_001",
   "root": "C:/Users/demo/Desktop/Unsorted Paperwork",
   "scanned_at": "2026-10-09T14:02:11Z",
-  "files_seen": 23,
+  "files_seen": 25,
   "max_files": 100,
   "documents": [
     {
@@ -15,6 +15,8 @@
       "status": "ok",
       "classification": {
         "category": "invoice",
+        "document_kind": "invoice",
+        "field_profile": "transaction",
         "merchant": "Lumen Design Studio",
         "date": "2026-09-03",
         "amount_text": "PHP 18,500.00",
@@ -38,6 +40,8 @@
       "status": "ok",
       "classification": {
         "category": "receipt",
+        "document_kind": "receipt",
+        "field_profile": "transaction",
         "merchant": "Grab",
         "date": "2026-09-12",
         "amount_text": "₱245.00",
@@ -61,6 +65,8 @@
       "status": "ok",
       "classification": {
         "category": "receipt",
+        "document_kind": "receipt",
+        "field_profile": "transaction",
         "merchant": "Jollibee",
         "date": "2026-09-14",
         "amount_text": "TOTAL 452.00",
@@ -84,6 +90,8 @@
       "status": "ok",
       "classification": {
         "category": "invoice",
+        "document_kind": "invoice",
+        "field_profile": "transaction",
         "merchant": "Meralco",
         "date": "2026-09-20",
         "amount_text": "PHP 3,812.45",
@@ -107,6 +115,8 @@
       "status": "ok",
       "classification": {
         "category": "other",
+        "document_kind": "other",
+        "field_profile": "none",
         "merchant": null,
         "date": null,
         "amount_text": null,
@@ -130,6 +140,8 @@
       "status": "ok",
       "classification": {
         "category": "invoice",
+        "document_kind": "invoice",
+        "field_profile": "transaction",
         "merchant": "PLDT",
         "date": "2026-08-25",
         "amount_text": "1,899.00",
@@ -153,6 +165,8 @@
       "status": "needs_review",
       "classification": {
         "category": "receipt",
+        "document_kind": "receipt",
+        "field_profile": "transaction",
         "merchant": "Office Warehouse",
         "date": "2026-09-05",
         "amount_text": "1,250.00 / 1,520.00",
@@ -181,6 +195,8 @@
       "status": "ok",
       "classification": {
         "category": "invoice",
+        "document_kind": "invoice",
+        "field_profile": "transaction",
         "merchant": "Lumen Design Studio",
         "date": "2026-09-03",
         "amount_text": "PHP 18,500.00",
@@ -204,6 +220,8 @@
       "status": "ok",
       "classification": {
         "category": "other",
+        "document_kind": "other",
+        "field_profile": "none",
         "merchant": null,
         "date": null,
         "amount_text": null,
@@ -245,6 +263,8 @@
       "status": "ok",
       "classification": {
         "category": "receipt",
+        "document_kind": "receipt",
+        "field_profile": "transaction",
         "merchant": "Shopee",
         "date": "2026-09-18",
         "amount_text": "₱1,099.00",
@@ -268,6 +288,8 @@
       "status": "ok",
       "classification": {
         "category": "other",
+        "document_kind": "other",
+        "field_profile": "none",
         "merchant": null,
         "date": null,
         "amount_text": null,
@@ -291,6 +313,8 @@
       "status": "needs_review",
       "classification": {
         "category": "other",
+        "document_kind": "other",
+        "field_profile": "none",
         "merchant": null,
         "date": null,
         "amount_text": null,
@@ -319,6 +343,8 @@
       "status": "ok",
       "classification": {
         "category": "receipt",
+        "document_kind": "receipt",
+        "field_profile": "transaction",
         "merchant": "Airbnb",
         "date": "2026-09-27",
         "amount_text": "$142.30",
@@ -342,6 +368,8 @@
       "status": "needs_review",
       "classification": {
         "category": "uncertain",
+        "document_kind": "statement",
+        "field_profile": "reference",
         "merchant": "BDO Unibank",
         "date": "2026-09-21",
         "amount_text": "45,000.00",
@@ -353,8 +381,12 @@
       },
       "review_flags": [
         {
-          "code": "low_confidence",
-          "message": "Looks like a bank statement, not a single expense. Choose a category or leave it in Needs Review."
+          "code": "non_transactional_document",
+          "message": "This is not a transaction document and has no expense fields"
+        },
+        {
+          "code": "transaction_fields_on_non_transactional",
+          "message": "Transaction fields were reported for a non-transactional document"
         }
       ],
       "duplicate_of": null,
@@ -370,6 +402,8 @@
       "status": "ok",
       "classification": {
         "category": "invoice",
+        "document_kind": "invoice",
+        "field_profile": "transaction",
         "merchant": "Canva",
         "date": "2026-09-01",
         "amount_text": "US$14.99",
@@ -393,6 +427,8 @@
       "status": "needs_review",
       "classification": {
         "category": "receipt",
+        "document_kind": "receipt",
+        "field_profile": "transaction",
         "merchant": "7-Eleven",
         "date": null,
         "amount_text": "89.00",
@@ -421,6 +457,8 @@
       "status": "needs_review",
       "classification": {
         "category": "invoice",
+        "document_kind": "invoice",
+        "field_profile": "transaction",
         "merchant": "Client B Corp.",
         "date": "2026-09-30",
         "amount_text": "25,000",
@@ -438,6 +476,70 @@
       ],
       "duplicate_of": null,
       "user_corrected": false
+    },
+    {
+      "file_id": "f19",
+      "relative_path": "personal/birth_certificate_scan.pdf",
+      "file_type": "pdf",
+      "status": "needs_review",
+      "duplicate_of": null,
+      "user_corrected": false,
+      "size_bytes": 96214,
+      "sha256": "b7e2c9f4a1d6e3b8c5f2a9d6e3b0c7f4a1d8e5b2c9f6a3d0e7b4c1f8a5d2e9b6",
+      "excerpt": "Republic of the Philippines\nPhilippine Statistics Authority\nCertificate of Live Birth\nName of child: (redacted)\nDate of birth: (redacted)",
+      "classification": {
+        "category": "other",
+        "document_kind": "identity_or_civil",
+        "field_profile": "none",
+        "merchant": null,
+        "date": null,
+        "amount_text": null,
+        "amount": null,
+        "currency": null,
+        "evidence_quote": "Certificate of Live Birth",
+        "evidence_verified": true,
+        "explanation": "A civil registry record, not a payment. It has no shop, date of purchase or amount."
+      },
+      "review_flags": [
+        {
+          "code": "non_transactional_document",
+          "message": "This is not a transaction document and has no expense fields"
+        }
+      ]
+    },
+    {
+      "file_id": "f20",
+      "relative_path": "scan_untitled_04.pdf",
+      "file_type": "pdf",
+      "status": "needs_review",
+      "duplicate_of": null,
+      "user_corrected": false,
+      "size_bytes": 41870,
+      "sha256": "c4a9e2f7b0d5c8a3f6e1b4d7a0c3f9e2b5d8a1c4f7e0b3d6a9c2f5e8b1d4a7c0",
+      "excerpt": "Page 2 of 3\n...continued from previous page\nRef. 00-4471-B\nPlease keep this copy for your records.",
+      "classification": {
+        "category": "uncertain",
+        "document_kind": "uncertain",
+        "field_profile": "none",
+        "merchant": null,
+        "date": null,
+        "amount_text": null,
+        "amount": null,
+        "currency": null,
+        "evidence_quote": "Please keep this copy for your records.",
+        "evidence_verified": true,
+        "explanation": "A continuation page with no title or totals. Not enough to tell what kind of document it is."
+      },
+      "review_flags": [
+        {
+          "code": "uncertain_classification",
+          "message": "The classification is uncertain and needs human review"
+        },
+        {
+          "code": "uncertain_document_kind",
+          "message": "The document kind could not be determined"
+        }
+      ]
     }
   ],
   "skipped": [
