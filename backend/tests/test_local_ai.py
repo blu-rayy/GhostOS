@@ -34,6 +34,7 @@ def valid_content(category: str = "receipt") -> str:
     return json.dumps(
         {
             "category": category,
+            "document_kind": category if category in ("receipt", "invoice") else "other",
             "merchant": "Coffee Shop",
             "date": "2026-10-09",
             "amount_text": "PHP 185.00",
@@ -70,6 +71,7 @@ def test_success_returns_valid_classification_and_elapsed_time(
     assert "RECEIPT" in request_body["messages"][1]["content"]
     system = request_body["messages"][0]["content"]
     assert "merchant" in system and "amount_text" in system and "currency" in system
+    assert "document_kind" in system and "never invent" in system
 
 
 @pytest.mark.parametrize("category", ["invoice", "receipt", "other", "uncertain"])
@@ -101,6 +103,22 @@ def test_missing_optional_fields_are_handled_as_none(
 
     assert result.classification.merchant is None
     assert result.classification.explanation is None
+
+
+def test_document_kind_passes_through_and_derives_field_profile(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    content = json.dumps({"category": "other", "document_kind": "statement"})
+    monkeypatch.setattr(
+        local_ai,
+        "urlopen",
+        lambda request, timeout: FakeResponse(ollama_payload(content)),
+    )
+
+    result = local_ai.classify_excerpt("bank statement")
+
+    assert result.classification.document_kind == "statement"
+    assert result.classification.field_profile == "reference"
 
 
 @pytest.mark.parametrize(

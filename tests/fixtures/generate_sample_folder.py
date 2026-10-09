@@ -588,6 +588,119 @@ note,This is a price quotation only and not a request for payment.
         "expense yet, so it must not be accepted into the report without human review. Date is the "
         "quotation date, not valid_until. 'other' is also an acceptable category.",
     },
+    # -------------------- document_kind fixtures (5, non-transactional) -------
+    {
+        "path": "misc/bank-statement-oct2026.txt",
+        "content": text_file("""
+SAMPLE NATIONAL BANK (fictional)
+Savings Account Statement
+Account: XXXX-1234
+Statement period: 01 Sep 2026 to 30 Sep 2026
+Opening balance: PHP 12,450.00
+Interest earned: PHP 12.50
+Closing balance: PHP 9,120.50
+"""),
+        "expected_category": "other",
+        "expected_document_kind": "statement",
+        "expected_field_profile": "reference",
+        "expected_merchant": None,
+        "expected_date": None,
+        "expected_amount": None,
+        "expected_currency": None,
+        "expected_review_required": True,
+        "expected_evidence_quote": "Savings Account Statement",
+        "special_notes": "Bank statement: a reference document, not one expense. Expected kind 'statement' and "
+        "field profile 'reference'; no merchant/date/amount/currency should be invented, and it must be "
+        "flagged for review, never auto-accepted into the expense report.",
+    },
+    {
+        "path": "identity/birth-certificate.pdf",
+        "content": build_pdf([
+            "CERTIFICATE OF LIVE BIRTH (fictional)",
+            "Philippine Statistics Authority",
+            "Name: MARA ISABEL VILLANUEVA",
+            "Date of birth: 02 April 1995",
+            "Place of birth: Makati City",
+            "Sex: Female",
+            "Mother: Elena Villanueva",
+            "Father: Ramon Villanueva",
+        ]),
+        "expected_category": "other",
+        "expected_document_kind": "identity_or_civil",
+        "expected_field_profile": "none",
+        "expected_merchant": None,
+        "expected_date": None,
+        "expected_amount": None,
+        "expected_currency": None,
+        "expected_review_required": True,
+        "expected_evidence_quote": "CERTIFICATE OF LIVE BIRTH",
+        "special_notes": "Civil/identity record. Must never show merchant/date/amount inputs and must be filed "
+        "without inventing transaction fields.",
+    },
+    {
+        "path": "identity/drivers-license-record.txt",
+        "content": text_file("""
+LAND TRANSPORTATION OFFICE (fictional)
+Driver's License Record
+License No: D12-34-567890
+Name: MARA ISABEL VILLANUEVA
+Expiry: 15 Nov 2028
+Restrictions: 1, 2
+"""),
+        "expected_category": "other",
+        "expected_document_kind": "identity_or_civil",
+        "expected_field_profile": "none",
+        "expected_merchant": None,
+        "expected_date": None,
+        "expected_amount": None,
+        "expected_currency": None,
+        "expected_review_required": True,
+        "expected_evidence_quote": "Driver's License Record",
+        "special_notes": "Identity record. No transaction fields; must be reviewed and filed without an amount.",
+    },
+    {
+        "path": "legal/lease-agreement-summary.pdf",
+        "content": build_pdf([
+            "LEASE AGREEMENT - SUMMARY (fictional)",
+            "Lessor: Example Properties Inc.",
+            "Lessee: Mara Villanueva Studio",
+            "Monthly rent: PHP 28,000.00",
+            "Term: 12 months, renewable",
+            "Notice period: 60 days",
+        ]),
+        "expected_category": "other",
+        "expected_document_kind": "legal",
+        "expected_field_profile": "none",
+        "expected_merchant": None,
+        "expected_date": None,
+        "expected_amount": None,
+        "expected_currency": None,
+        "expected_review_required": True,
+        "expected_evidence_quote": "LEASE AGREEMENT - SUMMARY",
+        "special_notes": "Legal document mentioning a recurring rent amount; not a single expense. No amount may "
+        "be accepted into the report.",
+    },
+    {
+        "path": "medical/prescription-note.txt",
+        "content": text_file("""
+MEDICAL PRESCRIPTION (fictional)
+Patient: Mara Villanueva
+Medication: Amoxicillin 500 mg
+Dosage: 3x daily for 7 days
+Issued: 05 Oct 2026
+Prescriber: Dr. A. Santos
+"""),
+        "expected_category": "other",
+        "expected_document_kind": "medical",
+        "expected_field_profile": "none",
+        "expected_merchant": None,
+        "expected_date": None,
+        "expected_amount": None,
+        "expected_currency": None,
+        "expected_review_required": True,
+        "expected_evidence_quote": "MEDICAL PRESCRIPTION",
+        "special_notes": "Medical record. No transaction fields; must be reviewed and filed without an amount.",
+    },
 ]
 
 
@@ -602,7 +715,7 @@ def file_type(path: str) -> str:
 def build_ground_truth() -> dict:
     files = []
     for doc in DOCUMENTS:
-        files.append({
+        entry = {
             "filename": doc["path"],
             "file_type": file_type(doc["path"]),
             "expected_category": doc["expected_category"],
@@ -616,7 +729,11 @@ def build_ground_truth() -> dict:
             "duplicate_group": doc.get("duplicate_group"),
             "collision_group": doc.get("collision_group"),
             "special_notes": doc["special_notes"],
-        })
+        }
+        if "expected_document_kind" in doc:
+            entry["expected_document_kind"] = doc["expected_document_kind"]
+            entry["expected_field_profile"] = doc["expected_field_profile"]
+        files.append(entry)
     counts: dict[str, int] = {}
     for f in files:
         counts[f["expected_category"]] = counts.get(f["expected_category"], 0) + 1

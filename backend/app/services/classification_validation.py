@@ -82,6 +82,13 @@ _QUOTATION_DOCUMENT_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Document kinds that are never a single transaction. For these the validator
+# must not demand (or trust) merchant/date/amount/currency, and must always
+# route them to human review rather than into the expense totals.
+_NON_TRANSACTIONAL_KINDS = frozenset(
+    {"statement", "identity_or_civil", "legal", "medical"}
+)
+
 
 def _canonical_currency(value: str | None) -> str | None:
     if value is None:
@@ -300,6 +307,25 @@ def validate_classification(
         needs_review = True
     if _QUOTATION_DOCUMENT_RE.search(source_text):
         _append_flag(flags, "quotation_document")
+        needs_review = True
+
+    # Non-transactional papers (statements, civil/identity records, legal and
+    # medical documents) are never a single expense. They must always be
+    # reviewed, and the model must not invent merchant/date/amount/currency to
+    # fit the transaction schema.
+    document_kind = classification.document_kind
+    if document_kind in _NON_TRANSACTIONAL_KINDS:
+        _append_flag(flags, "non_transactional_document")
+        needs_review = True
+        if any(
+            getattr(classification, field) is not None
+            for field in ("merchant", "date", "amount_text", "currency")
+        ):
+            _append_flag(flags, "transaction_fields_on_non_transactional")
+            is_valid = False
+            parsed_amount = None
+    elif document_kind == "uncertain":
+        _append_flag(flags, "uncertain_document_kind")
         needs_review = True
 
     return ClassificationValidationResult(

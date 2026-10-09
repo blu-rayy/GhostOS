@@ -6,7 +6,7 @@
   "notes": "All content is fictional. 'filename' is the path relative to tests/fixtures/sample_folder using forward slashes. Amounts are exact decimal strings (never floats); null means unknown or deliberately ambiguous. Dates are ISO yyyy-mm-dd. 'expected_evidence_quote' is an exact substring of the backend-extracted text. Do not edit by hand; edit the generator.",
   "category_counts": {
     "invoice": 7,
-    "other": 3,
+    "other": 8,
     "receipt": 7,
     "uncertain": 3
   },
@@ -353,6 +353,101 @@
       "duplicate_group": null,
       "collision_group": null,
       "special_notes": "Quotation that looks like an invoice. The quoted total is unambiguous, but it is not an expense yet, so it must not be accepted into the report without human review. Date is the quotation date, not valid_until. 'other' is also an acceptable category."
+    },
+    {
+      "filename": "misc/bank-statement-oct2026.txt",
+      "file_type": "txt",
+      "expected_category": "other",
+      "acceptable_categories": [
+        "other"
+      ],
+      "expected_merchant": null,
+      "expected_date": null,
+      "expected_amount": null,
+      "expected_currency": null,
+      "expected_review_required": true,
+      "expected_evidence_quote": "Savings Account Statement",
+      "duplicate_group": null,
+      "collision_group": null,
+      "special_notes": "Bank statement: a reference document, not one expense. Expected kind 'statement' and field profile 'reference'; no merchant/date/amount/currency should be invented, and it must be flagged for review, never auto-accepted into the expense report.",
+      "expected_document_kind": "statement",
+      "expected_field_profile": "reference"
+    },
+    {
+      "filename": "identity/birth-certificate.pdf",
+      "file_type": "pdf",
+      "expected_category": "other",
+      "acceptable_categories": [
+        "other"
+      ],
+      "expected_merchant": null,
+      "expected_date": null,
+      "expected_amount": null,
+      "expected_currency": null,
+      "expected_review_required": true,
+      "expected_evidence_quote": "CERTIFICATE OF LIVE BIRTH",
+      "duplicate_group": null,
+      "collision_group": null,
+      "special_notes": "Civil/identity record. Must never show merchant/date/amount inputs and must be filed without inventing transaction fields.",
+      "expected_document_kind": "identity_or_civil",
+      "expected_field_profile": "none"
+    },
+    {
+      "filename": "identity/drivers-license-record.txt",
+      "file_type": "txt",
+      "expected_category": "other",
+      "acceptable_categories": [
+        "other"
+      ],
+      "expected_merchant": null,
+      "expected_date": null,
+      "expected_amount": null,
+      "expected_currency": null,
+      "expected_review_required": true,
+      "expected_evidence_quote": "Driver's License Record",
+      "duplicate_group": null,
+      "collision_group": null,
+      "special_notes": "Identity record. No transaction fields; must be reviewed and filed without an amount.",
+      "expected_document_kind": "identity_or_civil",
+      "expected_field_profile": "none"
+    },
+    {
+      "filename": "legal/lease-agreement-summary.pdf",
+      "file_type": "pdf",
+      "expected_category": "other",
+      "acceptable_categories": [
+        "other"
+      ],
+      "expected_merchant": null,
+      "expected_date": null,
+      "expected_amount": null,
+      "expected_currency": null,
+      "expected_review_required": true,
+      "expected_evidence_quote": "LEASE AGREEMENT - SUMMARY",
+      "duplicate_group": null,
+      "collision_group": null,
+      "special_notes": "Legal document mentioning a recurring rent amount; not a single expense. No amount may be accepted into the report.",
+      "expected_document_kind": "legal",
+      "expected_field_profile": "none"
+    },
+    {
+      "filename": "medical/prescription-note.txt",
+      "file_type": "txt",
+      "expected_category": "other",
+      "acceptable_categories": [
+        "other"
+      ],
+      "expected_merchant": null,
+      "expected_date": null,
+      "expected_amount": null,
+      "expected_currency": null,
+      "expected_review_required": true,
+      "expected_evidence_quote": "MEDICAL PRESCRIPTION",
+      "duplicate_group": null,
+      "collision_group": null,
+      "special_notes": "Medical record. No transaction fields; must be reviewed and filed without an amount.",
+      "expected_document_kind": "medical",
+      "expected_field_profile": "none"
     }
   ]
 }

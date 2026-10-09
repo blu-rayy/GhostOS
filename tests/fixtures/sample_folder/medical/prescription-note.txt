@@ -1,0 +1,6 @@
+MEDICAL PRESCRIPTION (fictional)
+Patient: Mara Villanueva
+Medication: Amoxicillin 500 mg
+Dosage: 3x daily for 7 days
+Issued: 05 Oct 2026
+Prescriber: Dr. A. Santos

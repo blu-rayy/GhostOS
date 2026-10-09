@@ -1,0 +1,153 @@
+[
+  {
+    "at": "2026-10-09T17:55:15.538867+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_28419f4558ec/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_28419f4558ec",
+        "scan_id": "scan_28419f4558ec",
+        "operations": [
+          {
+            "file_id": "71b6586e",
+            "original_relative_path": "archive/2026/invoice.pdf",
+            "destination_relative_path": "Invoices/2026-09/invoice.pdf",
+            "reason": "invoice dated 2026-09-18",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "801968e1",
+            "original_relative_path": "downloads/greenleaf-grocer-2026-09-14 (1).txt",
+            "destination_relative_path": "GhostOS Organized/Receipts/2026-09/greenleaf-grocer-2026-09-14 (1).txt",
+            "reason": "receipt dated 2026-09-14",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "c61adc49",
+            "original_relative_path": "inbox/invoice.pdf",
+            "destination_relative_path": "Invoices/2026-09/invoice (2).pdf",
+            "reason": "invoice dated 2026-09-03",
+            "collision_suffixed": true
+          },
+          {
+            "file_id": "a71f12f6",
+            "original_relative_path": "receipts/greenleaf-grocer-2026-09-14.txt",
+            "destination_relative_path": "GhostOS Organized/Receipts/2026-09/greenleaf-grocer-2026-09-14.txt",
+            "reason": "receipt dated 2026-09-14",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "75438af4",
+            "original_relative_path": "receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "GhostOS Organized/Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "71b6586e",
+            "source_filename": "archive/2026/invoice.pdf",
+            "category": "invoice",
+            "date": "2026-09-18",
+            "merchant": "CARABAO PAPER SUPPLY CO.",
+            "amount": "3470.00",
+            "currency": "PHP",
+            "status": "accepted"
+          },
+          {
+            "file_id": "801968e1",
+            "source_filename": "downloads/greenleaf-grocer-2026-09-14 (1).txt",
+            "category": "receipt",
+            "date": "2026-09-14",
+            "merchant": "GREENLEAF GROCER - Sample Branch (fictional)",
+            "amount": "1286.50",
+            "currency": "PHP",
+            "status": "accepted"
+          },
+          {
+            "file_id": "c61adc49",
+            "source_filename": "inbox/invoice.pdf",
+            "category": "invoice",
+            "date": "2026-09-03",
+            "merchant": "BRIGHTLINE WEB HOSTING LLC",
+            "amount": "59.88",
+            "currency": "USD",
+            "status": "accepted"
+          },
+          {
+            "file_id": "a71f12f6",
+            "source_filename": "receipts/greenleaf-grocer-2026-09-14.txt",
+            "category": "receipt",
+            "date": "2026-09-14",
+            "merchant": "GREENLEAF GROCER - Sample Branch (fictional)",
+            "amount": "1286.50",
+            "currency": "PHP",
+            "status": "needs_review"
+          },
+          {
+            "file_id": "75438af4",
+            "source_filename": "receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "5439.70",
+            "row_count": 3
+          },
+          {
+            "currency": "USD",
+            "amount": "59.88",
+            "row_count": 1
+          }
+        ],
+        "blocking_review_count": 0
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T17:55:15.591358+00:00",
+    "request": {
+      "method": "POST",
+      "path": "/api/plans/plan_scan_28419f4558ec/approve",
+      "body": {}
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "batch_id": "batch_72e59374531a",
+        "moved": 5,
+        "failed": [],
+        "report_relative_path": "GhostOS Reports/expenses-202610091755.csv",
+        "committed_at": "2026-10-09T17:55:15.565681+00:00"
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T17:55:15.638793+00:00",
+    "request": {
+      "method": "POST",
+      "path": "/api/batches/batch_72e59374531a/undo",
+      "body": {}
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "batch_id": "batch_72e59374531a",
+        "restored": 5,
+        "conflicts": []
+      }
+    }
+  }
+]

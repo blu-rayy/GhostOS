@@ -1,0 +1,8 @@
+{
+  "status": 200,
+  "body": {
+    "batch_id": "batch_72e59374531a",
+    "restored": 5,
+    "conflicts": []
+  }
+}

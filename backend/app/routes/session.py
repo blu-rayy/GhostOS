@@ -20,6 +20,7 @@ from app.services.report import (
     reserve_report_path,
     write_report_temp,
 )
+from app.services.path_safety import conflicts_with_source_directory
 
 
 def _sha256(path: Path) -> str:
@@ -70,8 +71,14 @@ def _safe_relative_path(root: Path, relative_path: str, *, require_exists: bool)
     return candidate
 
 
-def _safe_destination(root: Path, relative_path: str) -> Path:
+def _safe_destination(
+    root: Path,
+    relative_path: str,
+    source_directories: tuple[str, ...] = (),
+) -> Path:
     """Validate a not-yet-existing destination and its existing parents."""
+    if conflicts_with_source_directory(root, relative_path, source_directories):
+        raise ValueError("Destination is inside a scanned source directory")
     destination = _safe_relative_path(root, relative_path, require_exists=False)
     if os.path.lexists(str(destination)):
         raise ValueError("Destination already exists")
@@ -451,7 +458,7 @@ def approve_plan(plan_id: str) -> dict:
             # is only a preview; files and directories may have changed since
             # it was generated.
             src = _safe_relative_path(root, op.original_relative_path, require_exists=True)
-            dst = _safe_destination(root, op.destination_relative_path)
+            dst = _safe_destination(root, op.destination_relative_path, snapshot.source_directories)
 
             expected_sha256 = entry.sha256
             if not expected_sha256:
@@ -463,7 +470,7 @@ def approve_plan(plan_id: str) -> dict:
             dst.parent.mkdir(parents=True, exist_ok=True)
             # A parent could have been replaced between validation and mkdir.
             src = _safe_relative_path(root, op.original_relative_path, require_exists=True)
-            dst = _safe_destination(root, op.destination_relative_path)
+            dst = _safe_destination(root, op.destination_relative_path, snapshot.source_directories)
             shutil.move(str(src), str(dst))
             entry.original_path = str(src)
             entry.moved_to = str(dst)

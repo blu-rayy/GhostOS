@@ -99,6 +99,8 @@ def _classification_dict(
     evidence_quote = classification.evidence_quote
     return {
         "category": classification.category,
+        "document_kind": classification.document_kind,
+        "field_profile": classification.field_profile,
         "merchant": classification.merchant,
         "date": classification.date,
         "amount_text": classification.amount_text,
@@ -111,7 +113,7 @@ def _classification_dict(
 
 
 def _evaluate_fields(expected: dict[str, Any], actual: dict[str, Any]) -> dict[str, bool]:
-    return {
+    results = {
         "category": actual["category"] in expected.get("acceptable_categories", [expected["expected_category"]]),
         "merchant": actual["merchant"] == expected["expected_merchant"],
         "date": actual["date"] == expected["expected_date"],
@@ -120,6 +122,10 @@ def _evaluate_fields(expected: dict[str, Any], actual: dict[str, Any]) -> dict[s
         "evidence_quote": actual["evidence_quote"] == expected["expected_evidence_quote"],
         "evidence_verified": actual["evidence_verified"] is True,
     }
+    if "expected_document_kind" in expected:
+        results["document_kind"] = actual["document_kind"] == expected["expected_document_kind"]
+        results["field_profile"] = actual["field_profile"] == expected["expected_field_profile"]
+    return results
 
 
 def _run(manifest_path: Path, sample_root: Path) -> dict[str, Any]:
@@ -204,6 +210,8 @@ def _run(manifest_path: Path, sample_root: Path) -> dict[str, Any]:
                     "currency": expected["expected_currency"],
                     "evidence_quote": expected["expected_evidence_quote"],
                     "review_required": expected["expected_review_required"],
+                    "document_kind": expected.get("expected_document_kind"),
+                    "field_profile": expected.get("expected_field_profile"),
                 },
                 "actual": actual,
                 "validation": {
