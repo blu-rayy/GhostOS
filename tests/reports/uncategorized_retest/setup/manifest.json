@@ -1,0 +1,89 @@
+{
+  "created_at": "2026-10-09T19:43:28.601618+00:00",
+  "commit": "0dfdb6529d1c71509bc47de595cdcd5e8120566d",
+  "base": "<TEST_BASE>",
+  "canary_sha256": "735de3b343420fa3f57e65ca56a596dec6b448f309b651c55e92428ab311707c",
+  "roots": {
+    "A-normal": {
+      "path": "<TEST_BASE>/A-normal",
+      "fixture_source": {
+        "inbox-a/receipts/sunbeam-cafe-receipt.pdf": "receipts/sunbeam-cafe-receipt.pdf",
+        "inbox-a/identity/birth-certificate.pdf": "identity/birth-certificate.pdf",
+        "inbox-a/receipts/bayside-office-mart.pdf": "receipts/bayside-office-mart.pdf",
+        "inbox-a/misc/aircon-payment-note.txt": "misc/aircon-payment-note.txt",
+        "inbox-a/scans/empty-scan.txt": null
+      },
+      "snapshot": {
+        "files": {
+          "inbox-a/identity/birth-certificate.pdf": {
+            "sha256": "df083a5d7500220e94e943891489ab6dc100a88a783426a351e864ef6c4edd1b",
+            "size": 1095
+          },
+          "inbox-a/misc/aircon-payment-note.txt": {
+            "sha256": "01f6370bfbecc66efeb3fe21ae9110df05e23878d4fb248a4bf5b9e6a3c72c06",
+            "size": 258
+          },
+          "inbox-a/receipts/bayside-office-mart.pdf": {
+            "sha256": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+            "size": 1124
+          },
+          "inbox-a/receipts/sunbeam-cafe-receipt.pdf": {
+            "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+            "size": 1217
+          },
+          "inbox-a/scans/empty-scan.txt": {
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "size": 0
+          }
+        },
+        "dirs": [
+          "inbox-a",
+          "inbox-a/identity",
+          "inbox-a/misc",
+          "inbox-a/receipts",
+          "inbox-a/scans"
+        ]
+      }
+    },
+    "B-partial": {
+      "path": "<TEST_BASE>/B-partial",
+      "fixture_source": {
+        "inbox-b/receipts/sunbeam-cafe-receipt.pdf": "receipts/sunbeam-cafe-receipt.pdf",
+        "inbox-b/receipts/tibay-hardware-receipt.csv": "receipts/tibay-hardware-receipt.csv",
+        "inbox-b/identity/drivers-license-record.txt": "identity/drivers-license-record.txt",
+        "inbox-b/legal/lease-agreement-summary.pdf": "legal/lease-agreement-summary.pdf",
+        "inbox-b/receipts/bayside-office-mart.pdf": "receipts/bayside-office-mart.pdf"
+      },
+      "snapshot": {
+        "files": {
+          "inbox-b/identity/drivers-license-record.txt": {
+            "sha256": "a834865ede0b6a3b8d47b243fb53676ef679a35410c23dded2d9f4c95f753b69",
+            "size": 157
+          },
+          "inbox-b/legal/lease-agreement-summary.pdf": {
+            "sha256": "4538c2e2306137414f574f3a216ea56da1c71756255c94fbc6c506e5b00516f9",
+            "size": 1020
+          },
+          "inbox-b/receipts/bayside-office-mart.pdf": {
+            "sha256": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+            "size": 1124
+          },
+          "inbox-b/receipts/sunbeam-cafe-receipt.pdf": {
+            "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+            "size": 1217
+          },
+          "inbox-b/receipts/tibay-hardware-receipt.csv": {
+            "sha256": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9",
+            "size": 293
+          }
+        },
+        "dirs": [
+          "inbox-b",
+          "inbox-b/identity",
+          "inbox-b/legal",
+          "inbox-b/receipts"
+        ]
+      }
+    }
+  }
+}
