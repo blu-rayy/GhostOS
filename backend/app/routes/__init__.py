@@ -1,1 +1,1 @@
-"""Routes package"""
+"""FastAPI route modules for GhostOS."""

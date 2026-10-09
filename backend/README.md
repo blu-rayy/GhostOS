@@ -82,3 +82,14 @@ Scans a selected local folder and returns a structured metadata inventory for su
 - Rejects invalid or symlinked roots.
 - Limits scanning to 100 files and skips files larger than 10 MB.
 - Does not modify, move, or rename source files.
+
+## Tests
+
+From the `backend` directory, with the virtual environment activated, run:
+
+```powershell
+python -m pytest
+```
+
+The contract examples endpoint is available at
+<http://127.0.0.1:8000/api/contracts/examples>.

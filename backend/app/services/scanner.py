@@ -61,6 +61,8 @@ def scan_folder(root_path_str: str) -> List[FileRecord]:
                     filename=file,
                     extension=ext,
                     size_bytes=stat.st_size,
+                    extraction_status="skipped",
+                    reason="Pending text extraction and hashing",
                 ))
             except Exception:
                 # Handle inaccessible files gracefully
