@@ -90,8 +90,8 @@ export function ReportStatusBadge({ status, title }: { status: ReportRowStatus; 
 
 export function FixtureTag({ className }: { className?: string }) {
   return (
-    <Badge tone="info" className={className} title="Data comes from the bundled JSON fixtures (src/fixtures), not from the backend.">
-      Fixture data
+    <Badge tone="info" className={className} title="These are the bundled sample files, not files from your computer.">
+      Demo data
     </Badge>
   )
 }
