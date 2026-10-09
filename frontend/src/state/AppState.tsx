@@ -245,11 +245,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     async approve() {
       const s = stateRef.current
       if (!s.plan) return
-      patch({ busy: 'approve', actionError: null, phase: 'organizing', view: 'completion', approvedPlan: s.plan })
+      // Totals shows "moving" (3c) while this runs; failures stay on Totals (3d), success opens Done.
+      patch({ busy: 'approve', actionError: null, phase: 'organizing', view: 'report', approvedPlan: s.plan })
       try {
         const batch = await api.approvePlan(s.plan.plan_id)
-        patch({ batch, busy: null, phase: 'organized' })
-        log({ type: 'plan_approved', level: 'info', title: `Plan approved (${s.plan.operations.length} moves)`, detail: `Batch ${batch.batch_id}` })
+        const onTotals = stateRef.current.view === 'report'
+        patch({ batch, busy: null, phase: 'organized', ...(onTotals && batch.failed.length === 0 ? { view: 'completion' as const } : {}) })
+        log({ type: 'plan_approved', level: 'info', title: `Move approved (${s.plan.operations.length} files)`, detail: `Batch ${batch.batch_id}` })
         for (const op of s.plan.operations) {
           const failed = batch.failed.find((f) => f.file_id === op.file_id)
           log(
@@ -258,9 +260,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
               : { type: 'file_moved', level: 'success', title: `Moved ${op.original_relative_path}`, detail: `→ ${op.destination_relative_path}`, fileId: op.file_id },
           )
         }
-        log({ type: 'report_generated', level: 'success', title: 'Expense report written', detail: batch.report_relative_path })
+        log({ type: 'report_generated', level: 'success', title: 'Totals list written', detail: batch.report_relative_path })
       } catch (e) {
-        patch({ busy: null, phase: 'reviewing', actionError: errorText(e), view: 'plan', approvedPlan: null })
+        patch({ busy: null, phase: 'reviewing', actionError: errorText(e), view: 'report', approvedPlan: null })
         log({ type: 'action_failed', level: 'error', title: 'Approval failed. Nothing was moved.', detail: errorText(e) })
       }
     },

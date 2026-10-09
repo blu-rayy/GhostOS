@@ -2,10 +2,9 @@ import { AppShell } from './components/shell/AppShell';
 import { ActivityPage } from './pages/ActivityPage';
 import { CompletionPage } from './pages/CompletionPage';
 import { FilesPage } from './pages/FilesPage';
-import { PlanPage } from './pages/PlanPage';
-import { ReportPage } from './pages/ReportPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { StartPage } from './pages/start/StartPage';
+import { TotalsPage } from './pages/totals/TotalsPage';
 import { AppStateProvider, useApp } from './state/AppState';
 
 function CurrentView() {
@@ -18,10 +17,10 @@ function CurrentView() {
       return <StartPage />;
     case 'files':
       return <FilesPage />;
+    // Step 3 · Totals (paper redesign) replaces the old plan and report screens.
     case 'plan':
-      return <PlanPage />;
     case 'report':
-      return <ReportPage />;
+      return <TotalsPage />;
     case 'activity':
       return <ActivityPage />;
     case 'completion':

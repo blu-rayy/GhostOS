@@ -20,6 +20,7 @@ export function Header() {
   const { state, navigate, usingFixtures } = useApp()
   const ctx: StepContext = { phase: state.phase, hasScan: state.scan !== null, hasApprovedPlan: state.approvedPlan !== null }
   const current = stepForView(state.view)
+  const someNotMoved = (state.batch?.failed.length ?? 0) > 0 && state.phase === 'organized'
   const stepState = (i: StepIndex): StepState => (i === current ? 'current' : isStepDone(i, ctx, current) ? 'done' : 'later')
 
   return (
@@ -52,10 +53,10 @@ export function Header() {
             {WORDS.demoData.toLowerCase()}
           </Tag>
         )}
-        <IconButton label={WORDS.history} pressed={state.view === 'activity'} onClick={() => navigate(state.view === 'activity' ? backView(ctx) : 'activity')}>
+        <IconButton label={WORDS.history} pressed={state.view === 'activity'} onClick={() => navigate(state.view === 'activity' ? backView(ctx, someNotMoved) : 'activity')}>
           <HistoryIcon size={20} crisp />
         </IconButton>
-        <IconButton label={WORDS.settings} pressed={state.view === 'settings'} onClick={() => navigate(state.view === 'settings' ? backView(ctx) : 'settings')}>
+        <IconButton label={WORDS.settings} pressed={state.view === 'settings'} onClick={() => navigate(state.view === 'settings' ? backView(ctx, someNotMoved) : 'settings')}>
           <SettingsIcon size={20} crisp />
         </IconButton>
       </div>
@@ -105,7 +106,8 @@ function Step({ label, number, state, onOpen }: { label: string; number: number;
 }
 
 /** Where closing History / Settings returns to. */
-function backView(ctx: StepContext): View {
+function backView(ctx: StepContext, someNotMoved: boolean): View {
+  if (ctx.phase === 'organizing' || someNotMoved) return 'report'
   if (ctx.hasApprovedPlan) return 'completion'
   if (ctx.hasScan && ctx.phase === 'reviewing') return 'files'
   return 'dashboard'

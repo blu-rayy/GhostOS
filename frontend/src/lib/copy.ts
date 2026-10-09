@@ -3,7 +3,7 @@
  * principles board. Keep plain words here so every screen says the same thing.
  */
 
-export const STEP_LABELS = ['Start', 'Check', 'Expenses', 'Done'] as const
+export const STEP_LABELS = ['Start', 'Check', 'Totals', 'Done'] as const
 
 export const WORDS = {
   needsReview: 'Check this',
@@ -38,6 +38,9 @@ export const PIP_LINES = {
   /** Start screen (step 1) versions, per docs/design/step1-start.md. */
   startReading: (n: number | null) => (n ? `reading ${n} files. riveting.` : 'reading. riveting.'),
   scanStopped: "*sigh*. that didn't work.",
+  /** Totals screen (step 3) versions, per docs/design/step3-totals.md. */
+  carrying: (n: number) => `carrying ${n} ${n === 1 ? 'file' : 'files'}. my back.`,
+  refused: (k: number) => (k === 1 ? 'one of them refused to budge.' : k === 2 ? 'two of them refused to budge.' : k === 3 ? '3 of them refused to budge.' : 'a few of them refused to budge.'),
 } as const
 
 /** Name shown for the bundled sample folder (never presented as a real folder). */

@@ -11,7 +11,7 @@ import { cx } from '../ui/cx'
  * "ink" wobble filter rendered once by <InkDefs /> in the app shell.
  */
 
-export type PipMood = 'hello' | 'waiting' | 'reading' | 'suspicious' | 'done' | 'sigh' | 'guard'
+export type PipMood = 'hello' | 'waiting' | 'reading' | 'suspicious' | 'done' | 'sigh' | 'guard' | 'carrying'
 
 const INK = '#1a1a1a'
 export const INK_FILTER_ID = 'ghostos-ink'
@@ -180,6 +180,24 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
         <Lids y={59} />
         <path d="M53 80h14" {...line} strokeWidth={3} />
         <path d="M24 96q20-8 44 2M96 96q-20-8-44 2M24 96q20 6 40 0M96 96q-18 7-36 1" {...line} strokeWidth={3} />
+      </>
+    ),
+  },
+  /** Step 3 · Totals 3c, exact SVG from docs/design/step3-totals/3c-moving.html. */
+  carrying: {
+    label: 'Pip carrying a box of files',
+    art: (
+      <>
+        <Ground />
+        <Body w={3} />
+        <Hair />
+        <Glasses y={58} w={2.6} />
+        <Lids y={57} />
+        <path d="M54 76q6-3 12 0" {...line} strokeWidth={2.4} />
+        <path d="M101 40q3 5 0 7q-3-2 0-7Z" fill="#c9d7ff" stroke={INK} strokeWidth="1.6" />
+        <path d="M30 84h60v30H30Z" fill="#ffe066" stroke={INK} strokeWidth="2.6" strokeLinejoin="round" />
+        <path d="M30 92h60M54 84v8M66 84v8" stroke={INK} strokeWidth="2.2" />
+        <path d="M22 92q4 6 8 8M98 92q-4 6-8 8" {...line} strokeWidth={2.6} />
       </>
     ),
   },
