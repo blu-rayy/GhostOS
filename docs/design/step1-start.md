@@ -2,7 +2,7 @@
 
 Status: **approved by Kristian (2026-10-09)** · Target branch: `feat/ui-paper` · Source of truth: the Claude Design canvas "GhostOS UI Prototype", page *Screens (paper)*, boards 1a–1d. Static copies of those boards are in `docs/design/step1-start/` (open them in a browser for pixel reference; they pull Google Fonts for preview only, and the app must never do that).
 
-This is the first slice of the paper redesign. Only the Start step changes. Check, Expenses and Done keep the current UI until their designs are approved.
+This is the first slice of the paper redesign. Only the Start step changes. Check, Totals and Done keep the current UI until their designs are approved.
 
 ---
 
@@ -30,7 +30,7 @@ Open `GhostOS-ui-paper` in VS Code and give the prompt in section 9 to the IDE a
 | Paper design tokens and local fonts | `backend/**` |
 | Shared paper components (section 4) | `src/types/api.ts`, `src/api/**`, `src/fixtures/**` (the contract) |
 | New app header with the 4-step tracker | `electron/**` security settings (preload API stays `platform, version, capabilities, selectFolder`) |
-| Start screen, states 1a–1d | Check / Expenses / Done / History / Settings screens (keep current UI, only re-skin the header around them) |
+| Start screen, states 1a–1d | Check / Totals / Done / History / Settings screens (keep current UI, only re-skin the header around them) |
 | Header icons that open the current Activity and Settings screens | Codex's files: `vitest.config.ts`, `src/test/**`, `*.test.ts`, `docs/qa/**` |
 
 ---
@@ -93,7 +93,7 @@ Use `@fontsource/gochi-hand`, `@fontsource/patrick-hand` and `@fontsource/space-
 64px, white, bottom border 2.5px ink, padding `0 28px`.
 
 - **Left:** mini Pip (32×35) + "ghostOS" in Gochi Hand 28px.
-- **Step tracker** (`<nav aria-label="Steps">`, `aria-current="step"` on current):
+- **Step tracker** (`<nav aria-label="Steps">`, `aria-current="step"` on current). Steps are **Start · Check · Totals · Done** ("Totals", not "Expenses": invoices can be income, and the API has no income/expense type yet).
   - done: filled ink circle with ✓ + label
   - current: yellow pill `#FFE066`, 2.5px ink border, white numbered circle inside
   - later: dashed grey circle + label. **Use `#6B6B6B` for the label text, not the canvas's `#8A8A8A`** (3.5:1 fails AA at 18px).
@@ -186,7 +186,7 @@ reference boards in docs/design/step1-start/*.html. Run `git status` and `git br
 and tell me if you are not on feat/ui-paper.
 
 Rules:
-- Only the Start step, the app header and shared paper components change. Check/Expenses/Done/History/Settings
+- Only the Start step, the app header and shared paper components change. Check/Totals/Done/History/Settings
   keep their current UI inside the new header.
 - Do not touch backend/**, src/types/api.ts, src/api/**, src/fixtures/**, electron security settings, or Codex's
   test files (vitest.config.ts, src/test/**, *.test.ts, docs/qa/**).

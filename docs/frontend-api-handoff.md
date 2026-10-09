@@ -107,3 +107,20 @@ The mock in [`frontend/src/api/mock.ts`](../frontend/src/api/mock.ts) follows th
 | Skipped files | Image, DOCX, scanned PDF, oversize CSV, symlink |
 
 If your real sample set has cases these fixtures don't cover, send me the backend JSON for them and I'll add them.
+
+## Requests from the paper redesign (Kristian, 2026-10-09)
+
+The new screens are in `docs/design/step*.md`. Most of them work with the contract above. These would complete them, roughly in priority order. **Developer 1:** please accept, change or reject each one.
+
+| # | Request | Used by | Without it |
+|---|---|---|---|
+| R1 | **Move as a background job**: `POST /api/plans/{plan_id}/approve` returns `{ batch_id }` immediately, and `GET /api/batches/{batch_id}/progress` returns `{ state: running\|done\|error, files_total, files_moved, current_file, failed[] }` (same pattern as scans). Then `GET /api/batches/{batch_id}` returns `BatchResult`. | Totals 3c (moving progress) | Indeterminate "moving…" bar, no counts |
+| R2 | **Confirm**: a file in `BatchResult.failed[]` is left untouched at its original path (no partial copy). `error` should be written for the end user. | Totals 3d | Weaker wording: "didn't reach their new folder" |
+| R3 | **Retry failed moves**: `POST /api/batches/{batch_id}/retry` (moves only the `failed[]` files, same destinations). | Totals 3d "Try the 2 again" | Button hidden |
+| R4 | **Cancel after current file**: `POST /api/batches/{batch_id}/cancel`. Files already moved stay moved, and the remaining ones are reported as not moved. | Totals 3c "stop after this file" | Link hidden |
+| R5 | **Undo and folders**: does undo remove destination folders it created that end up empty? Please document it either way. `UndoResult.conflicts[].reason` should be written for the end user. | Done 4b/4c/4d | UI says nothing about folders |
+| R6 | **Income vs. expense** (extends the open question above): an optional `direction: "expense" \| "income" \| null` on `Classification`/`report_rows`, and `totals[]` per currency *and* direction. | Totals 3a | Step is named "Totals" and counts everything together, as today |
+| R7 | **Candidate amounts** for `amount_conflict`: `review_flags[].candidates?: { label, amount, amount_text }[]` (e.g. subtotal vs amount due). | Check 2a choice buttons | Editable amount field + highlighted excerpt |
+| R8 | **Re-read one file**: `POST /api/documents/{file_id}/rescan`. | Check 2c "Try reading it again" | Option hidden |
+
+Frontend-only (no backend needed): "Open folder" on Done needs a new Electron preload method (`openFolder(root)` → `shell.openPath`, restricted to the scanned root). It needs Kristian's approval because it changes the preload API.
