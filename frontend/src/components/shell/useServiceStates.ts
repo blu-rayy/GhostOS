@@ -1,5 +1,6 @@
 import { useApp } from '../../state/AppState'
-import type { ServiceState } from './LocalStatusIndicator'
+
+export type ServiceState = 'unknown' | 'fixture' | 'ok' | 'down'
 
 export interface ServiceLabel {
   state: ServiceState
@@ -12,8 +13,8 @@ export function useServiceStates(): { backend: ServiceLabel; model: ServiceLabel
   const s = state.status
   if (usingFixtures) {
     return {
-      backend: { state: 'fixture' as const, label: 'Fixture mock' },
-      model: { state: 'fixture' as const, label: s ? `${s.model_name} (fixture)` : 'Fixture mock' },
+      backend: { state: 'fixture' as const, label: 'demo data' },
+      model: { state: 'fixture' as const, label: s ? `${s.model_name} (demo data)` : 'demo data' },
       external: s?.external_requests ?? 0,
     }
   }

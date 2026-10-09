@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { createContext, useContext, type ReactNode } from 'react'
 import { cx } from '../ui/cx'
 
 /**
@@ -30,11 +30,27 @@ export function InkDefs() {
   )
 }
 
-const BODY = 'M20 60a40 40 0 0 1 80 0v50q-6.67 10-13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0Z'
+/** Body outline; `hem` is the depth of the wavy bottom edge (10 = the drawn shape). */
+const bodyPath = (hem: number) => `M20 60a40 40 0 0 1 80 0v50q-6.67 ${hem} -13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0Z`
+const BODY = bodyPath(10)
+/** The hem ripples through these depths (same command structure, so SMIL can tween `d`). */
+const HEM_WIGGLE = [10, 5, -4, 5, 10].map(bodyPath).join(';')
+
+/** True inside a full-size <Pip>; the header mark stays still. */
+const Animated = createContext(false)
+
+function prefersReducedMotion(): boolean {
+  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true
+}
 const line = { stroke: INK, fill: 'none', strokeLinecap: 'round' as const }
 
 function Body({ w = 3.5 }: { w?: number }) {
-  return <path d={BODY} fill="#fff" stroke={INK} strokeWidth={w} strokeLinejoin="round" />
+  const animated = useContext(Animated)
+  return (
+    <path d={BODY} fill="#fff" stroke={INK} strokeWidth={w} strokeLinejoin="round">
+      {animated && <animate attributeName="d" values={HEM_WIGGLE} dur="1.6s" repeatCount="indefinite" />}
+    </path>
+  )
 }
 
 /** Round glasses; `y` is the lens centre line. */
@@ -62,10 +78,7 @@ function Bags() {
   return <path d="M40 77q7 3 14 0M66 77q7 3 14 0" {...line} strokeWidth={1.6} />
 }
 
-/** Dashed ground shadow and the single curl of hair used on the large moods. */
-function Ground() {
-  return <ellipse cx="60" cy="125" rx="32" ry="3.5" fill="none" stroke={INK} strokeWidth="1.8" strokeDasharray="4 4" />
-}
+/** The single curl of hair used on the large moods. */
 function Hair() {
   return <path d="M60 21q5-9-2-13" {...line} strokeWidth={2.4} />
 }
@@ -75,7 +88,6 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
     label: 'Pip, a grumpy ghost in glasses, waving without enthusiasm',
     art: (
       <>
-        <ellipse cx="60" cy="124" rx="30" ry="4" fill="none" stroke={INK} strokeWidth="2" strokeDasharray="4 4" />
         <Body w={3} />
         <path d="M60 21q5-9-2-13" {...line} strokeWidth={2.5} />
         <path d="M99 80c6-1 9-5 9-10" {...line} strokeWidth={3} />
@@ -92,7 +104,6 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
     label: 'Pip waiting with a coffee mug',
     art: (
       <>
-        <Ground />
         <Body w={3} />
         <Hair />
         <Glasses w={2.6} />
@@ -110,7 +121,6 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
     label: 'Pip reading a receipt over his glasses',
     art: (
       <>
-        <Ground />
         <Body w={3} />
         <Hair />
         <Glasses y={66} w={2.6} />
@@ -142,7 +152,6 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
     label: 'Pip holding a clipboard with a check mark, looking smug',
     art: (
       <>
-        <Ground />
         <Body w={3} />
         <Hair />
         <Glasses w={2.6} />
@@ -161,7 +170,6 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
     label: 'Pip shrugging',
     art: (
       <>
-        <Ground />
         <Body w={3} />
         <Hair />
         <Glasses w={2.6} />
@@ -176,7 +184,6 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
     label: 'Pip sighing, glasses crooked',
     art: (
       <>
-        <Ground />
         <Body w={3} />
         <Hair />
         <g transform="rotate(-8 60 62)">
@@ -209,7 +216,6 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
     label: 'Pip carrying a box of files',
     art: (
       <>
-        <Ground />
         <Body w={3} />
         <Hair />
         <Glasses y={58} w={2.6} />
@@ -224,8 +230,9 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
   },
 }
 
-export function Pip({ mood, size = 120, className, decorative = false }: { mood: PipMood; size?: number; className?: string; decorative?: boolean }) {
+export function Pip({ mood, size = 120, className, decorative = false, still = false }: { mood: PipMood; size?: number; className?: string; decorative?: boolean; still?: boolean }) {
   const m = MOODS[mood]
+  const animated = !still && !prefersReducedMotion()
   return (
     <svg
       width={size}
@@ -237,7 +244,13 @@ export function Pip({ mood, size = 120, className, decorative = false }: { mood:
       aria-hidden={decorative || undefined}
       focusable="false"
     >
-      <g filter={`url(#${INK_FILTER_ID})`}>{m.art}</g>
+      <g filter={`url(#${INK_FILTER_ID})`}>
+        {/* Pip floats: the shadow stays on the ground and shrinks as he rises; his hem ripples. */}
+        <ellipse cx="60" cy="125" rx="32" ry="3.5" fill="none" stroke={INK} strokeWidth="1.8" strokeDasharray="4 4" className={animated ? 'pip-shadow' : undefined} />
+        <g className={animated ? 'pip-float' : undefined}>
+          <Animated.Provider value={animated}>{m.art}</Animated.Provider>
+        </g>
+      </g>
     </svg>
   )
 }

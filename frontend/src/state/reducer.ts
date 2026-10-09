@@ -8,7 +8,7 @@ import type {
   UndoResult,
 } from '../types/api'
 import type { FolderSelection } from '../platform/types'
-import type { ActivityEvent, SessionPhase, View } from '../types/ui'
+import type { ActivityEvent, Panel, SessionPhase, View } from '../types/ui'
 
 export interface AppState {
   view: View
@@ -38,8 +38,8 @@ export interface AppState {
   actionError: string | null
 
   activity: ActivityEvent[]
-  /** UI-only demo switch (the activity log has no backend endpoint yet). */
-  simulateActivityError: boolean
+  /** History or Settings side panel, open over the current step. */
+  panel: Panel | null
 }
 
 export const initialState: AppState = {
@@ -62,7 +62,7 @@ export const initialState: AppState = {
   busy: null,
   actionError: null,
   activity: [],
-  simulateActivityError: false,
+  panel: null,
 }
 
 export type Action =
@@ -84,6 +84,6 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'log':
       return { ...state, activity: [action.event, ...state.activity] }
     case 'resetSession':
-      return { ...initialState, activity: state.activity, status: state.status, statusError: state.statusError, simulateActivityError: state.simulateActivityError }
+      return { ...initialState, activity: state.activity, status: state.status, statusError: state.statusError }
   }
 }

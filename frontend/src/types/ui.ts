@@ -10,9 +10,10 @@ export type View =
   | 'files'
   | 'plan'
   | 'report'
-  | 'activity'
   | 'completion'
-  | 'settings'
+
+/** Side panels opened from the header; they sit over the current step. */
+export type Panel = 'history' | 'settings'
 
 export type SessionPhase =
   | 'idle'

@@ -2,7 +2,7 @@ import { useApp } from '../../state/AppState'
 import { STEP_LABELS, WORDS } from '../../lib/copy'
 import { describeScanError } from '../../lib/scanError'
 import { STEPS, canOpenStep, isStepDone, stepForView, type StepContext, type StepIndex } from '../../lib/steps'
-import type { View } from '../../types/ui'
+import type { Panel } from '../../types/ui'
 import { Tag } from '../paper/Chip'
 import { IconButton } from '../paper/Button'
 import { HistoryIcon, LockIcon, SettingsIcon } from '../paper/icons'
@@ -17,10 +17,10 @@ type StepState = 'done' | 'current' | 'later'
  * chip when fixtures are in use, and History / Settings buttons.
  */
 export function Header() {
-  const { state, navigate, usingFixtures } = useApp()
+  const { state, navigate, dispatch, usingFixtures } = useApp()
   const ctx: StepContext = { phase: state.phase, hasScan: state.scan !== null, hasApprovedPlan: state.approvedPlan !== null }
   const current = stepForView(state.view)
-  const someNotMoved = (state.batch?.failed.length ?? 0) > 0 && state.phase === 'organized'
+  const togglePanel = (panel: Panel) => dispatch({ type: 'patch', patch: { panel: state.panel === panel ? null : panel } })
   const stepState = (i: StepIndex): StepState => (i === current ? 'current' : isStepDone(i, ctx, current) ? 'done' : 'later')
 
   return (
@@ -53,10 +53,10 @@ export function Header() {
             {WORDS.demoData.toLowerCase()}
           </Tag>
         )}
-        <IconButton label={WORDS.history} pressed={state.view === 'activity'} onClick={() => navigate(state.view === 'activity' ? backView(ctx, someNotMoved) : 'activity')}>
+        <IconButton label={WORDS.history} pressed={state.panel === 'history'} onClick={() => togglePanel('history')}>
           <HistoryIcon size={20} crisp />
         </IconButton>
-        <IconButton label={WORDS.settings} pressed={state.view === 'settings'} onClick={() => navigate(state.view === 'settings' ? backView(ctx, someNotMoved) : 'settings')}>
+        <IconButton label={WORDS.settings} pressed={state.panel === 'settings'} onClick={() => togglePanel('settings')}>
           <SettingsIcon size={20} crisp />
         </IconButton>
       </div>
@@ -103,14 +103,6 @@ function Step({ label, number, state, onOpen }: { label: string; number: number;
       {body}
     </span>
   )
-}
-
-/** Where closing History / Settings returns to. */
-function backView(ctx: StepContext, someNotMoved: boolean): View {
-  if (ctx.phase === 'organizing' || someNotMoved) return 'report'
-  if (ctx.hasApprovedPlan) return 'completion'
-  if (ctx.hasScan && ctx.phase === 'reviewing') return 'files'
-  return 'dashboard'
 }
 
 const PILL = 'inline-flex items-center gap-1.5 rounded-full border-[2.5px] px-3 text-[17px] leading-7'

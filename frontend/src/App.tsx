@@ -1,7 +1,8 @@
+import { HistoryPanel } from './components/panels/HistoryPanel';
+import { SettingsPanel } from './components/panels/SettingsPanel';
 import { AppShell } from './components/shell/AppShell';
-import { ActivityPage } from './pages/ActivityPage';
+import { SidePanel } from './components/shell/SidePanel';
 import { FilesPage } from './pages/FilesPage';
-import { SettingsPage } from './pages/SettingsPage';
 import { DonePage } from './pages/done/DonePage';
 import { StartPage } from './pages/start/StartPage';
 import { TotalsPage } from './pages/totals/TotalsPage';
@@ -21,14 +22,26 @@ function CurrentView() {
     case 'plan':
     case 'report':
       return <TotalsPage />;
-    case 'activity':
-      return <ActivityPage />;
     case 'completion':
       // Step 4 · Done (paper redesign).
       return <DonePage />;
-    case 'settings':
-      return <SettingsPage />;
   }
+}
+
+/** History and Settings open as side panels over the current step. */
+function Panels() {
+  const { state, dispatch } = useApp();
+  const close = () => dispatch({ type: 'patch', patch: { panel: null } });
+  return (
+    <>
+      <SidePanel open={state.panel === 'history'} title="History" onClose={close}>
+        <HistoryPanel />
+      </SidePanel>
+      <SidePanel open={state.panel === 'settings'} title="Settings" onClose={close}>
+        <SettingsPanel />
+      </SidePanel>
+    </>
+  );
 }
 
 export default function App() {
@@ -36,6 +49,7 @@ export default function App() {
     <AppStateProvider>
       <AppShell>
         <CurrentView />
+        <Panels />
       </AppShell>
     </AppStateProvider>
   );
