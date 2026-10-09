@@ -31,6 +31,11 @@ from app.services.session_store import (
     SkippedFile,
     store,
 )
+from app.services.path_safety import (
+    conflicts_with_source_directory,
+    paths_equivalent,
+    relative_path_key,
+)
 from app.services.extractor import process_file_content
 from app.services import local_ai
 from app.services.classification_validation import validate_classification
@@ -118,7 +123,59 @@ def _parse_amount(amount_text: Optional[str]) -> Optional[str]:
 # Plan builder (backend-owned destination rules)
 # ---------------------------------------------------------------------------
 
+def _source_directories(session: ScanSession) -> tuple[str, ...]:
+    """Collect real source directories using the same root's path semantics."""
+    directories: set[str] = set()
+    root = Path(session.root).resolve(strict=False)
+
+    if root.is_dir():
+        for root_dir, child_dirs, _ in os.walk(root, followlinks=False):
+            safe_child_dirs: list[str] = []
+            for child in child_dirs:
+                child_path = Path(root_dir) / child
+                if child_path.is_symlink():
+                    continue
+                relative = child_path.relative_to(root).as_posix()
+                directories.add(relative)
+                safe_child_dirs.append(child)
+            child_dirs[:] = safe_child_dirs
+
+    # Keep the snapshot meaningful even for tests or callers that construct a
+    # completed session without a real directory walk.
+    for doc in session.documents:
+        normalized = doc.relative_path.replace("\\", "/")
+        parts = normalized.split("/")[:-1]
+        if Path(normalized).is_absolute() or normalized.startswith(("/", "\\")) or ".." in parts:
+            continue
+        for index in range(1, len(parts) + 1):
+            if parts[index - 1]:
+                directories.add("/".join(parts[:index]))
+
+    return tuple(sorted(directories))
+
+
+def _safe_destination_folder(
+    root: Path,
+    folder: str,
+    source_directories: tuple[str, ...],
+) -> str:
+    """Choose a deterministic organization folder outside scanned source dirs."""
+    if not conflicts_with_source_directory(root, folder, source_directories):
+        return folder
+
+    # Keep the category/date layout, but move it beneath a distinct root. The
+    # numeric suffix is deterministic if prior source folders use the first
+    # alternative name too.
+    for number in range(1, 1000):
+        organization_root = "GhostOS Organized" if number == 1 else f"GhostOS Organized {number}"
+        candidate = f"{organization_root}/{folder}"
+        if not conflicts_with_source_directory(root, candidate, source_directories):
+            return candidate
+    raise ValueError(f"Could not choose a safe destination for {folder!r}")
+
 def _build_plan(session: ScanSession) -> Plan:
+    root = Path(session.root).resolve(strict=False)
+    source_directories = _source_directories(session)
     taken: set[str] = set()
     operations: list[ProposedOp] = []
     report_rows: list[ReportRow] = []
@@ -151,21 +208,22 @@ def _build_plan(session: ScanSession) -> Plan:
             folder = "Needs Review"
             reason = "Category uncertain"
 
+        folder = _safe_destination_folder(root, folder, source_directories)
+
         filename = doc.relative_path.rsplit("/", maxsplit=1)[-1]
         dest = f"{folder}/{filename}"
 
         # Collision suffix
         n = 1
-        base_dest = dest
-        while dest.lower() in taken:
+        while relative_path_key(root, dest) in taken or os.path.lexists(str(root / dest)):
             dot = filename.rfind(".")
             stem = filename[:dot] if dot > 0 else filename
             ext = filename[dot:] if dot > 0 else ""
             n += 1
             dest = f"{folder}/{stem} ({n}){ext}"
-        taken.add(dest.lower())
+        taken.add(relative_path_key(root, dest))
 
-        if dest != doc.relative_path:
+        if not paths_equivalent(root, dest, doc.relative_path):
             operations.append(ProposedOp(
                 file_id=doc.file_id,
                 original_relative_path=doc.relative_path,
@@ -435,6 +493,7 @@ def get_plan(scan_id: str) -> Plan:
     # A GET of the preview endpoint is the explicit request for a fresh
     # preview after a correction or other session revision.
     plan = _build_plan(session)
+    source_directories = _source_directories(session)
     identities = tuple(
         sorted(
             (
@@ -453,6 +512,7 @@ def get_plan(scan_id: str) -> Plan:
             plan=copy.deepcopy(plan),
             session_revision=session.plan_revision,
             source_identities=identities,
+            source_directories=source_directories,
         ),
     )
     return copy.deepcopy(plan)

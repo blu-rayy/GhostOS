@@ -1,6 +1,7 @@
 """Tests for the session endpoints (status, scan, plan, approve, undo, correction)."""
 
 import json
+import os
 from typing import Any
 from urllib.error import URLError
 
@@ -398,11 +399,12 @@ def test_commit_rechecks_source_identity_and_existence(tmp_path, mutation):
 
 def test_commit_never_overwrites_existing_destination(tmp_path):
     session = _put_done_session_with_files(tmp_path)
-    destination = tmp_path / "Receipts" / "2026-10" / "receipt.txt"
+    preview = client.get(f"/api/scans/{session.scan_id}/plan").json()
+    destination = tmp_path / preview["operations"][0]["destination_relative_path"]
     destination.parent.mkdir(parents=True)
     destination.write_text("existing destination")
 
-    _, result = _approve_safe_session(session)
+    result = client.post(f"/api/plans/{preview['plan_id']}/approve", json={}).json()
     assert result["moved"] == 0
     assert destination.read_text() == "existing destination"
     assert (tmp_path / "receipt.txt").exists()
@@ -620,3 +622,64 @@ def test_existing_report_is_not_overwritten(tmp_path):
 
     assert second != first
     assert (tmp_path / first).read_text(encoding="utf-8") == "earlier report"
+
+
+def test_case_equivalent_source_directory_gets_distinct_destination_and_safe_undo(tmp_path):
+    import hashlib
+    from app.services.path_safety import paths_equivalent
+
+    session = _put_done_session_with_files(tmp_path, ("receipts/source-receipt.txt", "invoice.txt"))
+    original_invoice_bytes = (tmp_path / "invoice.txt").read_bytes()
+    original_invoice_sha256 = hashlib.sha256(original_invoice_bytes).hexdigest()
+    invoice = session.documents[1]
+    invoice.classification["category"] = "invoice"
+    invoice.classification["amount_text"] = "PHP 200.00"
+    invoice.classification["amount"] = "200.00"
+    invoice.classification["evidence_quote"] = "Total: PHP 200.00"
+    invoice.excerpt = "Receipt 1\nTotal: PHP 200.00"
+
+    preview = client.get(f"/api/scans/{session.scan_id}/plan").json()
+    receipt_op = next(op for op in preview["operations"] if op["file_id"] == session.documents[0].file_id)
+    invoice_op = next(op for op in preview["operations"] if op["file_id"] == session.documents[1].file_id)
+
+    # On Windows, Receipts/ and the existing lowercase receipts/ directory
+    # resolve to the same location. The planner must choose the documented
+    # alternative root rather than relying on capitalization.
+    if os.name == "nt":
+        assert paths_equivalent(tmp_path, "receipts", "Receipts")
+    assert receipt_op["destination_relative_path"] == "GhostOS Organized/Receipts/2026-10/source-receipt.txt"
+    assert not paths_equivalent(
+        tmp_path,
+        receipt_op["destination_relative_path"],
+        "receipts/source-receipt.txt",
+    )
+
+    # Create the previewed receipt destination after preview. Commit must not
+    # overwrite it, while the invoice still commits to its exact preview path.
+    existing_destination = tmp_path / receipt_op["destination_relative_path"]
+    existing_destination.parent.mkdir(parents=True, exist_ok=True)
+    existing_destination.write_text("pre-existing", encoding="utf-8")
+    approval = client.post(f"/api/plans/{preview['plan_id']}/approve", json={})
+    assert approval.status_code == 200, approval.text
+    body = approval.json()
+    assert body["moved"] == 1
+    assert len(body["failed"]) == 1
+    assert existing_destination.read_text(encoding="utf-8") == "pre-existing"
+    assert (tmp_path / invoice_op["destination_relative_path"]).exists()
+    assert (tmp_path / "receipts/source-receipt.txt").exists()
+    assert (tmp_path / body["report_relative_path"]).exists()
+
+    undo = client.post(f"/api/batches/{body['batch_id']}/undo", json={})
+    assert undo.status_code == 200
+    assert undo.json()["restored"] == 1
+    assert (tmp_path / "invoice.txt").exists()
+    assert hashlib.sha256((tmp_path / "invoice.txt").read_bytes()).hexdigest() == original_invoice_sha256
+    assert (tmp_path / "receipts/source-receipt.txt").exists()
+    assert existing_destination.read_text(encoding="utf-8") == "pre-existing"
+
+    source_files = {
+        path.relative_to(tmp_path / "receipts").as_posix()
+        for path in (tmp_path / "receipts").rglob("*")
+        if path.is_file()
+    }
+    assert source_files == {"source-receipt.txt"}

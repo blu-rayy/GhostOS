@@ -110,6 +110,7 @@ class PlanSnapshot:
     plan: Plan
     session_revision: int
     source_identities: tuple[tuple[str, tuple[str, str]], ...]
+    source_directories: tuple[str, ...] = ()
 
 
 # ---------------------------------------------------------------------------
