@@ -220,6 +220,45 @@ def test_corrected_amount_is_used_in_plan(tmp_path):
     assert plan["blocking_review_count"] == 0
 
 
+def test_other_documents_are_excluded_from_expense_report_rows(tmp_path):
+    """Non-expense classifications cannot become report rows from an amount alone."""
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_other_amount",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    sess.documents.append(DocumentRecord(
+        file_id="other1",
+        relative_path="quotation.csv",
+        file_type="csv",
+        size_bytes=10,
+        sha256="b" * 64,
+        excerpt="Quotation,PHP 12500.00",
+        status="ok",
+        classification={
+            "category": "other",
+            "merchant": "Silverline Signage",
+            "date": "2026-09-29",
+            "amount_text": "12500.00",
+            "amount": "12500.00",
+            "currency": "PHP",
+            "evidence_quote": "Quotation,PHP 12500.00",
+            "evidence_verified": True,
+            "explanation": "",
+        },
+        review_flags=[],
+    ))
+    ss.put_scan(sess)
+
+    plan = client.get("/api/scans/test_other_amount/plan").json()
+
+    assert plan["report_rows"] == []
+    assert plan["totals"] == []
+
+
 # ---------------------------------------------------------------------------
 # Plan
 # ---------------------------------------------------------------------------

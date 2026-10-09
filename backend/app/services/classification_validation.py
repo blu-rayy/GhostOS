@@ -31,6 +31,15 @@ class ClassificationValidationResult:
     parsed_amount: Decimal | None
 
 
+@dataclass(frozen=True)
+class _AmountCandidate:
+    amount: Decimal
+    currency: str | None
+    source_line: str
+    label: str
+    label_class: str
+
+
 _SUPPORTED_CURRENCIES = {
     "PHP": "PHP",
     "₱": "PHP",
@@ -54,11 +63,26 @@ _MONEY_TOKEN_RE = re.compile(
     re.IGNORECASE,
 )
 _CURRENCY_RE = re.compile(rf"(?<![A-Za-z])(?P<currency>{_CURRENCY_TOKEN})(?![A-Za-z])", re.IGNORECASE)
-_TOTAL_CONTEXT_RE = re.compile(
-    r"\b(?:total|subtotal|grand\s+total|amount\s+due|balance\s+due|amount\s+payable|payable)\b",
+_AUTHORITATIVE_LABEL_RE = re.compile(
+    r"(?P<label>"
+    r"final[\s_]+total|total[\s_]+amount[\s_]+due|total[\s_]+due|"
+    r"total[\s_]+payable|total[\s_]+paid|total[\s_]+charged|grand[\s_]+total|"
+    r"invoice[\s_]+total|quoted[\s_]+total|statement[\s]+balance|"
+    r"total[\s]+new[\s]+charges|balance[\s]+due|"
+    r"(?<!minimum[ ])amount[\s]+due|\btotal\b"
+    r")",
+    re.IGNORECASE,
+)
+_COMPONENT_LABEL_RE = re.compile(
+    r"^\s*(?P<label>subtotal|discount|less|vat|tax|service[\s]+fee|fee)\b",
     re.IGNORECASE,
 )
 _APPROXIMATE_RE = re.compile(r"(?:about|approx(?:imately)?|around|roughly|~)", re.IGNORECASE)
+_QUOTATION_DOCUMENT_RE = re.compile(
+    r"(?:\bquotation\b|\bquoted[\s_]+total\b|price\s+quotation|"
+    r"not\s+a\s+request\s+for\s+payment)",
+    re.IGNORECASE,
+)
 
 
 def _canonical_currency(value: str | None) -> str | None:
@@ -91,16 +115,73 @@ def _source_currencies(source_text: str) -> set[str]:
     }
 
 
-def _source_total_candidates(source_text: str) -> list[tuple[Decimal, str | None]]:
-    candidates: list[tuple[Decimal, str | None]] = []
-    for line in source_text.splitlines():
-        if not _TOTAL_CONTEXT_RE.search(line):
+def _line_amounts(line: str) -> list[tuple[Decimal, str | None]]:
+    """Extract monetary-looking values without treating percentages as amounts."""
+    amounts: list[tuple[Decimal, str | None]] = []
+    for match in _MONEY_TOKEN_RE.finditer(line):
+        number = match.group("number")
+        if match.group("currency") is None and "." not in number and "," not in number:
             continue
-        for match in _MONEY_TOKEN_RE.finditer(line):
-            parsed = _parse_single_amount(match.group(0))
-            if parsed is not None:
-                candidates.append(parsed)
-    return candidates
+        parsed = _parse_single_amount(match.group(0))
+        if parsed is not None:
+            amounts.append(parsed)
+    return amounts
+
+
+def _source_amount_candidates(
+    source_text: str,
+) -> tuple[list[_AmountCandidate], list[_AmountCandidate]]:
+    """Return authoritative final candidates and explicit reconciliation components."""
+    authoritative: list[_AmountCandidate] = []
+    components: list[_AmountCandidate] = []
+    for line in source_text.splitlines():
+        authoritative_match = _AUTHORITATIVE_LABEL_RE.search(line)
+        component_match = _COMPONENT_LABEL_RE.search(line)
+        if authoritative_match is not None:
+            label = authoritative_match.group("label").lower().replace("_", " ")
+            for amount, currency in _line_amounts(line):
+                authoritative.append(
+                    _AmountCandidate(amount, currency, line, label, "authoritative")
+                )
+        elif component_match is not None:
+            label = component_match.group("label").lower().replace("_", " ")
+            for amount, currency in _line_amounts(line):
+                if "discount" in label or label == "less":
+                    amount = -abs(amount)
+                components.append(
+                    _AmountCandidate(amount, currency, line, label, "component")
+                )
+
+    # Repeated copies of the same label/value are safe to deduplicate. Values
+    # under distinct labels remain separate, which keeps card statements
+    # ambiguous even when two balances happen to be numerically equal.
+    unique: dict[tuple[Decimal, str | None, str], _AmountCandidate] = {}
+    for candidate in authoritative:
+        key = (candidate.amount, candidate.currency, candidate.label)
+        unique[key] = candidate
+    return list(unique.values()), components
+
+
+def _resolve_authoritative_amount(
+    authoritative: list[_AmountCandidate],
+    components: list[_AmountCandidate],
+) -> Decimal | None:
+    """Resolve one final amount only when labels and explicit arithmetic agree."""
+    if len(authoritative) != 1:
+        return None
+
+    final_amount = authoritative[0].amount
+    subtotals = [candidate.amount for candidate in components if candidate.label == "subtotal"]
+    adjustments = [
+        candidate.amount
+        for candidate in components
+        if candidate.label != "subtotal"
+    ]
+    if len(subtotals) > 1:
+        return None
+    if subtotals and subtotals[0] + sum(adjustments, Decimal("0")) != final_amount:
+        return None
+    return final_amount
 
 
 def _append_flag(flags: list[str], flag: str) -> None:
@@ -116,10 +197,9 @@ def validate_classification(
 
     ``source_text`` should be the same bounded excerpt sent to
     :func:`app.services.local_ai.classify_excerpt`. The supplied classification
-    is never mutated. For ``other``, a missing evidence quote is reported but
-    does not independently require review; ``invoice`` and ``receipt`` do
-    require review when evidence is missing. ``uncertain`` always requires
-    review.
+    is never mutated. Missing evidence always requires review. Explicit
+    quotation markers also require review so a quotation cannot be accepted as
+    an expense if the model labels it as an invoice or receipt.
     """
     if not isinstance(source_text, str):
         raise TypeError("source_text must be a string")
@@ -135,14 +215,17 @@ def validate_classification(
     evidence_quote = classification.evidence_quote
     if evidence_quote is None or not evidence_quote.strip():
         _append_flag(flags, "missing_evidence_quote")
-        if required_context:
-            needs_review = True
+        needs_review = True
     elif evidence_quote not in source_text:
         _append_flag(flags, "evidence_quote_not_found")
         is_valid = False
         needs_review = True
 
-    source_candidates = _source_total_candidates(source_text)
+    authoritative_candidates, component_candidates = _source_amount_candidates(source_text)
+    authoritative_amount = _resolve_authoritative_amount(
+        authoritative_candidates,
+        component_candidates,
+    )
     parsed_amount: Decimal | None = None
     classification_amount = classification.amount_text
     parsed_classification: tuple[Decimal, str | None] | None = None
@@ -164,20 +247,30 @@ def validate_classification(
             parsed_classification = parsed
             parsed_amount, amount_currency = parsed
 
-    if len(source_candidates) > 1:
+    if authoritative_amount is None and authoritative_candidates:
         _append_flag(flags, "ambiguous_amount")
         parsed_amount = None
         is_valid = False
         needs_review = True
     elif (
         parsed_classification is not None
-        and len(source_candidates) == 1
-        and source_candidates[0][0] != parsed_classification[0]
+        and authoritative_amount is None
     ):
         _append_flag(flags, "ambiguous_amount")
         parsed_amount = None
         is_valid = False
         needs_review = True
+    elif (
+        parsed_classification is not None
+        and authoritative_amount is not None
+        and authoritative_amount != parsed_classification[0]
+    ):
+        _append_flag(flags, "ambiguous_amount")
+        parsed_amount = None
+        is_valid = False
+        needs_review = True
+    elif parsed_classification is not None:
+        parsed_amount = parsed_classification[0]
 
     source_currencies = _source_currencies(source_text)
     declared_currency = _canonical_currency(classification.currency)
@@ -206,6 +299,9 @@ def validate_classification(
         needs_review = True
     if category == "uncertain":
         _append_flag(flags, "uncertain_classification")
+        needs_review = True
+    if _QUOTATION_DOCUMENT_RE.search(source_text):
+        _append_flag(flags, "quotation_document")
         needs_review = True
 
     return ClassificationValidationResult(
