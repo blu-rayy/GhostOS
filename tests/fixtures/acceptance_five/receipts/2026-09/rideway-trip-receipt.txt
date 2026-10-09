@@ -1,0 +1,14 @@
+Rideway (fictional ride-hailing service)
+Trip receipt
+Sep 12, 2026 08:41
+
+Pickup: Sample Avenue
+Drop-off: Example Business District
+
+Base fare            PHP  45.00
+Distance (11.2 km)   PHP 201.60
+Time (18 min)        PHP  36.00
+Booking fee          PHP  29.40
+
+Total paid: ₱312.00
+Payment method: e-wallet
