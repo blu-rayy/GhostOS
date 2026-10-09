@@ -1,0 +1,7 @@
+# Fixtures must stay byte-exact on every platform: SHA-256 duplicate checks,
+# PDF xref offsets and evidence-quote substrings all depend on the exact bytes.
+# Disable line-ending conversion (core.autocrlf) for the sample data.
+sample_folder/** -text
+edge_cases/** -text
+expected_results/** -text
+*.pdf binary

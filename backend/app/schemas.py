@@ -134,3 +134,60 @@ class ProposedOperation(BaseModel):
     original_relative_path: str = Field(..., min_length=1)
     destination_relative_path: str = Field(..., min_length=1)
     reason: str = Field(..., min_length=1)
+
+
+class ClassifyRequest(BaseModel):
+    """Request to classify one file's text excerpt using the local model."""
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "file_id": "file-001",
+                    "text_excerpt": "COFFEE SHOP RECEIPT\nTotal: PHP 185.00",
+                }
+            ]
+        }
+    )
+
+    file_id: str = Field(..., min_length=1, description="Backend-generated stable file identifier")
+    text_excerpt: str = Field(..., min_length=1, max_length=8000, description="Bounded text excerpt from the file")
+
+
+class ClassifyResponse(BaseModel):
+    """Response associating a file_id with its classification and proposed operation."""
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "examples": [
+                {
+                    "file_id": "file-001",
+                    "classification": {
+                        "category": "receipt",
+                        "merchant": "Coffee Shop",
+                        "date": "2026-10-08",
+                        "amount_text": "PHP 185.00",
+                        "currency": "PHP",
+                        "evidence_quote": "Total: PHP 185.00",
+                        "explanation": "The document contains a merchant receipt total.",
+                    },
+                    "proposed_operation": {
+                        "file_id": "file-001",
+                        "original_relative_path": "inbox/coffee.pdf",
+                        "destination_relative_path": "organized/receipts/coffee.pdf",
+                        "reason": "Classified as a receipt from Coffee Shop.",
+                    },
+                    "needs_review": False,
+                    "review_reason": None,
+                    "elapsed_seconds": 1.42,
+                }
+            ]
+        }
+    )
+
+    file_id: str = Field(..., min_length=1)
+    classification: ClassificationRecord
+    proposed_operation: ProposedOperation | None = None
+    needs_review: bool = False
+    review_reason: str | None = None
+    elapsed_seconds: float = Field(..., ge=0)

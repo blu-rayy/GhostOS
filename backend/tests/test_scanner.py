@@ -28,7 +28,7 @@ def temp_dir(tmp_path):
     yield test_dir
     
 def test_scan_endpoint_valid(temp_dir):
-    response = client.post("/api/scan", json={"root_path": str(temp_dir)})
+    response = client.post("/api/scan-v1", json={"root_path": str(temp_dir)})
     assert response.status_code == 200
     data = response.json()
     assert data["root_path"] == str(temp_dir)
@@ -42,6 +42,6 @@ def test_scan_endpoint_valid(temp_dir):
     assert "large.txt" not in filenames
 
 def test_scan_endpoint_invalid_path():
-    response = client.post("/api/scan", json={"root_path": "/invalid/nonexistent/path"})
+    response = client.post("/api/scan-v1", json={"root_path": "/invalid/nonexistent/path"})
     assert response.status_code == 400
     assert "Invalid or inaccessible root folder" in response.json()["detail"]

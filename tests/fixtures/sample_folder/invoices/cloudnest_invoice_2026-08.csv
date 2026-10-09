@@ -1,0 +1,10 @@
+document_type,Invoice
+vendor,CloudNest Storage Inc. (fictional)
+invoice_number,CN-88213
+invoice_date,2026/08/31
+currency,USD
+line,description,quantity,unit_price,amount
+1,Object storage 500 GB (Aug 2026),1,9.99,9.99
+2,Backup add-on (Aug 2026),1,7.99,7.99
+3,Extra egress 50 GB,1,5.99,5.99
+invoice_total,23.97
