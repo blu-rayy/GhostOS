@@ -1,0 +1,33 @@
+{
+  "files": {
+    "GhostOS Reports/expenses-202610092015.csv": {
+      "sha256": "dccbd5b7013b10bab969c18c05e95d387b47ce0225433048745474ec592285a5",
+      "size": 222
+    },
+    "Receipts/2026-09/sunbeam-cafe-receipt.pdf": {
+      "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+      "size": 1217
+    },
+    "Receipts/2026-09/tibay-hardware-receipt.csv": {
+      "sha256": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9",
+      "size": 293
+    },
+    "Uncategorized/bank-statement-oct2026.txt": {
+      "sha256": "b3fe6daa6638a8d26466aa54b270e6fe513acf55aa5c00e02741fa985c5ffcb2",
+      "size": 211
+    }
+  },
+  "dirs": [
+    "GhostOS Reports",
+    "Receipts",
+    "Receipts/2026-09",
+    "Uncategorized",
+    "r2",
+    "r2/misc",
+    "r2/receipts"
+  ],
+  "empty_dirs": [
+    "r2/misc",
+    "r2/receipts"
+  ]
+}

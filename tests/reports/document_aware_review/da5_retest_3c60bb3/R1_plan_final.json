@@ -1,0 +1,90 @@
+{
+  "plan_id": "plan_scan_9edea9b15ba6",
+  "scan_id": "scan_9edea9b15ba6",
+  "mode": "blocking",
+  "operations": [
+    {
+      "file_id": "187a4682",
+      "original_relative_path": "r1/misc/bank-statement-oct2026.txt",
+      "destination_relative_path": "Invoices/2026-09/bank-statement-oct2026.txt",
+      "reason": "invoice dated 2026-09-30",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "05b5e6c2",
+      "original_relative_path": "r1/misc/card-statement-sep2026.pdf",
+      "destination_relative_path": "Receipts/2026-09/card-statement-sep2026.pdf",
+      "reason": "receipt dated 2026-09-21",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "dce5056f",
+      "original_relative_path": "r1/receipts/sunbeam-cafe-receipt.pdf",
+      "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "reason": "receipt dated 2026-09-21",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "d294ceaf",
+      "original_relative_path": "r1/receipts/tibay-hardware-receipt.csv",
+      "destination_relative_path": "Receipts/2026-13/tibay-hardware-receipt.csv",
+      "reason": "receipt dated 2026-13-45",
+      "collision_suffixed": false
+    }
+  ],
+  "report_rows": [
+    {
+      "file_id": "187a4682",
+      "source_filename": "r1/misc/bank-statement-oct2026.txt",
+      "category": "invoice",
+      "date": "2026-09-30",
+      "merchant": "Sample National Bank",
+      "amount": "9120.50",
+      "currency": "PHP",
+      "status": "accepted"
+    },
+    {
+      "file_id": "05b5e6c2",
+      "source_filename": "r1/misc/card-statement-sep2026.pdf",
+      "category": "receipt",
+      "date": "2026-09-21",
+      "merchant": "SUNBEAM CAFE",
+      "amount": "683.20",
+      "currency": "PHP",
+      "status": "accepted"
+    },
+    {
+      "file_id": "dce5056f",
+      "source_filename": "r1/receipts/sunbeam-cafe-receipt.pdf",
+      "category": "receipt",
+      "date": "2026-09-21",
+      "merchant": "SUNBEAM CAFE",
+      "amount": "683.20",
+      "currency": "PHP",
+      "status": "accepted"
+    },
+    {
+      "file_id": "d294ceaf",
+      "source_filename": "r1/receipts/tibay-hardware-receipt.csv",
+      "category": "receipt",
+      "date": "2026-13-45",
+      "merchant": "Tibay Hardware",
+      "amount": "abc",
+      "currency": "XYZ",
+      "status": "accepted"
+    }
+  ],
+  "totals": [
+    {
+      "currency": "PHP",
+      "amount": "10486.90",
+      "row_count": 3
+    },
+    {
+      "currency": "XYZ",
+      "amount": "0",
+      "row_count": 0
+    }
+  ],
+  "blocking_review_count": 0
+}

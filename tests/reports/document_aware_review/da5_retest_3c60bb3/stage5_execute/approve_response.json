@@ -1,0 +1,10 @@
+{
+  "status": 200,
+  "body": {
+    "batch_id": "batch_34249d9117e5",
+    "moved": 3,
+    "failed": [],
+    "report_relative_path": "GhostOS Reports/expenses-202610092015.csv",
+    "committed_at": "2026-10-09T20:15:20.214601+00:00"
+  }
+}

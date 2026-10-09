@@ -1,0 +1,68 @@
+{
+  "commit": "3c60bb31c5bebf7addb7c6130dae0c0f5e85fe91",
+  "created_at": "2026-10-09T20:10:47.789497+00:00",
+  "canary_sha256": "5582774c350632cd09ed76792672bc24c739818692d618ed05c3fc0466835ed6",
+  "roots": {
+    "DA5-R1": {
+      "files": {
+        "r1/receipts/sunbeam-cafe-receipt.pdf": "receipts/sunbeam-cafe-receipt.pdf",
+        "r1/receipts/tibay-hardware-receipt.csv": "receipts/tibay-hardware-receipt.csv",
+        "r1/misc/bank-statement-oct2026.txt": "misc/bank-statement-oct2026.txt",
+        "r1/misc/card-statement-sep2026.pdf": "misc/card-statement-sep2026.pdf"
+      },
+      "snapshot": {
+        "files": {
+          "r1/misc/bank-statement-oct2026.txt": {
+            "sha256": "b3fe6daa6638a8d26466aa54b270e6fe513acf55aa5c00e02741fa985c5ffcb2",
+            "size": 211
+          },
+          "r1/misc/card-statement-sep2026.pdf": {
+            "sha256": "af2bda441bd6a6c020cf481ddcb7b95713d533616b71f1175da380f7e0b2cac5",
+            "size": 1296
+          },
+          "r1/receipts/sunbeam-cafe-receipt.pdf": {
+            "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+            "size": 1217
+          },
+          "r1/receipts/tibay-hardware-receipt.csv": {
+            "sha256": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9",
+            "size": 293
+          }
+        },
+        "dirs": [
+          "r1",
+          "r1/misc",
+          "r1/receipts"
+        ]
+      }
+    },
+    "DA5-R2": {
+      "files": {
+        "r2/receipts/sunbeam-cafe-receipt.pdf": "receipts/sunbeam-cafe-receipt.pdf",
+        "r2/receipts/tibay-hardware-receipt.csv": "receipts/tibay-hardware-receipt.csv",
+        "r2/misc/bank-statement-oct2026.txt": "misc/bank-statement-oct2026.txt"
+      },
+      "snapshot": {
+        "files": {
+          "r2/misc/bank-statement-oct2026.txt": {
+            "sha256": "b3fe6daa6638a8d26466aa54b270e6fe513acf55aa5c00e02741fa985c5ffcb2",
+            "size": 211
+          },
+          "r2/receipts/sunbeam-cafe-receipt.pdf": {
+            "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+            "size": 1217
+          },
+          "r2/receipts/tibay-hardware-receipt.csv": {
+            "sha256": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9",
+            "size": 293
+          }
+        },
+        "dirs": [
+          "r2",
+          "r2/misc",
+          "r2/receipts"
+        ]
+      }
+    }
+  }
+}
