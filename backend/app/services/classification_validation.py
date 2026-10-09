@@ -40,8 +40,12 @@ _SUPPORTED_CURRENCIES = {
     "€": "EUR",
     "GBP": "GBP",
     "£": "GBP",
+    "SGD": "SGD",
+    "S$": "SGD",
+    "JPY": "JPY",
+    "¥": "JPY",
 }
-_CURRENCY_TOKEN = r"(?:PHP|USD|EUR|GBP|₱|\$|€|£)"
+_CURRENCY_TOKEN = r"(?:PHP|USD|EUR|GBP|SGD|JPY|₱|\$|€|£|¥)"
 _NUMBER_TOKEN = r"(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{1,2})?"
 _MONEY_TOKEN_RE = re.compile(
     rf"(?P<sign>-)?\s*(?P<currency>{_CURRENCY_TOKEN})?\s*(?P<number>{_NUMBER_TOKEN})",

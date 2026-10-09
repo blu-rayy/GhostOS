@@ -63,9 +63,13 @@ def test_success_returns_valid_classification_and_elapsed_time(
     assert result.elapsed_seconds >= 0
     request_body = json.loads(captured["request"].data.decode("utf-8"))
     assert request_body["stream"] is False
-    assert request_body["format"] == ClassificationRecord.model_json_schema()
+    # Structured output is enforced by prompt + post-validation, not Ollama's
+    # "format" schema (which suppressed optional fields on qwen3:4b-instruct).
+    assert "format" not in request_body
+    assert request_body["options"]["temperature"] == 0
     assert "RECEIPT" in request_body["messages"][1]["content"]
-    assert "source_id" not in request_body["format"]["properties"]
+    system = request_body["messages"][0]["content"]
+    assert "merchant" in system and "amount_text" in system and "currency" in system
 
 
 @pytest.mark.parametrize("category", ["invoice", "receipt", "other", "uncertain"])
