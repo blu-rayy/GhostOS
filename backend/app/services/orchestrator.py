@@ -198,6 +198,11 @@ def _build_plan(session: ScanSession, mode: SortMode = "blocking") -> Plan:
         elif doc.status == "needs_review" and not doc.user_corrected:
             folder = "Uncategorized"
             reason = "Waiting for human review"
+        elif doc.user_corrected and category == "uncertain":
+            # The explicit "Leave for review" correction is distinct from
+            # filing a non-transactional document under Other/.
+            folder = "Uncategorized"
+            reason = "Left for human review"
         elif document_aware and field_profile != "transaction":
             folder = "Other"
             reason = "Non-transactional document"
