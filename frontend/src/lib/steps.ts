@@ -45,17 +45,27 @@ export interface StepContext {
   hasApprovedPlan: boolean
 }
 
-/** Whether the user may jump to this step right now. */
-export function canOpenStep(i: StepIndex, ctx: StepContext): boolean {
-  if (i === 0) return true
-  if (i === 1 || i === 2) return ctx.hasScan && ctx.phase !== 'scanning'
-  return ctx.hasApprovedPlan
+/** A step is finished once the flow has moved past it (or the user is past it). */
+export function isStepDone(i: StepIndex, ctx: StepContext, current: StepIndex | null = null): boolean {
+  if (i === 0) return ctx.hasScan && ctx.phase !== 'scanning'
+  if (i === 1) return ctx.hasApprovedPlan || (current !== null && current > 1)
+  if (i === 2) return ctx.hasApprovedPlan
+  return ctx.hasApprovedPlan && ctx.phase !== 'organizing'
 }
 
-/** A step is finished once the flow has moved past it. */
-export function isStepDone(i: StepIndex, ctx: StepContext): boolean {
-  const moved = ctx.hasApprovedPlan && ctx.phase !== 'organizing'
-  if (i === 0) return ctx.hasScan && ctx.phase !== 'scanning'
-  if (i === 1 || i === 2) return ctx.hasApprovedPlan
-  return moved
+/**
+ * Whether a step in the tracker can be clicked. Only moves the current flow already
+ * allows: Check ↔ Expenses while reviewing, Expenses ↔ Done after files moved. Start is
+ * never reopened from the tracker once a scan exists.
+ *
+ * Temporary exception to "not clickable forward": Check → Expenses stays clickable
+ * because the pre-redesign Check screens have no link to Expenses. Remove it when the
+ * paper Check screen gets its own "next" action.
+ */
+export function canOpenStep(i: StepIndex, current: StepIndex | null, ctx: StepContext): boolean {
+  if (i === current) return false
+  if (ctx.hasApprovedPlan) return i === 2 || i === 3
+  if (ctx.hasScan && ctx.phase === 'reviewing') return i === 1 || i === 2
+  // Before a scan exists, Start is the only place to be (e.g. coming back from History).
+  return i === 0
 }

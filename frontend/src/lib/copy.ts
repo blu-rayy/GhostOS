@@ -35,4 +35,10 @@ export const PIP_LINES = {
   done: (n: number) => `${n} files moved. report's ready. you're welcome.`,
   sigh: "couldn't read this one. nothing changed.",
   guard: 'offline. your files stay right here. so do I.',
+  /** Start screen (step 1) versions, per docs/design/step1-start.md. */
+  startReading: (n: number | null) => (n ? `reading ${n} files. riveting.` : 'reading. riveting.'),
+  scanStopped: "*sigh*. that didn't work.",
 } as const
+
+/** Name shown for the bundled sample folder (never presented as a real folder). */
+export const DEMO_FOLDER_NAME = 'Demo files'
