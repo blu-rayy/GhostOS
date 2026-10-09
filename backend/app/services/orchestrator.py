@@ -84,6 +84,7 @@ _VALIDATOR_FLAG_MAP: dict[str, tuple[str, str]] = {
     "missing_merchant": ("missing_merchant", "No merchant found in the document"),
     "missing_date": ("missing_date", "No date found in the document"),
     "uncertain_classification": ("uncertain_classification", "The classification is uncertain and needs human review"),
+    "quotation_document": ("quotation_document", "This document appears to be a quotation rather than a completed transaction."),
     "non_transactional_document": ("non_transactional_document", "This is not a transaction document and has no expense fields"),
     "transaction_fields_on_non_transactional": ("transaction_fields_on_non_transactional", "Transaction fields were reported for a non-transactional document"),
     "uncertain_document_kind": ("uncertain_document_kind", "The document kind could not be determined"),
@@ -187,6 +188,8 @@ def _build_plan(session: ScanSession) -> Plan:
     for doc in session.documents:
         c = doc.classification
         category = c.get("category") if c else None
+        document_aware = bool(c and "document_kind" in c)
+        field_profile = field_profile_for_classification(c) if c else "none"
 
         # Determine destination folder
         if not c or doc.status == "failed":
@@ -195,6 +198,9 @@ def _build_plan(session: ScanSession) -> Plan:
         elif doc.status == "needs_review" and not doc.user_corrected:
             folder = "Needs Review"
             reason = "Waiting for human review"
+        elif document_aware and field_profile != "transaction":
+            folder = "Other"
+            reason = "Non-transactional document"
         elif category in ("invoice", "receipt"):
             date = c.get("date")
             if not date:
@@ -242,7 +248,7 @@ def _build_plan(session: ScanSession) -> Plan:
         if (
             c
             and category in ("invoice", "receipt")
-            and field_profile_for_classification(c) == "transaction"
+            and field_profile == "transaction"
         ):
             # Prefer the canonical `amount` field (set by the scan worker and by
             # human corrections). Fall back to re-parsing `amount_text` only when
@@ -450,8 +456,6 @@ def _run_scan(session: ScanSession) -> None:
                 status=classify_status,
                 classification={
                     "category": classification.category,
-                    "document_kind": classification.document_kind,
-                    "field_profile": classification.field_profile,
                     "merchant": classification.merchant,
                     "date": classification.date,
                     "amount_text": classification.amount_text,
@@ -464,6 +468,9 @@ def _run_scan(session: ScanSession) -> None:
                 review_flags=classify_flags,
                 duplicate_of=duplicate_of,
             ))
+            if classification and classification.document_kind is not None:
+                session.documents[-1].classification["document_kind"] = classification.document_kind
+                session.documents[-1].classification["field_profile"] = classification.field_profile
             session.files_processed += 1
             store.put_scan(session)
 

@@ -52,7 +52,11 @@ def classify_file(request: ClassifyRequest) -> ClassifyResponse:
         raise HTTPException(status_code=502, detail=f"Unexpected response from Ollama: {exc}")
 
     classification = result.classification
-    effective_kind = document_kind_for_classification(classification.model_dump())
+    # Exclude unset document_kind so legacy seven-field model output retains
+    # category-based compatibility behavior.
+    effective_kind = document_kind_for_classification(
+        classification.model_dump(exclude_unset=True)
+    )
     response_classification = classification.model_copy(update={"document_kind": effective_kind})
 
     # Backend generates the ProposedOperation — never Ollama.

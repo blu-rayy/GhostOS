@@ -200,7 +200,10 @@ class ClassificationRecord(BaseModel):
         """Backend-derived editable-field profile (never supplied by the model)."""
         from app.services.document_awareness import derive_field_profile
 
-        return derive_field_profile(self.document_kind, legacy_category=self.category)
+        legacy_category = (
+            self.category if "document_kind" not in self.model_fields_set else None
+        )
+        return derive_field_profile(self.document_kind, legacy_category=legacy_category)
 
 
 class ProposedOperation(BaseModel):

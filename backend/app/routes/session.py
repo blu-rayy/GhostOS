@@ -25,6 +25,7 @@ from app.services.document_awareness import (
     document_kind_for_classification,
     field_profile_for_classification,
 )
+from app.schemas import normalize_document_kind
 
 
 def _classification_response(classification: dict | None) -> dict | None:
@@ -280,7 +281,15 @@ def correct_document(file_id: str, body: dict) -> dict:
             detail=f"Unsupported backend-controlled fields: {', '.join(supplied_forbidden)}",
         )
 
-    allowed_fields = {"category", "merchant", "date", "amount", "currency", "accept"}
+    allowed_fields = {
+        "category",
+        "document_kind",
+        "merchant",
+        "date",
+        "amount",
+        "currency",
+        "accept",
+    }
     unknown_fields = sorted(set(body) - allowed_fields)
     if unknown_fields:
         raise HTTPException(
@@ -288,8 +297,18 @@ def correct_document(file_id: str, body: dict) -> dict:
             detail=f"Unsupported correction fields: {', '.join(unknown_fields)}",
         )
 
-    current_classification = doc.classification or {"category": "uncertain"}
-    profile = field_profile_for_classification(current_classification)
+    current_classification = doc.classification or {
+        "category": "uncertain",
+        "document_kind": None,
+        "field_profile": "none",
+    }
+    proposed_classification = dict(current_classification)
+    if "document_kind" in body:
+        raw_kind = body["document_kind"]
+        if raw_kind is not None and not isinstance(raw_kind, str):
+            raise HTTPException(status_code=422, detail="document_kind must be a supported string or null")
+        proposed_classification["document_kind"] = normalize_document_kind(raw_kind)
+    profile = field_profile_for_classification(proposed_classification)
     transaction_fields = {"merchant", "date", "amount", "currency"}
     supplied_transaction_fields = sorted(transaction_fields.intersection(body))
     if supplied_transaction_fields and profile != "transaction":
@@ -305,6 +324,8 @@ def correct_document(file_id: str, body: dict) -> dict:
     if doc.classification is None:
         doc.classification = {
             "category": "uncertain",
+            "document_kind": None,
+            "field_profile": "none",
             "merchant": None,
             "date": None,
             "amount_text": None,
@@ -318,6 +339,9 @@ def correct_document(file_id: str, body: dict) -> dict:
     for field in ("category", "merchant", "date", "amount", "currency"):
         if field in body:
             doc.classification[field] = body[field]
+    if "document_kind" in body:
+        doc.classification["document_kind"] = proposed_classification["document_kind"]
+    doc.classification["field_profile"] = field_profile_for_classification(doc.classification)
 
     # Any correction invalidates the previously displayed organization plan.
     store.bump_revision_for_document(file_id)

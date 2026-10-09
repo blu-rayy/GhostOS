@@ -262,6 +262,101 @@ def test_non_transactional_corrections_are_rejected(tmp_path):
         assert response.status_code == 422
 
 
+def test_new_document_defaults_to_null_kind_and_none_profile(tmp_path):
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_new_document_defaults",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    sess.documents.append(DocumentRecord(
+        file_id="new-doc",
+        relative_path="paper.txt",
+        file_type="txt",
+        size_bytes=1,
+        sha256="e" * 64,
+        excerpt="paper",
+        status="needs_review",
+        classification=None,
+    ))
+    ss.put_scan(sess)
+
+    response = client.patch("/api/documents/new-doc", json={"accept": True})
+    assert response.status_code == 200
+    classification = response.json()["classification"]
+    assert classification["document_kind"] is None
+    assert classification["field_profile"] == "none"
+
+
+def test_document_kind_correction_is_normalized_and_profile_is_derived(tmp_path):
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_kind_correction",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    sess.documents.append(DocumentRecord(
+        file_id="kind-doc",
+        relative_path="paper.txt",
+        file_type="txt",
+        size_bytes=1,
+        sha256="f" * 64,
+        excerpt="paper",
+        status="needs_review",
+        classification={"category": "other"},
+    ))
+    ss.put_scan(sess)
+
+    response = client.patch(
+        "/api/documents/kind-doc",
+        json={"document_kind": "bank_statement"},
+    )
+    assert response.status_code == 200
+    classification = response.json()["classification"]
+    assert classification["document_kind"] == "statement"
+    assert classification["field_profile"] == "reference"
+
+
+def test_invoice_category_statement_kind_routes_other_and_has_no_report_row(tmp_path):
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_invoice_statement_kind",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    sess.documents.append(DocumentRecord(
+        file_id="statement-invoice-category",
+        relative_path="statement.txt",
+        file_type="txt",
+        size_bytes=1,
+        sha256="1" * 64,
+        excerpt="statement",
+        status="ok",
+        classification={
+            "category": "invoice",
+            "document_kind": "statement",
+            "merchant": "Bank",
+            "date": "2026-10-01",
+            "amount": "1000.00",
+            "currency": "PHP",
+        },
+    ))
+    ss.put_scan(sess)
+
+    plan = client.get("/api/scans/test_invoice_statement_kind/plan")
+    assert plan.status_code == 200
+    payload = plan.json()
+    assert payload["operations"][0]["destination_relative_path"].startswith("Other/")
+    assert payload["report_rows"] == []
+    assert payload["totals"] == []
+
+
 def test_session_response_exposes_derived_document_profile(tmp_path):
     from app.services.session_store import DocumentRecord, ScanSession, store as ss
 

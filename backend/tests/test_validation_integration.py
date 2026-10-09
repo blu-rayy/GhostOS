@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 
 import app.services.local_ai as local_ai
 from app.main import app
+from app.services.orchestrator import _map_validation_flags
 
 client = TestClient(app)
 
@@ -51,6 +52,16 @@ def _scan_until_done(root: str, attempts: int = 50) -> tuple[str, dict]:
 
 def _flag_codes(doc: dict) -> list[str]:
     return [f["code"] for f in doc["review_flags"]]
+
+
+def test_quotation_flag_uses_explicit_plain_language_message() -> None:
+    flags = _map_validation_flags(("quotation_document",))
+
+    assert flags == [{
+        "code": "quotation_document",
+        "message": "This document appears to be a quotation rather than a completed transaction.",
+    }]
+    assert "Validation check reported" not in flags[0]["message"]
 
 
 def test_missing_amount_flags_needs_review(tmp_path, monkeypatch):
