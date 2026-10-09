@@ -1,0 +1,16 @@
+GREENLEAF GROCER - Sample Branch (fictional)
+Official Receipt No. 0045123
+Date: 14/09/2026  Time: 17:42
+Cashier: 03
+
+Brown rice 2kg          1 x 189.00     189.00
+Eggs, tray of 30        1 x 285.00     285.00
+Bananas 1kg             1 x 120.00     120.00
+Cooking oil 1L          2 x 156.25     312.50
+Coffee beans 250g       1 x 380.00     380.00
+
+TOTAL: PHP 1,286.50
+CASH: PHP 1,500.00
+CHANGE: PHP 213.50
+
+Thank you for shopping!

@@ -1,0 +1,64 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 621 >>
+stream
+BT
+14 TL
+72 740 Td
+/F2 13 Tf
+(PIXELFORGE DESIGN STUDIO \(fictional\)) Tj T*
+/F1 11 Tf
+(Invoice: INV-1043) Tj T*
+/F1 11 Tf
+(Date issued: 02-Oct-2026) Tj T*
+/F1 11 Tf
+(Client: Mara Villanueva Studio) Tj T*
+/F1 11 Tf
+(Logo refinement, 8 hrs @ PHP 1,500.00: PHP 12,000.00) Tj T*
+/F1 11 Tf
+(Social media template set: PHP 6,500.00) Tj T*
+/F1 11 Tf
+(Subtotal: PHP 18,500.00) Tj T*
+/F1 11 Tf
+(Less 10% loyalty discount: -PHP 1,850.00) Tj T*
+/F1 11 Tf
+(Net of discount: PHP 16,650.00) Tj T*
+/F1 11 Tf
+(VAT 12%: PHP 1,998.00) Tj T*
+/F1 11 Tf
+(Total Amount Due: PHP 18,648.00) Tj T*
+/F1 11 Tf
+(Please pay within 15 days.) Tj T*
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000257 00000 n 
+0000000928 00000 n 
+0000001025 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+1127
+%%EOF
