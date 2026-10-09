@@ -25,6 +25,17 @@ let scan: ScanResult | null = null
 let scanStartedAt = 0
 let batchCounter = 0
 
+/**
+ * Opt-in demo scenarios (default off, so default fixture behaviour is unchanged).
+ * The Settings screen toggles these while fixtures are active.
+ */
+export const mockScenario = {
+  /** The scan stops with an error partway through. */
+  scanError: false,
+  /** Undo reports one restore conflict (original path now occupied). */
+  undoConflict: false,
+}
+
 function requireScan(scanId: string): ScanResult {
   if (!scan || scan.scan_id !== scanId) throw new Error(`Unknown scan ${scanId}`)
   return scan
@@ -138,6 +149,16 @@ export const mockApi: GhostApi = {
     const total = s.documents.length
     const fraction = Math.min(1, (Date.now() - scanStartedAt) / SCAN_DURATION_MS)
     const processed = Math.floor(fraction * total)
+    if (mockScenario.scanError && processed >= Math.floor(total / 2)) {
+      return {
+        scan_id: scanId,
+        state: 'error',
+        files_total: total,
+        files_processed: processed,
+        current_file: null,
+        error: 'Model not loaded: the local Ollama service stopped responding (simulated). No files were changed.',
+      }
+    }
     return {
       scan_id: scanId,
       state: processed >= total ? 'done' : 'running',
@@ -159,6 +180,21 @@ export const mockApi: GhostApi = {
     if (!doc) throw new Error(`Unknown file ${fileId}`)
     const { accept, ...fields } = correction
     if (doc.classification) Object.assign(doc.classification, fields)
+    else if (Object.keys(fields).length > 0) {
+      // Failed extraction: a person is entering the values by hand.
+      doc.classification = {
+        category: 'uncertain',
+        merchant: null,
+        date: null,
+        amount_text: null,
+        amount: null,
+        currency: null,
+        evidence_quote: null,
+        evidence_verified: false,
+        explanation: 'Entered manually because automatic extraction failed.',
+        ...fields,
+      }
+    }
     if (accept) {
       doc.user_corrected = true
       doc.review_flags = []
@@ -190,6 +226,21 @@ export const mockApi: GhostApi = {
   async undoBatch(batchId) {
     await delay(600)
     if (!scan) throw new Error('No scan')
-    return { batch_id: batchId, restored: buildPlan(scan).operations.length, conflicts: [] }
+    const ops = buildPlan(scan).operations
+    if (mockScenario.undoConflict && ops.length > 0) {
+      const op = ops[Math.min(1, ops.length - 1)]
+      return {
+        batch_id: batchId,
+        restored: ops.length - 1,
+        conflicts: [
+          {
+            file_id: op.file_id,
+            relative_path: op.original_relative_path,
+            reason: 'A different file now exists at the original path (content hash differs). Left at its organized location.',
+          },
+        ],
+      }
+    }
+    return { batch_id: batchId, restored: ops.length, conflicts: [] }
   },
 }

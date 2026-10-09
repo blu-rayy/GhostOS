@@ -1,100 +1,183 @@
+@import 'tailwindcss';
+
+/*
+ * GhostOS design tokens (Tailwind v4, CSS-first).
+ * Raw RGB channels live on :root so arbitrary values like rgb(var(--accent)) keep working;
+ * @theme exposes them as utilities (bg-surface-1, text-fg-muted, border-line, bg-accent/15 …).
+ * Use these tokens instead of raw hex values in components.
+ */
 :root {
-  --bg: #f6f7f9;
-  --surface: #ffffff;
-  --surface-2: #f0f2f5;
-  --border: #dfe3e8;
-  --text: #1c2330;
-  --text-muted: #5f6b7a;
-  --accent: #4f46e5;
-  --accent-contrast: #ffffff;
-  --accent-soft: #eef0ff;
-  --good: #15803d;
-  --good-soft: #e7f6ec;
-  --warn: #b45309;
-  --warn-soft: #fff4e0;
-  --bad: #b91c1c;
-  --bad-soft: #fdecec;
-  --mark: #fde68a;
+  --bg: 14 17 23; /* app shell */
+  --surface-1: 19 23 31; /* sidebar, panels */
+  --surface-2: 25 30 40; /* raised: inputs, table header */
+  --surface-3: 33 39 52; /* hover / selected */
+  --line: 38 45 59;
+  --line-strong: 52 61 79;
 
-  --cat-invoice: #4338ca;
-  --cat-invoice-soft: #e8e9ff;
-  --cat-receipt: #0f766e;
-  --cat-receipt-soft: #defaf4;
-  --cat-other: #475569;
-  --cat-other-soft: #eceff3;
-  --cat-uncertain: #a16207;
-  --cat-uncertain-soft: #fdf3d5;
+  --fg: 231 234 240;
+  --fg-muted: 160 168 184;
+  --fg-subtle: 112 121 140;
 
-  --radius: 10px;
-  --mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  --accent: 124 108 242; /* indigo-violet */
+  --accent-hover: 141 127 247;
+  --accent-fg: 255 255 255;
 
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
-  font-size: 15px;
-  line-height: 1.45;
-  color: var(--text);
-  background: var(--bg);
-  color-scheme: light;
+  --success: 63 185 122;
+  --warning: 227 163 59;
+  --danger: 229 83 75;
+  --info: 86 156 230;
+
+  color-scheme: dark;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f1218;
-    --surface: #171b23;
-    --surface-2: #1f2430;
-    --border: #2c3341;
-    --text: #e4e8ef;
-    --text-muted: #94a0b1;
-    --accent: #818cf8;
-    --accent-contrast: #0f1218;
-    --accent-soft: #232650;
-    --good: #4ade80;
-    --good-soft: #13291c;
-    --warn: #fbbf24;
-    --warn-soft: #2d2410;
-    --bad: #f87171;
-    --bad-soft: #321616;
-    --mark: #6b5310;
+@theme inline {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-black: #000;
+  --color-white: #fff;
+  --color-bg: rgb(var(--bg));
+  --color-surface-1: rgb(var(--surface-1));
+  --color-surface-2: rgb(var(--surface-2));
+  --color-surface-3: rgb(var(--surface-3));
+  --color-line: rgb(var(--line));
+  --color-line-strong: rgb(var(--line-strong));
+  --color-fg: rgb(var(--fg));
+  --color-fg-muted: rgb(var(--fg-muted));
+  --color-fg-subtle: rgb(var(--fg-subtle));
+  --color-accent: rgb(var(--accent));
+  --color-accent-hover: rgb(var(--accent-hover));
+  --color-accent-fg: rgb(var(--accent-fg));
+  --color-success: rgb(var(--success));
+  --color-warning: rgb(var(--warning));
+  --color-danger: rgb(var(--danger));
+  --color-info: rgb(var(--info));
+}
 
-    --cat-invoice: #a5b4fc;
-    --cat-invoice-soft: #262a55;
-    --cat-receipt: #5eead4;
-    --cat-receipt-soft: #12302c;
-    --cat-other: #cbd5e1;
-    --cat-other-soft: #262c36;
-    --cat-uncertain: #fcd34d;
-    --cat-uncertain-soft: #33290f;
-    color-scheme: dark;
+@theme {
+  --font-sans: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Cascadia Mono', 'JetBrains Mono', Consolas, ui-monospace, monospace;
+
+  /* Type scale (px): 11 / 12 / 13 / 14 / 16 / 20 / 24 */
+  --text-2xs: 11px;
+  --text-2xs--line-height: 16px;
+  --text-xs: 12px;
+  --text-xs--line-height: 16px;
+  --text-sm: 13px;
+  --text-sm--line-height: 20px;
+  --text-base: 14px;
+  --text-base--line-height: 20px;
+  --text-lg: 16px;
+  --text-lg--line-height: 24px;
+  --text-xl: 20px;
+  --text-xl--line-height: 28px;
+  --text-2xl: 24px;
+  --text-2xl--line-height: 32px;
+
+  /* Radius scale: 4 / 6 / 8 */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  --shadow-panel: 0 1px 0 0 rgb(255 255 255 / 0.03) inset, 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-overlay: 0 12px 32px rgb(0 0 0 / 0.45), 0 0 0 1px rgb(52 61 79);
+
+  --animate-fade-in: fade-in 120ms ease-out;
+  --animate-slide-in: slide-in 140ms ease-out;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes slide-in {
+    from {
+      transform: translateX(12px);
+      opacity: 0;
+    }
+    to {
+      transform: none;
+      opacity: 1;
+    }
   }
 }
 
-* {
-  box-sizing: border-box;
+@layer base {
+  /* Tailwind v4 defaults borders to currentColor; GhostOS uses the line token. */
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-line);
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  ::selection {
+    background: rgb(var(--accent) / 0.35);
+  }
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 1px;
+  }
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
 }
 
-body {
-  margin: 0;
-  background: var(--bg);
-}
-
-h1,
-h2,
-h3 {
-  margin: 0;
-  line-height: 1.25;
-}
-
-code {
-  font-family: var(--mono);
-  font-size: 0.88em;
-  background: var(--surface-2);
-  padding: 1px 5px;
-  border-radius: 4px;
-  overflow-wrap: anywhere;
-}
-
-button,
-input,
-select {
-  font: inherit;
-  color: inherit;
+@layer components {
+  .scroll-area {
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--line-strong)) transparent;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .input {
+    height: 2rem;
+    width: 100%;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-line);
+    background: var(--color-surface-2);
+    padding: 0 0.625rem;
+    font-size: var(--text-sm);
+    color: var(--color-fg);
+    transition: border-color 120ms;
+  }
+  .input::placeholder {
+    color: var(--color-fg-subtle);
+  }
+  .input:hover {
+    border-color: var(--color-line-strong);
+  }
+  .input:focus {
+    border-color: var(--color-accent);
+    outline: none;
+  }
+  .label {
+    font-size: var(--text-2xs);
+    line-height: var(--text-2xs--line-height);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    color: var(--color-fg-subtle);
+  }
 }
