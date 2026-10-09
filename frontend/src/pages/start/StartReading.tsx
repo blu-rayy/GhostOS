@@ -13,7 +13,7 @@ import { useApp } from '../../state/AppState'
  * indeterminate bar while the total is unknown.
  */
 export function StartReading() {
-  const { state, navigate } = useApp()
+  const { state, navigate, resetSession } = useApp()
   const p = state.progress
   const finished = state.scan !== null && state.phase !== 'scanning'
   const total = finished ? state.scan!.documents.length : p && p.files_total > 0 ? p.files_total : null
@@ -56,10 +56,17 @@ export function StartReading() {
       </div>
       <PageFooter
         left={
-          <span className="flex items-center gap-2 text-[19px] text-[#444]">
-            <LockIcon size={20} crisp />
-            Nothing moves while Pip reads. Everything stays on this computer.
-          </span>
+          // Back here from Check after reading: offer a fresh start, as on 1b and 1d.
+          finished ? (
+            <PaperButton variant="link" onClick={resetSession}>
+              ← choose another folder
+            </PaperButton>
+          ) : (
+            <span className="flex items-center gap-2 text-[19px] text-[#444]">
+              <LockIcon size={20} crisp />
+              Nothing moves while Pip reads. Everything stays on this computer.
+            </span>
+          )
         }
         right={
           <PaperButton variant="primary" disabled={!finished} disabledReason="opens when reading is done" reasonId="check-files-reason" onClick={() => navigate('files')}>
