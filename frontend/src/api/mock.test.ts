@@ -73,13 +73,14 @@ describe('fixture mock plan rules', () => {
 
     const failed = await settle(mockApi.correctDocument('f10', {
       category: 'invoice',
+      document_kind: 'invoice',
       merchant: 'Manual Merchant',
       date: '2026-10-01',
       amount: '10.00',
       currency: 'PHP',
       accept: true,
     }), 150)
-    expect(failed.classification).toMatchObject({ category: 'invoice', amount: '10.00', currency: 'PHP' })
+    expect(failed.classification).toMatchObject({ category: 'invoice', document_kind: 'invoice', field_profile: 'transaction', amount: '10.00', currency: 'PHP' })
     expect(failed.user_corrected).toBe(true)
 
     const plan = await settle(mockApi.getPlan(progress.scan_id), 200)

@@ -1,7 +1,10 @@
 import type { GhostApi } from './client'
 import type {
+  Classification,
   CurrencyTotal,
+  DocumentKind,
   DocumentRecord,
+  FieldProfile,
   PlanPreview,
   ProposedOperation,
   ReportRow,
@@ -61,10 +64,36 @@ function needsReview(doc: DocumentRecord): boolean {
   return doc.status !== 'ok' && !doc.user_corrected
 }
 
+const NON_TRANSACTIONAL_KINDS: DocumentKind[] = ['statement', 'identity_or_civil', 'legal', 'medical']
+const DOCUMENT_KINDS: DocumentKind[] = ['receipt', 'invoice', 'statement', 'identity_or_civil', 'legal', 'medical', 'other', 'uncertain']
+
+/** Mirrors schemas.field_profile_for: the profile always comes from the kind, never from the client. */
+function profileForKind(kind: DocumentKind | null): FieldProfile {
+  if (kind === 'receipt' || kind === 'invoice') return 'transaction'
+  if (kind === 'statement') return 'reference'
+  return 'none'
+}
+
+/**
+ * Agreed routing rule (Kurt, 2026-10-10): field_profile, else derived from document_kind; when
+ * both are missing (a legacy record) null, and the old category rules apply unchanged.
+ */
+function profileOf(c: Classification): FieldProfile | null {
+  if (c.field_profile) return c.field_profile
+  return c.document_kind ? profileForKind(c.document_kind) : null
+}
+
 function destinationFolder(doc: DocumentRecord): { folder: string; reason: string } {
   const c = doc.classification
   if (!c || doc.status === 'failed') return { folder: 'Needs Review', reason: 'Could not be classified' }
   if (needsReview(doc)) return { folder: 'Needs Review', reason: 'Waiting for human review' }
+  // Not a single payment: Other/, whatever the category says, except a document the user left
+  // for review (category 'uncertain'), which stays in Needs Review/. (Refinement proposed to
+  // Dev 1: without it "Leave for review" would file to Other/ once the profile rule lands.)
+  const profile = profileOf(c)
+  if (profile !== null && profile !== 'transaction') {
+    return c.category === 'uncertain' ? { folder: 'Needs Review', reason: 'Left for review' } : { folder: 'Other', reason: 'Not a transaction document' }
+  }
   if (c.category === 'invoice' || c.category === 'receipt') {
     if (!c.date) return { folder: 'Needs Review', reason: `${c.category} without a date` }
     const top = c.category === 'invoice' ? 'Invoices' : 'Receipts'
@@ -104,6 +133,9 @@ function buildPlan(s: ScanResult): PlanPreview {
   for (const doc of s.documents) {
     const c = doc.classification
     if (!c || (c.category !== 'invoice' && c.category !== 'receipt')) continue
+    // Non-transaction papers never reach the totals, whatever the category says.
+    const profile = profileOf(c)
+    if (profile !== null && profile !== 'transaction') continue
     const complete = c.amount !== null && c.currency !== null && c.date !== null
     const accepted = complete && !needsReview(doc) && doc.duplicate_of === null
     report_rows.push({
@@ -189,13 +221,25 @@ export const mockApi: GhostApi = {
     await delay(150)
     const doc = scan?.documents.find((d) => d.file_id === fileId)
     if (!doc) throw new Error(`Unknown file ${fileId}`)
-    const { accept, ...fields } = correction
+    // Agreed PATCH rules (Kurt, 2026-10-10): only these fields are taken; document_kind is
+    // normalised and field_profile is always derived from it, never taken from the client.
+    const { accept, document_kind: rawKind, category, merchant, date, amount, currency } = correction
+    const fields = Object.fromEntries(Object.entries({ category, merchant, date, amount, currency }).filter(([, v]) => v !== undefined))
+    const kindGiven = rawKind !== undefined
+    const kind: DocumentKind | null = rawKind == null ? null : DOCUMENT_KINDS.includes(rawKind) ? rawKind : 'other'
+    const moneyGiven = ['merchant', 'date', 'amount', 'currency'].some((k) => fields[k] != null)
+    const effectiveKind = kindGiven ? kind : (doc.classification?.document_kind ?? null)
+    if (effectiveKind && NON_TRANSACTIONAL_KINDS.includes(effectiveKind) && moneyGiven) {
+      throw new Error(`422 ${effectiveKind} documents can't have a shop, date, amount or currency`)
+    }
     if (doc.classification) Object.assign(doc.classification, fields)
-    else if (Object.keys(fields).length > 0) {
-      // Failed extraction: a person is entering the values by hand. Like the backend, this
-      // record carries no document_kind/field_profile (the frontend then treats it as 'none').
+    else if (Object.keys(fields).length > 0 || kindGiven) {
+      // Failed extraction: a person is entering the values by hand. Both keys are always stored;
+      // with no kind given that is document_kind null -> field_profile 'none'.
       doc.classification = {
         category: 'uncertain',
+        document_kind: null,
+        field_profile: 'none',
         merchant: null,
         date: null,
         amount_text: null,
@@ -206,6 +250,10 @@ export const mockApi: GhostApi = {
         explanation: 'Entered manually because automatic extraction failed.',
         ...fields,
       }
+    }
+    if (doc.classification && kindGiven) {
+      doc.classification.document_kind = kind
+      doc.classification.field_profile = profileForKind(kind)
     }
     if (accept) {
       doc.user_corrected = true

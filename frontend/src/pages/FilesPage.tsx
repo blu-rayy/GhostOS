@@ -25,6 +25,8 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
   const [date, setDate] = useState(doc?.classification?.date ?? '')
   const [merchant, setMerchant] = useState(doc?.classification?.merchant ?? '')
   const [manual, setManual] = useState(false)
+  // Typing in an unreadable file: the person says what it is, so the backend can derive the profile.
+  const [manualKind, setManualKind] = useState<'receipt' | 'invoice'>('receipt')
   const [saving, setSaving] = useState(false)
   if (!doc) return null
   const flag = doc.review_flags[0]?.code
@@ -50,6 +52,7 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
       {isInjection && <><p className="m-0 text-[16px]">the text, shown as plain words only:</p><EvidenceExcerpt text={doc.excerpt} quote={doc.classification?.evidence_quote} tone="pink" /></>}
       {isFailedDoc && <div role="radiogroup" aria-label="What to do with this file" className="space-y-2"><RadioCard checked={!manual} onChange={() => setManual(false)}>Leave it for later<br /><span className="text-graphite">goes to Needs Review/ and is not counted</span></RadioCard><RadioCard checked={manual} onChange={() => setManual(true)}>Type the details myself</RadioCard></div>}
       {!isInjection && (!isFailedDoc || manual) && <div className="space-y-3">
+        {isFailedDoc && <div role="radiogroup" aria-label="What kind of paper is it" className="flex gap-2">{(['receipt', 'invoice'] as const).map((k) => <button key={k} type="button" role="radio" aria-checked={manualKind === k} onClick={() => setManualKind(k)} className={`flex-1 rounded-full border-[2.5px] border-ink px-3 py-1.5 text-[17px] ${manualKind === k ? 'bg-ink text-paper' : 'bg-paper'}`}>{k}</button>)}</div>}
         <label className="block">Shop<input value={merchant} onChange={(e) => setMerchant(e.target.value)} className="mt-1 block h-11 w-full rounded-[8px] border-[2.5px] border-ink bg-paper px-3" /></label>
         <label className="block">Amount<input value={amount} onChange={(e) => setAmount(e.target.value)} inputMode="decimal" className="mt-1 block h-11 w-full rounded-[8px] border-[2.5px] border-ink bg-paper px-3 font-mono text-[15px]" /></label>
         {(isMissingDate || !isConflict) && <label className={`block ${isMissingDate ? 'rounded-[8px] bg-hl-check p-2' : ''}`}>Date<input value={date} onChange={(e) => setDate(e.target.value)} placeholder="YYYY-MM-DD" className="mt-1 block h-11 w-full rounded-[8px] border-[2.5px] border-ink bg-paper px-3 font-mono text-[15px]" /></label>}
@@ -57,7 +60,7 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
       {!isInjection && <><p className="m-0 text-[16px] text-graphite">what Pip read in the file:</p><EvidenceExcerpt text={doc.excerpt} quote={doc.classification?.evidence_quote} /></>}
       <p className="m-0 text-[16px] text-graphite">goes to <span className="font-mono">{row.destination ?? (isInjection ? 'Other/' : 'Needs Review/')}</span> once checked</p>
     </div>
-    <div className="border-t-[2.5px] border-ink p-4">{state.actionError && <p className="mb-2 text-center text-[16px] text-danger">{state.actionError}</p>}<PanelAction disabled={saving} onClick={() => isInjection ? save() : save({ amount: amount || null, date: date || null, merchant: merchant || null })}>{isFailedDoc && !manual ? 'Leave it for later · mark checked' : isInjection ? 'Got it · file under Other' : isMissingDate ? 'Save date · mark checked' : 'Looks right · mark checked'}</PanelAction></div>
+    <div className="border-t-[2.5px] border-ink p-4">{state.actionError && <p className="mb-2 text-center text-[16px] text-danger">{state.actionError}</p>}<PanelAction disabled={saving} onClick={() => isInjection ? save() : save({ amount: amount || null, date: date || null, merchant: merchant || null, ...(isFailedDoc && manual ? { category: manualKind, document_kind: manualKind } : {}) })}>{isFailedDoc && !manual ? 'Leave it for later · mark checked' : isInjection ? 'Got it · file under Other' : isMissingDate ? 'Save date · mark checked' : 'Looks right · mark checked'}</PanelAction></div>
   </aside>
 }
 

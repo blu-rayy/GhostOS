@@ -85,4 +85,29 @@ describe('document-aware review', () => {
     expect(dest.get(RECEIPT)).toBe('Receipts/2026-09/receipt_grab_0912.txt')
     expect(plan.report_rows.find((r) => r.file_id === RECEIPT)?.status).toBe('accepted')
   })
+
+  it('files a non-transaction paper by its profile even when its category says invoice', async () => {
+    const scan = await startScan()
+    // A statement mislabelled as an invoice and accepted outside the Check panel.
+    await settle(mockApi.correctDocument(STATEMENT, { category: 'invoice', accept: true }), 150)
+    const plan = await settle(mockApi.getPlan(scan.scan_id), 200)
+    expect(plan.operations.find((o) => o.file_id === STATEMENT)?.destination_relative_path).toBe('Other/statement_0921.pdf')
+    expect(plan.report_rows.find((r) => r.file_id === STATEMENT)).toBeUndefined()
+  })
+
+  it('stores both keys on a hand-typed record and derives the profile only from the kind', async () => {
+    await startScan()
+    const untyped = await settle(mockApi.correctDocument('f10', { merchant: 'Somewhere', accept: false }), 150)
+    expect(untyped.classification).toMatchObject({ document_kind: null, field_profile: 'none' })
+    const typed = await settle(mockApi.correctDocument('f10', { document_kind: 'receipt', category: 'receipt', accept: true }), 150)
+    expect(typed.classification).toMatchObject({ document_kind: 'receipt', field_profile: 'transaction' })
+  })
+
+  it('rejects payment details on a statement, ID, legal or medical paper', async () => {
+    await startScan()
+    const attempt = settle(mockApi.correctDocument(BIRTH_CERT, { amount: '100.00', accept: true }), 150)
+    await expect(attempt).rejects.toThrow(/422/)
+    const relabel = settle(mockApi.correctDocument(RECEIPT, { document_kind: 'medical', merchant: 'Clinic', accept: true }), 150)
+    await expect(relabel).rejects.toThrow(/422/)
+  })
 })
