@@ -63,15 +63,15 @@ function needsReview(doc: DocumentRecord): boolean {
 
 function destinationFolder(doc: DocumentRecord): { folder: string; reason: string } {
   const c = doc.classification
-  if (!c || doc.status === 'failed') return { folder: 'Needs Review', reason: 'Could not be classified' }
-  if (needsReview(doc)) return { folder: 'Needs Review', reason: 'Waiting for human review' }
+  if (!c || doc.status === 'failed') return { folder: 'Uncategorized', reason: 'Could not be classified' }
+  if (needsReview(doc)) return { folder: 'Uncategorized', reason: 'Waiting for human review' }
   if (c.category === 'invoice' || c.category === 'receipt') {
-    if (!c.date) return { folder: 'Needs Review', reason: `${c.category} without a date` }
+    if (!c.date) return { folder: 'Uncategorized', reason: `${c.category} without a date` }
     const top = c.category === 'invoice' ? 'Invoices' : 'Receipts'
     return { folder: `${top}/${c.date.slice(0, 7)}`, reason: `${c.category} dated ${c.date}` }
   }
   if (c.category === 'other') return { folder: 'Other', reason: 'Not an invoice or receipt' }
-  return { folder: 'Needs Review', reason: 'Category uncertain' }
+  return { folder: 'Uncategorized', reason: 'Category uncertain' }
 }
 
 function withSuffix(name: string, n: number): string {

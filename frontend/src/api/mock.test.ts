@@ -20,13 +20,13 @@ describe('fixture mock plan rules', () => {
     expect(destination.get('f01')?.destination_relative_path).toBe('Invoices/2026-09/Invoice_INV-2041_Lumen_Design.pdf')
     expect(destination.get('f02')?.destination_relative_path).toBe('Receipts/2026-09/receipt_grab_0912.txt')
     expect(destination.get('f05')?.destination_relative_path).toBe('Other/meeting-notes-client-a.txt')
-    expect(destination.get('f07')?.destination_relative_path).toBe('Needs Review/receipt_office_warehouse.txt')
+    expect(destination.get('f07')?.destination_relative_path).toBe('Uncategorized/receipt_office_warehouse.txt')
     expect(destination.get('f08')?.destination_relative_path).toBe('Invoices/2026-09/Invoice_INV-2041_Lumen_Design (2).pdf')
     expect(destination.get('f08')?.collision_suffixed).toBe(true)
-    expect(destination.get('f10')?.destination_relative_path).toBe('Needs Review/random_scan_0098.pdf')
-    expect(destination.get('f15')?.destination_relative_path).toBe('Needs Review/statement_0921.pdf')
-    expect(destination.get('f17')?.destination_relative_path).toBe('Needs Review/receipt-7eleven.txt')
-    expect(destination.get('f18')?.destination_relative_path).toBe('Needs Review/invoice_client_B.pdf')
+    expect(destination.get('f10')?.destination_relative_path).toBe('Uncategorized/random_scan_0098.pdf')
+    expect(destination.get('f15')?.destination_relative_path).toBe('Uncategorized/statement_0921.pdf')
+    expect(destination.get('f17')?.destination_relative_path).toBe('Uncategorized/receipt-7eleven.txt')
+    expect(destination.get('f18')?.destination_relative_path).toBe('Uncategorized/invoice_client_B.pdf')
   })
 
   it('accepts only complete, reviewed, non-duplicate invoice and receipt rows', async () => {

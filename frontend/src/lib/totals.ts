@@ -18,12 +18,12 @@ export function folderOf(path: string): string {
 }
 
 export const OTHER_FOLDER = 'Other/'
-export const NEEDS_REVIEW_FOLDER = 'Needs Review/'
+export const UNCATEGORIZED_FOLDER = 'Uncategorized/'
 
 /** Plain note shown under a destination folder. */
 export function folderNote(folder: string): string {
   if (folder === OTHER_FOLDER) return 'not counted'
-  if (folder === NEEDS_REVIEW_FOLDER) return "couldn't read"
+  if (folder === UNCATEGORIZED_FOLDER) return "couldn't read"
   return ''
 }
 
@@ -32,14 +32,14 @@ export interface FolderGroup {
   count: number
 }
 
-/** Destination folders with their move counts. Dated folders first, then Other/, then Needs Review/. */
+/** Destination folders with their move counts. Dated folders first, then Other/, then Uncategorized/. */
 export function groupByDestination(ops: ProposedOperation[]): FolderGroup[] {
   const counts = new Map<string, number>()
   for (const op of ops) {
     const folder = folderOf(op.destination_relative_path)
     counts.set(folder, (counts.get(folder) ?? 0) + 1)
   }
-  const rank = (f: string) => (f === NEEDS_REVIEW_FOLDER ? 2 : f === OTHER_FOLDER ? 1 : 0)
+  const rank = (f: string) => (f === UNCATEGORIZED_FOLDER ? 2 : f === OTHER_FOLDER ? 1 : 0)
   return [...counts]
     .map(([folder, count]) => ({ folder, count }))
     .sort((a, b) => rank(a.folder) - rank(b.folder) || a.folder.localeCompare(b.folder))

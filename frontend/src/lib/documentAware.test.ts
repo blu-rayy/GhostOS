@@ -76,7 +76,7 @@ describe('document-aware review', () => {
     const dest = new Map(plan.operations.map((o) => [o.file_id, o.destination_relative_path]))
     expect(dest.get(BIRTH_CERT)).toBe('Other/birth_certificate_scan.pdf')
     expect(dest.get(STATEMENT)).toBe('Other/statement_0921.pdf')
-    expect(dest.get(UNCERTAIN)).toBe('Needs Review/scan_untitled_04.pdf')
+    expect(dest.get(UNCERTAIN)).toBe('Uncategorized/scan_untitled_04.pdf')
     // Deciding unblocks Move, and none of them adds money to the totals.
     expect(plan.blocking_review_count).toBe(before.blocking_review_count - 3)
     for (const id of [STATEMENT, BIRTH_CERT, UNCERTAIN]) expect(plan.report_rows.find((r) => r.file_id === id)).toBeUndefined()

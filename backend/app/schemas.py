@@ -18,6 +18,7 @@ DocumentKind = Literal[
     "uncertain",
 ]
 FieldProfile = Literal["transaction", "reference", "none"]
+SortMode = Literal["blocking", "partial"]
 
 _DOCUMENT_KIND_VALUES = frozenset(
     {
@@ -286,3 +287,9 @@ class ClassifyResponse(BaseModel):
     needs_review: bool = False
     review_reason: str | None = None
     elapsed_seconds: float = Field(..., ge=0)
+
+
+class ApprovalRequest(BaseModel):
+    """Explicit approval mode; omitted mode preserves blocking behavior."""
+
+    mode: SortMode = "blocking"

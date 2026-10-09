@@ -161,6 +161,132 @@ def test_plan_id_is_stable_and_approve_undo_cycle(tmp_path, monkeypatch):
     assert (tmp_path / "receipt.txt").exists()
 
 
+def _put_unresolved_session(tmp_path):
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    session = ScanSession(
+        scan_id=f"partial_{tmp_path.name}",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    content = b"Receipt needing review"
+    (tmp_path / "receipt.txt").write_bytes(content)
+    import hashlib
+    session.documents.append(DocumentRecord(
+        file_id=f"{session.scan_id}_file_0",
+        relative_path="receipt.txt",
+        file_type="txt",
+        size_bytes=len(content),
+        sha256=hashlib.sha256(content).hexdigest(),
+        excerpt=content.decode(),
+        status="needs_review",
+        classification={
+            "category": "receipt",
+            "merchant": None,
+            "date": None,
+            "amount_text": None,
+            "amount": None,
+            "currency": None,
+            "evidence_quote": None,
+            "evidence_verified": False,
+            "explanation": "Needs review",
+        },
+        review_flags=[{"code": "missing_amount", "message": "review"}],
+    ))
+    ss.put_scan(session)
+    return session
+
+
+def test_default_mode_blocks_unresolved_approval(tmp_path):
+    session = _put_unresolved_session(tmp_path)
+    preview = client.get(f"/api/scans/{session.scan_id}/plan")
+    assert preview.status_code == 200
+    payload = preview.json()
+    assert payload["mode"] == "blocking"
+    assert payload["operations"][0]["destination_relative_path"].startswith("Uncategorized/")
+    blocked = client.post(f"/api/plans/{payload['plan_id']}/approve", json={})
+    assert blocked.status_code == 409
+    assert (tmp_path / "receipt.txt").exists()
+
+
+def test_partial_mode_routes_unsorted_and_requires_matching_explicit_approval(tmp_path):
+    session = _put_unresolved_session(tmp_path)
+    preview = client.get(f"/api/scans/{session.scan_id}/plan?mode=partial")
+    assert preview.status_code == 200
+    payload = preview.json()
+    assert payload["mode"] == "partial"
+    assert payload["operations"][0]["destination_relative_path"].startswith("Uncategorized/")
+    assert payload["report_rows"] == []
+    assert payload["totals"] == []
+
+    implicit_blocking = client.post(f"/api/plans/{payload['plan_id']}/approve", json={})
+    assert implicit_blocking.status_code == 409
+
+    approved = client.post(
+        f"/api/plans/{payload['plan_id']}/approve",
+        json={"mode": "partial"},
+    )
+    assert approved.status_code == 200, approved.text
+    batch = approved.json()
+    assert batch["moved"] == 1
+    unsorted = tmp_path / payload["operations"][0]["destination_relative_path"]
+    assert unsorted.exists()
+
+    undone = client.post(f"/api/batches/{batch['batch_id']}/undo", json={})
+    assert undone.status_code == 200
+    assert undone.json()["restored"] == 1
+    assert (tmp_path / "receipt.txt").exists()
+
+
+def test_invalid_sort_mode_returns_422(tmp_path):
+    session = _put_unresolved_session(tmp_path)
+    assert client.get(f"/api/scans/{session.scan_id}/plan?mode=unsafe").status_code == 422
+    preview = client.get(f"/api/scans/{session.scan_id}/plan").json()
+    response = client.post(
+        f"/api/plans/{preview['plan_id']}/approve",
+        json={"mode": "unsafe"},
+    )
+    assert response.status_code == 422
+
+
+def test_new_mode_preview_supersedes_old_snapshot_and_rejects_old_approval(tmp_path):
+    session = _put_unresolved_session(tmp_path)
+    blocking = client.get(f"/api/scans/{session.scan_id}/plan").json()
+    partial = client.get(f"/api/scans/{session.scan_id}/plan?mode=partial").json()
+    assert blocking["plan_id"] == partial["plan_id"]
+
+    old_approval = client.post(f"/api/plans/{blocking['plan_id']}/approve", json={})
+    assert old_approval.status_code == 409
+    assert "mode" in old_approval.json()["detail"].lower()
+
+
+def test_partial_mode_still_rejects_changed_source_without_moving(tmp_path):
+    session = _put_unresolved_session(tmp_path)
+    preview = client.get(f"/api/scans/{session.scan_id}/plan?mode=partial").json()
+    (tmp_path / "receipt.txt").write_text("changed after scan")
+
+    response = client.post(
+        f"/api/plans/{preview['plan_id']}/approve",
+        json={"mode": "partial"},
+    )
+    assert response.status_code == 200
+    assert response.json()["moved"] == 0
+    assert response.json()["failed"]
+    assert (tmp_path / "receipt.txt").exists()
+
+
+def test_partial_mode_preserves_classified_transaction_destination(tmp_path):
+    session = _put_done_session_with_files(tmp_path)
+    preview = client.get(f"/api/scans/{session.scan_id}/plan?mode=partial")
+
+    assert preview.status_code == 200
+    payload = preview.json()
+    assert payload["mode"] == "partial"
+    assert payload["operations"][0]["destination_relative_path"].startswith("Receipts/")
+    assert payload["report_rows"][0]["status"] == "accepted"
+
+
 # ---------------------------------------------------------------------------
 # Document correction
 # ---------------------------------------------------------------------------
@@ -260,6 +386,106 @@ def test_non_transactional_corrections_are_rejected(tmp_path):
             json={"amount": "100.00", "accept": True},
         )
         assert response.status_code == 422
+
+
+def test_contradictory_category_and_transaction_correction_has_no_mutation(tmp_path):
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_contradictory_correction",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    original_classification = {
+        "category": "other",
+        "document_kind": "statement",
+        "field_profile": "reference",
+        "merchant": None,
+        "date": None,
+        "amount_text": None,
+        "amount": None,
+        "currency": None,
+        "evidence_quote": "Account statement",
+        "evidence_verified": True,
+        "explanation": "Multiple account transactions.",
+    }
+    original_flags = [{"code": "non_transactional_document", "message": "review"}]
+    sess.documents.append(DocumentRecord(
+        file_id="contradictory-doc",
+        relative_path="statement.txt",
+        file_type="txt",
+        size_bytes=1,
+        sha256="2" * 64,
+        excerpt="Account statement",
+        status="needs_review",
+        classification=dict(original_classification),
+        review_flags=list(original_flags),
+    ))
+    ss.put_scan(sess)
+    preview = client.get("/api/scans/test_contradictory_correction/plan").json()
+    revision_before = sess.plan_revision
+
+    response = client.patch(
+        "/api/documents/contradictory-doc",
+        json={"category": "invoice", "amount": "100.00", "accept": True},
+    )
+    assert response.status_code == 422
+
+    doc = ss.find_document("contradictory-doc")
+    assert doc is not None
+    assert doc.classification == original_classification
+    assert doc.review_flags == original_flags
+    assert doc.status == "needs_review"
+    assert doc.user_corrected is False
+    assert sess.plan_revision == revision_before
+    current_preview = client.get("/api/scans/test_contradictory_correction/plan").json()
+    assert current_preview == preview
+
+
+def test_explicit_null_kind_cannot_become_transaction_expense(tmp_path):
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_null_kind_invoice",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    sess.documents.append(DocumentRecord(
+        file_id="null-kind-invoice",
+        relative_path="unknown.txt",
+        file_type="txt",
+        size_bytes=1,
+        sha256="3" * 64,
+        excerpt="Unknown paperwork",
+        status="needs_review",
+        classification={
+            "category": "invoice",
+            "document_kind": None,
+            "field_profile": "none",
+            "merchant": None,
+            "date": None,
+            "amount_text": "PHP 100.00",
+            "amount": "100.00",
+            "currency": "PHP",
+            "evidence_quote": None,
+            "evidence_verified": False,
+            "explanation": "Unidentified document",
+        },
+        review_flags=[{"code": "uncertain_document_kind", "message": "review"}],
+    ))
+    ss.put_scan(sess)
+
+    patch = client.patch(
+        "/api/documents/null-kind-invoice",
+        json={"amount": "100.00", "accept": True},
+    )
+    assert patch.status_code == 422
+    plan = client.get("/api/scans/test_null_kind_invoice/plan").json()
+    assert plan["report_rows"] == []
+    assert plan["totals"] == []
+    assert plan["operations"][0]["destination_relative_path"].startswith("Uncategorized/")
 
 
 def test_new_document_defaults_to_null_kind_and_none_profile(tmp_path):

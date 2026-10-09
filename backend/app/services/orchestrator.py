@@ -40,7 +40,7 @@ from app.services.extractor import process_file_content
 from app.services import local_ai
 from app.services.classification_validation import validate_classification
 from app.services.operations import build_proposed_operation
-from app.schemas import ClassificationRecord
+from app.schemas import ClassificationRecord, SortMode
 from app.services.document_awareness import field_profile_for_classification
 
 SUPPORTED_EXTENSIONS = {".pdf", ".txt", ".csv"}
@@ -178,7 +178,7 @@ def _safe_destination_folder(
             return candidate
     raise ValueError(f"Could not choose a safe destination for {folder!r}")
 
-def _build_plan(session: ScanSession) -> Plan:
+def _build_plan(session: ScanSession, mode: SortMode = "blocking") -> Plan:
     root = Path(session.root).resolve(strict=False)
     source_directories = _source_directories(session)
     taken: set[str] = set()
@@ -193,10 +193,10 @@ def _build_plan(session: ScanSession) -> Plan:
 
         # Determine destination folder
         if not c or doc.status == "failed":
-            folder = "Needs Review"
+            folder = "Uncategorized"
             reason = "Could not be classified"
         elif doc.status == "needs_review" and not doc.user_corrected:
-            folder = "Needs Review"
+            folder = "Uncategorized"
             reason = "Waiting for human review"
         elif document_aware and field_profile != "transaction":
             folder = "Other"
@@ -204,7 +204,7 @@ def _build_plan(session: ScanSession) -> Plan:
         elif category in ("invoice", "receipt"):
             date = c.get("date")
             if not date:
-                folder = "Needs Review"
+                folder = "Uncategorized"
                 reason = f"{category} without a date"
             else:
                 top = _CATEGORY_FOLDER.get(category, "Other")
@@ -215,7 +215,7 @@ def _build_plan(session: ScanSession) -> Plan:
             folder = "Other"
             reason = "Not an invoice or receipt"
         else:
-            folder = "Needs Review"
+            folder = "Uncategorized"
             reason = "Category uncertain"
 
         folder = _safe_destination_folder(root, folder, source_directories)
@@ -249,6 +249,11 @@ def _build_plan(session: ScanSession) -> Plan:
             c
             and category in ("invoice", "receipt")
             and field_profile == "transaction"
+            and not (
+                mode == "partial"
+                and doc.status == "needs_review"
+                and not doc.user_corrected
+            )
         ):
             # Prefer the canonical `amount` field (set by the scan worker and by
             # human corrections). Fall back to re-parsing `amount_text` only when
@@ -303,6 +308,7 @@ def _build_plan(session: ScanSession) -> Plan:
         report_rows=report_rows,
         totals=totals,
         blocking_review_count=blocking,
+        mode=mode,
     )
 
 
@@ -468,7 +474,7 @@ def _run_scan(session: ScanSession) -> None:
                 review_flags=classify_flags,
                 duplicate_of=duplicate_of,
             ))
-            if classification and classification.document_kind is not None:
+            if classification and "document_kind" in classification.model_fields_set:
                 session.documents[-1].classification["document_kind"] = classification.document_kind
                 session.documents[-1].classification["field_profile"] = classification.field_profile
             session.files_processed += 1
@@ -499,19 +505,23 @@ def start_scan_async(scan_id: str, root: str) -> ScanSession:
     return session
 
 
-def get_plan(scan_id: str) -> Plan:
+def get_plan(scan_id: str, mode: SortMode = "blocking") -> Plan:
     session = store.get_scan(scan_id)
     if session is None:
         raise KeyError(f"Scan {scan_id!r} not found")
 
     plan_id = f"plan_{scan_id}"
     existing = store.get_plan_snapshot(plan_id)
-    if existing is not None and existing.session_revision == session.plan_revision:
+    if (
+        existing is not None
+        and existing.session_revision == session.plan_revision
+        and existing.mode == mode
+    ):
         return copy.deepcopy(existing.plan)
 
     # A GET of the preview endpoint is the explicit request for a fresh
     # preview after a correction or other session revision.
-    plan = _build_plan(session)
+    plan = _build_plan(session, mode)
     source_directories = _source_directories(session)
     identities = tuple(
         sorted(
@@ -532,6 +542,7 @@ def get_plan(scan_id: str) -> Plan:
             session_revision=session.plan_revision,
             source_identities=identities,
             source_directories=source_directories,
+            mode=mode,
         ),
     )
     return copy.deepcopy(plan)

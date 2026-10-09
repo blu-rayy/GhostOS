@@ -11,6 +11,8 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Optional
 
+from app.schemas import SortMode
+
 from app.schemas import ClassifyResponse
 
 
@@ -101,6 +103,7 @@ class Plan:
     report_rows: list[ReportRow]
     totals: list[CurrencyTotal]
     blocking_review_count: int
+    mode: SortMode = "blocking"
 
 
 @dataclass(frozen=True)
@@ -111,6 +114,7 @@ class PlanSnapshot:
     session_revision: int
     source_identities: tuple[tuple[str, tuple[str, str]], ...]
     source_directories: tuple[str, ...] = ()
+    mode: SortMode = "blocking"
 
 
 # ---------------------------------------------------------------------------
@@ -146,6 +150,7 @@ class Batch:
     report_state: str = "pending"  # pending | prepared | published | failed
     report_temp_relative_path: str | None = None
     report_error: str | None = None
+    mode: SortMode = "blocking"
 
 
 # ---------------------------------------------------------------------------
