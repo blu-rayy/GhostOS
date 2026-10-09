@@ -1,7 +1,7 @@
 # GhostOS — Project Context
 
 > Working reference for the four developers, coding assistants, and project manager.
-> Updated: 2026-10-09. Status is a plan, **not** a claim that features are complete.
+> Updated: 2026-10-10. Status is a plan, **not** a claim that features are complete.
 
 ## Mission
 
@@ -229,7 +229,7 @@ Before changing code:
 
 # GhostOS — Implementation State (observed, not planned)
 
-Observed from the repository on 2026-10-09. The plan above is the target;
+Observed from the repository on 2026-10-10 (around midnight). The plan above is the target;
 this section describes what is actually built. Verify against the repo
 before claiming more.
 
@@ -246,6 +246,12 @@ writes CSV) → undo (restore originals).
   current implementation — packaging/distribution decision still open per
   plan above).
 - `docs/frontend-api-handoff.md` — endpoint/field contract from frontend side.
+- `docs/design/` — paper UI spec per step (`step1-start.md` … `step4-done.md`)
+  plus static HTML reference boards for each screen state (1a–1d, 2a–2e,
+  3a–3d, 4a–4d).
+- `backend/scripts/` — offline evaluation tools (`evaluate_classification.py`,
+  `evaluate_dataset.py`, `evaluate_sample_folder.py`); run against a real
+  local Ollama, write aggregates only to `backend/evaluation_output/`.
 - `docs/qa/` — QA strategy + checklists (`phase1-checklist.md`,
   `phase2-frontend-qa.md`).
 - `tests/` (repo root) — fixtures/integration/reports workspace.
@@ -264,8 +270,10 @@ python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 Tests (from `backend/`, venv active): `python -m pytest`
-(58 passed, 1 skipped — the skip is the real-Ollama integration test, which
-only runs when a local Ollama + model is present.)
+(last recorded: 58 passed, 1 skipped — the skip is the real-Ollama
+integration test, which only runs when a local Ollama + model is present.
+`test_cors.py` and more validation tests were added since; re-run for the
+current count.)
 
 Routers (all mounted in `backend/app/main.py`):
 
@@ -311,22 +319,31 @@ Canonical schemas: `backend/app/schemas.py` (`ScanRequest`, `FileRecord`,
 - `classify.py` passes `request.file_id` as `original_relative_path`
   placeholder — single-file classify destinations are not real paths.
 - `GET /` still returns `{"phase": 1}` (stale label, harmless).
-- No CORS middleware — browser dev server (`127.0.0.1:5173`) calling the API
-  will be blocked; use Electron or same-origin for real-backend testing.
+- CORS allows only `http://127.0.0.1:5173` and `http://localhost:5173`
+  (GET/POST/PATCH). The browser dev server can call the real API; other
+  origins are blocked. Add an origin here if the dev port changes.
+- Supported currencies: PHP, USD, EUR, GBP, SGD, JPY (symbols ₱ $ € £ S$ ¥),
+  in `classification_validation.py` and the classifier prompt in
+  `local_ai.py`. The frontend mirrors this in `lib/money.ts`, `lib/format.ts`
+  and `lib/totals.ts`. Add a currency on both sides.
 - All session state is process memory — server restart loses scans/batches.
   (SQLite for metadata/plans/audit is planned, not implemented.)
 
 ## Frontend
 
-Stack: React 19, Vite 8, Tailwind v4, `lucide-react`. Node 20.19+/22.12+,
-npm 10+.
+Stack: React 19, Vite 8, Tailwind v4 (via `@tailwindcss/vite`; tokens live in
+`src/index.css` `@theme` blocks, there is no `tailwind.config.js`),
+`lucide-react`, Electron 44, self-hosted fonts (`@fontsource` Gochi Hand,
+Patrick Hand, Space Mono). Node 20.19+/22.12+, npm 10+.
 
 Scripts (from `frontend/`): `dev:browser` (Vite on `127.0.0.1:5173`),
 `dev:electron` (needs Vite already running), `dev` (both),
 `build` (`tsc -b && vite build`), `typecheck` (`tsc -b`), `lint` (oxlint),
-`preview`, `electron:preview`. Vitest suites exist (`mock.test.ts`,
-`money.test.ts`, `report.test.ts`, `viewModel.test.ts`; config
-`frontend/vitest.config.ts`).
+`test` (`vitest run`), `preview`, `electron:preview` (build, then run
+Electron on `dist/`). Vitest: 6 files, 23 tests (`api/mock.test.ts`,
+`lib/money.test.ts`, `lib/report.test.ts`, `lib/totals.test.ts`,
+`lib/viewModel.test.ts`, `lib/viewModel.flags.test.ts`). Lint has two known
+`no-useless-escape` warnings in `report.test.ts`.
 
 API layer (`frontend/src/api/`):
 
@@ -338,41 +355,62 @@ API layer (`frontend/src/api/`):
   the default. Real backend needs `frontend/.env.local` with
   `VITE_USE_FIXTURES=false` + `VITE_API_BASE=http://127.0.0.1:8000`.
 
-Pages (`frontend/src/pages/`): `Dashboard`, `FolderSelect`, `Scanning`,
-`Files`, `Plan`, `Report`, `Activity`, `Completion`, `Settings` (9 views,
-see `App.tsx`). Key components: `shell/AppShell`, `documents/*`,
-`plan/*`, `report/ExpenseReportTable`, `activity/ActivityTimeline`,
-`pip/Pip`, `paper/*` (paper-sketch UI tokens).
+UI: the "paper sketch" redesign, a 4-step flow. Each step page picks its
+designed state from session state (specs in `docs/design/`):
+
+| Step | Page | Views (`types/ui.ts`) | States |
+|---|---|---|---|
+| 1 · Start | `pages/start/StartPage.tsx` (+ `StartEmpty/Folder/Reading/Stopped`) | `dashboard`, `folder`, `scanning` | 1a nothing picked · 1b folder chosen · 1c reading · 1d stopped |
+| 2 · Check | `pages/FilesPage.tsx` | `files` | 2a two totals · 2b no date · 2c couldn't read · 2d suspicious · 2e all checked |
+| 3 · Totals | `pages/totals/TotalsPage.tsx` (+ `TotalsSummary`, `MovingScreen`, `MoveProblems`) | `plan`, `report` | 3a totals · 3b confirm move · 3c moving · 3d move problem |
+| 4 · Done | `pages/done/DonePage.tsx` | `completion` | 4a all tidy · 4b confirm put back · 4c put back · 4d some stayed |
+
+`App.tsx` maps views to pages; `lib/steps.ts` maps views to steps and decides
+which steps the header tracker lets you click. History and Settings are not
+views: they are side panels (`Panel` in `types/ui.ts`) over the current step —
+`components/shell/SidePanel.tsx` with `components/panels/HistoryPanel.tsx`
+(session activity log + "Put files back") and `SettingsPanel.tsx` (backend and
+Ollama status, endpoints, model name, external request count).
+
+Components: `shell/AppShell`, `shell/Header` (only navigation: logo, step
+tracker, offline pill, "demo data" chip in fixture mode, History/Settings
+buttons), `shell/useServiceStates`, `paper/*` (Button, Chip, PaperCard,
+PaperDialog + `useFocusTrap`, StickyNote, HatchProgress, NumberedSteps,
+PageFooter, icons, `CheckComponents` for Step 2), `pip/Pip` (mascot; at most
+one per screen, only in empty/scanning/done/error moments), `ui/cx`.
 
 State: `frontend/src/state/AppState.tsx` + `reducer.ts` — all backend calls
-go through `api`; nothing touches the filesystem directly. Status bar polls
-`getStatus` every 10 s. Scan progress polls every 500 ms.
+go through `api`; nothing touches the filesystem directly. Header polls
+`getStatus` every 10 s. Scan progress polls every 500 ms. A successful
+approve jumps straight to Done; a partial failure stays on Totals (3d).
+History is session-only (no activity endpoint) and resets when the app closes.
 
 Platform (`frontend/src/platform/`): `browser.ts` vs `electron.ts` adapters.
 Only Electron (`window.ghostos` bridge, `contextIsolation: true`,
 `nodeIntegration: false`) has a native folder picker; browser mode requires
 a typed/pasted path.
 
-Pure libs: `lib/money.ts` (BigInt-cents decimal math, no floats),
-`lib/report.ts` (CSV export, accepted rows only), `lib/viewModel.ts`
-(contract → table rows), `lib/format.ts`, `lib/labels.ts`, `lib/review.ts`,
-`lib/steps.ts`, `lib/copy.ts`.
-`lib/plan.ts` is obsolete (nothing imports it, safe to delete).
+Pure libs: `lib/money.ts` (BigInt-cents decimal math, no floats; parses
+typed corrections), `lib/format.ts` (display: currency symbols, JPY without
+decimals, dates), `lib/report.ts` (CSV export, accepted rows only),
+`lib/totals.ts` (Totals/Done helpers: currency names, folder grouping),
+`lib/viewModel.ts` (contract → rows), `lib/steps.ts`, `lib/copy.ts` (UI and
+Pip lines), `lib/scanError.ts` (classifies scan errors, e.g. AI down).
 
 Fixtures: `frontend/src/fixtures/scan.json` (18 docs, 5 skipped, edge cases:
 duplicates, timeout, injection, multi-currency, uncertain, missing date,
 evidence mismatch), `status.json`.
 
-## Git state (2026-10-09, evening)
+## Git state (2026-10-10, ~00:00)
 
-- `main` @ `4203471` — includes: session-management layer (merged from
-  `feature/phase2-step2-session-management`), frontend QA/PiP/paper work
-  (merged `qa/frontend-tests`, `feat/ui-paper`), plus `context.md` and
-  `pyrightconfig.json`.
-- Older remote branches (may be merged or stale — check before reusing):
-  `feature/phase2-step1-classify`, `feature/step3-scanner`,
-  `feature/step4-extraction`, `developer-1-jj/phase1-step2-contracts`,
-  `feature/frontend-fixture-ui`.
+- `main` and `feat/ui-paper` are level at `293b51b` (later commits may exist;
+  check `git log origin/main`). `main` includes: session-management layer,
+  the full paper UI (Steps 1–4, side panels, old screens deleted), backend
+  CORS, prompt-based classification with SGD/JPY support, evaluation
+  scripts, and matching frontend currency handling.
+- Other remote branches (may be merged or stale — check before reusing):
+  `feature/frontend-fixture-ui`, `qa/phase1-fixtures`.
+- Remaining work and owners: see `TODO.md`.
 
 ## Picking up work
 
@@ -381,7 +419,9 @@ evidence mismatch), `status.json`.
 2. Frontend fixture mode (no backend): `cd frontend`, `npm install`,
    `npm run dev:browser`.
 3. Frontend real-backend mode: add `frontend/.env.local` (see above), start
-   backend first, then `npm run dev:electron`.
+   backend and Ollama first, then `npm run dev` (Vite + Electron, native
+   folder picker) or `npm run dev:browser` (typed folder path; CORS allows
+   it). For the demo build: `npm run electron:preview`.
 4. Contract source of truth: `frontend/src/types/api.ts` proposes shapes,
    `backend/app/schemas.py` enforces them — keep field names snake_case on
    both sides and update both when changing a contract.
