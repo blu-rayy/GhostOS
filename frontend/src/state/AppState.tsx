@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react'
 import { api, USING_FIXTURES } from '../api'
+import { DEMO_FOLDER_NAME } from '../lib/copy'
 import { errorText } from '../lib/format'
 import { basename, buildFileRows, buildPlanRows, docStatus, type FileRow, type PlanRow } from '../lib/viewModel'
 import { resolvePlatform } from '../platform/electron'
@@ -151,8 +152,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     chooseSampleFolder() {
       stopPolling()
       dispatch({ type: 'resetSession' })
-      patch({ folder: { kind: 'mock', name: 'Sample fixtures', documentCount: null }, phase: 'folder_selected', view: 'folder' })
-      log({ type: 'folder_selected', level: 'info', title: 'Sample folder selected', detail: 'Fixture data. No files on this computer are read.' })
+      patch({ folder: { kind: 'mock', name: DEMO_FOLDER_NAME, documentCount: null }, phase: 'folder_selected', view: 'folder' })
+      log({ type: 'folder_selected', level: 'info', title: 'Demo files selected', detail: 'Demo data bundled with the app. No files on this computer are read.' })
     },
 
     setTypedRoot: (typedRoot) => patch({ typedRoot }),
@@ -193,7 +194,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           if (progress.state === 'error') return fail(progress.error ?? 'The scan failed.')
           if (progress.state === 'done') {
             const scan = await api.getScan(scanId)
-            patch({ scan, phase: 'reviewing' })
+            // Go straight to Check, unless the user has History or Settings open.
+            patch({ scan, phase: 'reviewing', ...(stateRef.current.view === 'scanning' ? { view: 'files' as const } : {}) })
             log({
               type: 'scan_completed',
               level: 'success',

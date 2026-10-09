@@ -59,7 +59,15 @@ function Lids({ y = 61, r = 3 }: { y?: number; r?: number }) {
 }
 
 function Bags() {
-  return <path d="M40 77q7 3 14 0M66 77q7 3 14 0" {...line} strokeWidth={1.8} />
+  return <path d="M40 77q7 3 14 0M66 77q7 3 14 0" {...line} strokeWidth={1.6} />
+}
+
+/** Dashed ground shadow and the single curl of hair used on the large moods. */
+function Ground() {
+  return <ellipse cx="60" cy="125" rx="32" ry="3.5" fill="none" stroke={INK} strokeWidth="1.8" strokeDasharray="4 4" />
+}
+function Hair() {
+  return <path d="M60 21q5-9-2-13" {...line} strokeWidth={2.4} />
 }
 
 const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
@@ -84,14 +92,17 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
     label: 'Pip waiting with a coffee mug',
     art: (
       <>
-        <Body />
-        <Glasses />
+        <Ground />
+        <Body w={3} />
+        <Hair />
+        <Glasses w={2.6} />
         <Lids />
         <Bags />
-        <path d="M52 87h12" {...line} strokeWidth={3} />
-        <path d="M68 95h18v15a4 4 0 0 1-4 4H72a4 4 0 0 1-4-4Z" fill="#fff" stroke={INK} strokeWidth="3" strokeLinejoin="round" />
-        <path d="M86 99h3a4 4 0 0 1 0 8h-3" stroke={INK} strokeWidth="3" fill="none" />
-        <path d="M73 90q2-3 0-6M80 90q2-3 0-6" {...line} strokeWidth={2} />
+        <path d="M52 87h12" {...line} strokeWidth={2.6} />
+        <path d="M68 95h18v15a4 4 0 0 1-4 4H72a4 4 0 0 1-4-4Z" fill="#fff" stroke={INK} strokeWidth="2.6" strokeLinejoin="round" />
+        <path d="M86 99h3a4 4 0 0 1 0 8h-3" stroke={INK} strokeWidth="2.6" fill="none" />
+        <path d="M73 90q2-3 0-6M80 90q2-3 0-6" {...line} strokeWidth={1.8} />
+        <path d="M21 80c-5 2-8 6-7 11" {...line} strokeWidth={2.6} />
       </>
     ),
   },
@@ -99,12 +110,14 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
     label: 'Pip reading a receipt over his glasses',
     art: (
       <>
-        <Body />
-        <Glasses y={66} />
+        <Ground />
+        <Body w={3} />
+        <Hair />
+        <Glasses y={66} w={2.6} />
         <Lids y={66} />
-        <path d="M38 50l14 2M68 52l14-2" {...line} strokeWidth={2.6} />
-        <path d="M30 86h60v30H30Z" fill="#fff" stroke={INK} strokeWidth="3" strokeLinejoin="round" />
-        <path d="M37 95h44M37 103h34M37 110h22" {...line} strokeWidth={2.5} />
+        <path d="M38 50l14 2M68 52l14-2" {...line} strokeWidth={2.3} />
+        <path d="M30 86h60v30H30Z" fill="#fff" stroke={INK} strokeWidth="2.6" strokeLinejoin="round" />
+        <path d="M37 95h44M37 103h34M37 110h22" {...line} strokeWidth={2.2} />
       </>
     ),
   },
@@ -142,15 +155,18 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
     label: 'Pip sighing, glasses crooked',
     art: (
       <>
-        <Body />
+        <Ground />
+        <Body w={3} />
+        <Hair />
         <g transform="rotate(-8 60 62)">
-          <Glasses />
-          <path d="M75 55l-4 12" {...line} strokeWidth={1.6} />
+          <Glasses w={2.6} />
+          <path d="M75 55l-4 12" {...line} strokeWidth={1.4} />
         </g>
-        <path d="M41 62q6 3 12 0M67 59q6 3 12 0" {...line} strokeWidth={2.6} />
+        <path d="M41 62q6 3 12 0M67 59q6 3 12 0" {...line} strokeWidth={2.3} />
         <Bags />
-        <ellipse cx="60" cy="88" rx="4" ry="3" fill="none" stroke={INK} strokeWidth="2.6" />
-        <path d="M66 90q8 2 14-2" {...line} strokeWidth={1.8} strokeDasharray="3 3" />
+        <ellipse cx="60" cy="88" rx="4" ry="3" fill="none" stroke={INK} strokeWidth="2.3" />
+        <path d="M66 90q8 2 14-2" {...line} strokeWidth={1.6} strokeDasharray="3 3" />
+        <path d="M21 80c-5 2-8 6-7 11M99 80c5 2 8 6 7 11" {...line} strokeWidth={2.6} />
       </>
     ),
   },
@@ -201,15 +217,42 @@ export function PipMark({ size = 34 }: { size?: number }) {
   )
 }
 
-/** Pip's speech bubble with a tail pointing left at him. */
-export function SpeechBubble({ children, className }: { children: ReactNode; className?: string }) {
+/**
+ * Pip's speech bubble, in Gochi Hand. `tail="down"` points at Pip standing below
+ * (Start screens); `tail="left"` points at Pip beside it.
+ */
+export function SpeechBubble({ children, className, tail = 'left', tailOffset = 40 }: { children: ReactNode; className?: string; tail?: 'left' | 'down'; tailOffset?: number }) {
   return (
-    <div className={cx('relative rounded-[16px] border-[2.5px] border-ink bg-paper px-3 py-2 text-lg leading-6', className)}>
+    <div className={cx('relative rounded-[18px] border-[2.5px] border-ink bg-paper font-display', tail === 'down' ? 'px-4 py-2.5 text-[24px] leading-tight shadow-card-sm' : 'px-3 py-2 text-[22px] leading-7', className)}>
       {children}
-      <svg width="22" height="18" viewBox="0 0 22 18" className="absolute -left-[20px] bottom-2.5" aria-hidden focusable="false">
-        <path d="M21 2 2 15 21 12" fill="#fff" stroke={INK} strokeWidth="2.5" strokeLinejoin="round" />
-      </svg>
+      {tail === 'down' ? (
+        <svg width="26" height="22" viewBox="0 0 26 22" className="absolute -bottom-[21px]" style={{ left: tailOffset }} aria-hidden focusable="false">
+          <path d="M2 1 8 20 20 1" fill="#fff" stroke={INK} strokeWidth="2.5" strokeLinejoin="round" />
+        </svg>
+      ) : (
+        <svg width="22" height="18" viewBox="0 0 22 18" className="absolute -left-[20px] bottom-2.5" aria-hidden focusable="false">
+          <path d="M21 2 2 15 21 12" fill="#fff" stroke={INK} strokeWidth="2.5" strokeLinejoin="round" />
+        </svg>
+      )}
     </div>
+  )
+}
+
+/**
+ * Pip standing under his speech bubble (Start screens). The bubble text is Pip's
+ * line; Pip himself is decorative because the bubble already says it.
+ */
+export function PipWithBubble({ mood, line: text, size, className, bubbleClassName, tailOffset }: { mood: PipMood; line: string; size: number; className?: string; bubbleClassName?: string; tailOffset?: number }) {
+  return (
+    <figure className={cx('m-0 flex flex-col items-center', className)}>
+      <figcaption className={cx('max-w-full', bubbleClassName)}>
+        <SpeechBubble tail="down" tailOffset={tailOffset}>
+          <span className="sr-only">Pip says: </span>
+          {text}
+        </SpeechBubble>
+      </figcaption>
+      <Pip mood={mood} size={size} decorative className="mt-3" />
+    </figure>
   )
 }
 

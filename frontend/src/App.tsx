@@ -1,24 +1,21 @@
 import { AppShell } from './components/shell/AppShell';
 import { ActivityPage } from './pages/ActivityPage';
 import { CompletionPage } from './pages/CompletionPage';
-import { DashboardPage } from './pages/DashboardPage';
 import { FilesPage } from './pages/FilesPage';
-import { FolderSelectPage } from './pages/FolderSelectPage';
 import { PlanPage } from './pages/PlanPage';
 import { ReportPage } from './pages/ReportPage';
-import { ScanningPage } from './pages/ScanningPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { StartPage } from './pages/start/StartPage';
 import { AppStateProvider, useApp } from './state/AppState';
 
 function CurrentView() {
   const { state } = useApp();
   switch (state.view) {
+    // Step 1 · Start (paper redesign): one page, state picked from the session phase.
     case 'dashboard':
-      return <DashboardPage />;
     case 'folder':
-      return <FolderSelectPage />;
     case 'scanning':
-      return <ScanningPage />;
+      return <StartPage />;
     case 'files':
       return <FilesPage />;
     case 'plan':
