@@ -1,0 +1,29 @@
+{
+  "patch": {
+    "target": "misc/card-statement-sep2026.pdf",
+    "body": {
+      "category": "invoice",
+      "accept": true
+    },
+    "status": 200,
+    "classification_after": {
+      "category": "invoice",
+      "document_kind": "statement",
+      "field_profile": "reference",
+      "date": "2026-09-25",
+      "amount": null,
+      "currency": "PHP"
+    }
+  },
+  "card_statement_destination": "GhostOS Organized/Invoices/2026-09/card-statement-sep2026.pdf",
+  "card_statement_report_row": null,
+  "drivers_license_destination_after_F8": "Needs Review/drivers-license-record.txt",
+  "totals": [
+    {
+      "currency": "PHP",
+      "amount": "683.20",
+      "row_count": 1
+    }
+  ],
+  "folder_unchanged": true
+}
