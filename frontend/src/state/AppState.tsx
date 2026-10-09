@@ -250,11 +250,25 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         const updated = await api.correctDocument(fileId, correction)
         dispatch({ type: 'replaceDoc', doc: updated })
         const name = basename(doc?.relative_path ?? fileId)
+        const leftForReview = updated.review_disposition === 'leave_for_review'
         log(
-          correction.accept
-            ? { type: 'record_reviewed', level: 'success', title: `Marked reviewed: ${name}`, fileId }
-            : { type: 'record_corrected', level: 'info', title: `Corrected ${label} on ${name}`, fileId },
+          leftForReview
+            ? { type: 'record_reviewed', level: 'info', title: `Left for review: ${name}`, detail: 'Goes to Uncategorized/ when you move. Not counted.', fileId }
+            : correction.accept
+              ? { type: 'record_reviewed', level: 'success', title: `Marked reviewed: ${name}`, fileId }
+              : { type: 'record_corrected', level: 'info', title: `Corrected ${label} on ${name}`, fileId },
         )
+        // A file left for review still blocks a strict plan (backend bf99c68); only set-aside
+        // (partial) mode moves it, to Uncategorized/. Once nothing is left unchecked, and the only
+        // blockers are files the person explicitly left for review, switch to that mode so Move
+        // opens. Never earlier: that would also let still-unchecked files through.
+        const docs = (s.scan?.documents ?? []).map((d) => (d.file_id === fileId ? updated : d))
+        const unchecked = docs.some((d) => d.status === 'needs_review' && !d.user_corrected)
+        const anyLeft = docs.some((d) => d.review_disposition === 'leave_for_review')
+        if (!unchecked && anyLeft && stateRef.current.sortMode === 'blocking') {
+          patch({ sortMode: 'partial' })
+          stateRef.current = { ...stateRef.current, sortMode: 'partial' }
+        }
         patch({ busy: null })
         if (s.scan) await loadPlan(s.scan.scan_id)
         return true

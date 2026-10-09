@@ -1,10 +1,13 @@
+import { useRef, useState } from 'react'
 import { useApp } from '../../state/AppState'
+import type { AppState } from '../../state/reducer'
 import { STEP_LABELS, WORDS } from '../../lib/copy'
 import { describeScanError } from '../../lib/scanError'
 import { STEPS, canOpenStep, isStepDone, stepForView, type StepContext, type StepIndex } from '../../lib/steps'
 import type { Panel } from '../../types/ui'
 import { Tag } from '../paper/Chip'
-import { IconButton } from '../paper/Button'
+import { IconButton, PaperButton } from '../paper/Button'
+import { PaperDialog } from '../paper/PaperDialog'
 import { ComputerIcon, HistoryIcon, LockIcon, SettingsIcon } from '../paper/icons'
 import { PipMark } from '../pip/Pip'
 import { cx } from '../ui/cx'
@@ -18,18 +21,22 @@ type StepState = 'done' | 'current' | 'later'
  */
 export function Header() {
   const { state, navigate, dispatch, resetSession, usingFixtures } = useApp()
+  const [confirmStartOver, setConfirmStartOver] = useState(false)
+  const loss = startOverLoss(state)
+  const goHome = () => (loss === 'busy' ? undefined : loss ? setConfirmStartOver(true) : resetSession())
   const ctx: StepContext = { phase: state.phase, hasScan: state.scan !== null, hasApprovedPlan: state.approvedPlan !== null }
   const current = stepForView(state.view)
   const togglePanel = (panel: Panel) => dispatch({ type: 'patch', patch: { panel: state.panel === panel ? null : panel } })
   const stepState = (i: StepIndex): StepState => (i === current ? 'current' : isStepDone(i, ctx, current) ? 'done' : 'later')
 
   return (
+    <>
     <header className="relative z-10 flex h-16 shrink-0 items-center gap-5 border-b-[2.5px] border-ink bg-paper px-7">
       <button
         type="button"
         aria-label="Go to GhostOS start"
         title="Go to start"
-        onClick={resetSession}
+        onClick={goHome}
         className="flex items-center gap-2 rounded-[10px] outline-none transition-transform duration-150 hover:-translate-y-px focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
       >
         <PipMark size={32} />
@@ -70,6 +77,8 @@ export function Header() {
         </IconButton>
       </div>
     </header>
+    <StartOverDialog open={confirmStartOver} loss={loss} onKeep={() => setConfirmStartOver(false)} onStartOver={() => { setConfirmStartOver(false); resetSession() }} />
+    </>
   )
 }
 
@@ -162,5 +171,57 @@ function StatusPill() {
       <ComputerIcon size={16} crisp />
       <span className="sr-only">on this computer</span>
     </span>
+  )
+}
+
+type StartOverLoss = 'reading' | 'checks' | 'moved'
+
+/**
+ * What going back to Start would throw away (the session lives only in memory). null: nothing
+ * worth confirming (no folder, only a folder picked, or the files were already put back).
+ * Never while files are moving or being put back: the logo does nothing then.
+ */
+function startOverLoss(state: AppState): StartOverLoss | 'busy' | null {
+  if (state.phase === 'organizing' || state.phase === 'undoing') return 'busy'
+  if (state.batch && state.phase === 'organized') return 'moved'
+  if (state.phase === 'scanning') return 'reading'
+  if (state.scan && state.phase !== 'undone') return 'checks'
+  return null
+}
+
+const START_OVER_TEXT: Record<StartOverLoss, { title: string; body: string }> = {
+  reading: { title: 'Stop reading and start over?', body: 'Pip is still reading this folder. Starting over stops it. Nothing has been moved.' },
+  checks: { title: 'Start over?', body: 'Your checks on this folder will be lost. Nothing has been moved yet.' },
+  moved: {
+    title: 'Start over?',
+    body: "Your files stay in their new folders, but after this GhostOS can't put them back for you. If you might want to undo, use History → Put files back first.",
+  },
+}
+
+/** Confirms going back to Start from the logo. "Keep working" has focus; Esc keeps working. */
+function StartOverDialog({ open, loss, onKeep, onStartOver }: { open: boolean; loss: StartOverLoss | 'busy' | null; onKeep: () => void; onStartOver: () => void }) {
+  const keep = useRef<HTMLButtonElement>(null)
+  const text = loss && loss !== 'busy' ? START_OVER_TEXT[loss] : null
+  return (
+    <PaperDialog open={open && text !== null} onCancel={onKeep} role="alertdialog" variant="b" labelledBy="start-over-title" describedBy="start-over-desc" initialFocus={keep}>
+      {text && (
+        <div className="px-8 pb-6 pt-6">
+          <h2 id="start-over-title" className="m-0 font-display text-[36px] font-normal leading-tight">
+            {text.title}
+          </h2>
+          <p id="start-over-desc" className="m-0 mt-2 text-[18px] leading-7">
+            {text.body}
+          </p>
+          <div className="mt-6 flex items-center justify-end gap-4">
+            <PaperButton ref={keep} variant="secondary" size="sm" onClick={onKeep}>
+              Keep working
+            </PaperButton>
+            <PaperButton variant="careful" size="sm" onClick={onStartOver}>
+              Start over
+            </PaperButton>
+          </div>
+        </div>
+      )}
+    </PaperDialog>
   )
 }

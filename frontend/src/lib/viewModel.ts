@@ -148,7 +148,8 @@ export function reviewReasonText(row: FileRow): string {
 
 /** True when this document blocks approval (mirrors blocking_review_count). */
 export function isBlocking(d: DocumentRecord): boolean {
-  return d.status === 'needs_review' && !d.user_corrected
+  // A file left for review still blocks a strict plan (backend bf99c68).
+  return d.status === 'needs_review' && (!d.user_corrected || d.review_disposition === 'leave_for_review')
 }
 
 /** Which field a review flag is about, so the detail panel can show it next to that field. */

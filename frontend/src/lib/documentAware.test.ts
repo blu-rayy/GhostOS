@@ -71,6 +71,8 @@ describe('document-aware review', () => {
     // The backend's kind and profile are untouched by a decision.
     expect(left.classification).toMatchObject({ document_kind: 'uncertain', field_profile: 'none', category: 'uncertain' })
     expect(left.user_corrected).toBe(true)
+    // Leave for review (backend bf99c68): kept as needs_review, with the decision recorded.
+    expect(left).toMatchObject({ status: 'needs_review', review_disposition: 'leave_for_review' })
 
     const plan = await settle(mockApi.getPlan(scan.scan_id), 200)
     const dest = new Map(plan.operations.map((o) => [o.file_id, o.destination_relative_path]))
@@ -78,8 +80,13 @@ describe('document-aware review', () => {
     expect(dest.get(STATEMENT)).toBe('Other/statement_0921.pdf')
     // Leave for review stays in Uncategorized/ (backend b584d92), unlike File it (Other/).
     expect(dest.get(UNCERTAIN)).toBe('Uncategorized/scan_untitled_04.pdf')
-    // Deciding unblocks Move, and none of them adds money to the totals.
-    expect(plan.blocking_review_count).toBe(before.blocking_review_count - 3)
+    // Filing unblocks Move; a file left for review still blocks a strict plan (the app then
+    // switches to set-aside mode, where it moves to Uncategorized/). None adds money to the totals.
+    expect(plan.blocking_review_count).toBe(before.blocking_review_count - 2)
+    const partial = await settle(mockApi.getPlan(scan.scan_id, 'partial'), 200)
+    expect(partial.operations.find((o) => o.file_id === UNCERTAIN)?.destination_relative_path).toBe('Uncategorized/scan_untitled_04.pdf')
+    const moved = await settle(mockApi.approvePlan(partial.plan_id, 'partial'), 800)
+    expect(moved.failed).toEqual([])
     for (const id of [STATEMENT, BIRTH_CERT, UNCERTAIN]) expect(plan.report_rows.find((r) => r.file_id === id)).toBeUndefined()
     expect(plan.totals).toEqual(before.totals)
     // The receipt is still filed and counted as before.

@@ -12,7 +12,7 @@ import type {
   SortMode,
   SystemStatus,
 } from '../types/api'
-import { sumAmounts } from '../lib/money'
+import { sumAmounts, toCents } from '../lib/money'
 import scanFixture from '../fixtures/scan.json'
 import statusFixture from '../fixtures/status.json'
 
@@ -63,8 +63,9 @@ function basename(path: string): string {
   return path.slice(path.lastIndexOf('/') + 1)
 }
 
+/** Still waiting on a person, or left for review (backend bf99c68): blocks a strict plan. */
 function needsReview(doc: DocumentRecord): boolean {
-  return doc.status === 'needs_review' && !doc.user_corrected
+  return doc.status === 'needs_review' && (!doc.user_corrected || doc.review_disposition === 'leave_for_review')
 }
 
 const DOCUMENT_KINDS: DocumentKind[] = ['receipt', 'invoice', 'statement', 'identity_or_civil', 'legal', 'medical', 'other', 'uncertain']
@@ -109,7 +110,9 @@ function destinationFolder(doc: DocumentRecord): { folder: string; reason: strin
   // Like the backend: a document-aware non-transaction paper goes to Other/ once reviewed,
   // whatever its category (orchestrator._build_plan, document_aware branch).
   // "Leave for review" (b584d92): a decided document with category uncertain stays in Uncategorized/.
-  if (doc.user_corrected && c.category === 'uncertain') return { folder: 'Uncategorized', reason: 'Left for human review' }
+  if (doc.review_disposition === 'leave_for_review' || (!doc.review_disposition && doc.user_corrected && c.category === 'uncertain')) {
+    return { folder: 'Uncategorized', reason: 'Left for human review' }
+  }
   if ('document_kind' in c && profileOf(c) !== 'transaction') return { folder: 'Other', reason: 'Non-transactional document' }
   if (c.category === 'invoice' || c.category === 'receipt') {
     if (!c.date) return { folder: 'Uncategorized', reason: `${c.category} without a date` }
@@ -186,7 +189,7 @@ function buildPlan(s: ScanResult, mode: SortMode = 'blocking'): PlanPreview {
     operations,
     report_rows,
     totals,
-    blocking_review_count: s.documents.filter((d) => d.status === 'needs_review' && !d.user_corrected).length,
+    blocking_review_count: s.documents.filter(needsReview).length,
   }
 }
 
@@ -245,7 +248,7 @@ export const mockApi: GhostApi = {
     // receipt category is a 422; shop/date/amount/currency only when the record AFTER this
     // change is a transaction.
     const body = Object.fromEntries(Object.entries(correction).filter(([, v]) => v !== undefined)) as Record<string, unknown>
-    const forbidden = ['field_profile', 'editable_fields', 'allowed_fields', 'destination_relative_path', 'operations'].filter((k) => k in body)
+    const forbidden = ['field_profile', 'editable_fields', 'allowed_fields', 'destination_relative_path', 'operations', 'review_disposition'].filter((k) => k in body)
     if (forbidden.length) throw unprocessable(`Unsupported backend-controlled fields: ${forbidden.join(', ')}`)
     const unknown = Object.keys(body).filter((k) => !['category', 'document_kind', 'merchant', 'date', 'amount', 'currency', 'accept'].includes(k)).sort()
     if (unknown.length) throw unprocessable(`Unsupported correction fields: ${unknown.join(', ')}`)
@@ -263,6 +266,19 @@ export const mockApi: GhostApi = {
       throw unprocessable(`document_kind '${proposedKind}' cannot use transaction category '${proposed.category}'`)
     }
     const profile = profileOf(proposed)
+    // Field formats, like PATCH /documents (e5a7a06). The backend additionally checks a corrected
+    // amount against the document's own text; the demo mock does not model that.
+    if ('accept' in body && typeof body.accept !== 'boolean') throw unprocessable('accept must be a boolean')
+    if ('merchant' in body && body.merchant !== null && typeof body.merchant !== 'string') throw unprocessable('merchant must be a string or null')
+    if ('date' in body && body.date !== null && (typeof body.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(body.date))) {
+      throw unprocessable('date must be an ISO date (YYYY-MM-DD)')
+    }
+    if ('currency' in body && !(typeof body.currency === 'string' && ['PHP', 'USD', 'EUR', 'GBP', 'SGD', 'JPY'].includes(body.currency.toUpperCase()))) {
+      throw unprocessable('currency must be a supported currency code')
+    }
+    if ('amount' in body && (typeof body.amount !== 'string' || !body.amount.trim() || toCents(body.amount.trim()) === null)) {
+      throw unprocessable('amount must be a parseable monetary value')
+    }
     const money = ['merchant', 'date', 'amount', 'currency'].filter((k) => k in body).sort()
     if (money.length && profile !== 'transaction') {
       throw unprocessable(`Document field profile '${profile}' does not allow transaction corrections: ${money.join(', ')}`)
@@ -290,8 +306,15 @@ export const mockApi: GhostApi = {
     doc.classification.field_profile = profileOf(doc.classification)
     if (correction.accept) {
       doc.user_corrected = true
-      doc.review_flags = []
-      doc.status = 'ok'
+      if (correction.category === 'uncertain') {
+        // Leave for review (backend bf99c68): flags kept, still needs_review, still blocking.
+        doc.review_disposition = 'leave_for_review'
+        doc.status = 'needs_review'
+      } else {
+        doc.review_disposition = 'filed'
+        doc.review_flags = []
+        doc.status = 'ok'
+      }
     }
     return clone(withDerived(doc))
   },

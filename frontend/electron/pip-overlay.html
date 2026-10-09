@@ -45,11 +45,13 @@
   @keyframes march { to { background-position: 12.73px 0; } }
   #bar .now { min-height: 18px; font-size: 14px; color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #bar .now .mono { font-size: 12px; color: #1a1a1a; }
+  /* --amp (1 -> ~0.2) is lowered by the script the longer Pip stays in one file, so a slow read
+     settles into a gentle sway instead of shaking at full strength the whole time. */
   @keyframes haunt {
     0% { transform: translateY(0) rotate(0deg); }
-    25% { transform: translateY(-9px) rotate(-5deg); }
-    50% { transform: translateY(-4px) rotate(4deg); }
-    75% { transform: translateY(-11px) rotate(-3deg); }
+    25% { transform: translateY(calc(-9px * var(--amp, 1))) rotate(calc(-5deg * var(--amp, 1))); }
+    50% { transform: translateY(calc(-4px * var(--amp, 1))) rotate(calc(4deg * var(--amp, 1))); }
+    75% { transform: translateY(calc(-11px * var(--amp, 1))) rotate(calc(-3deg * var(--amp, 1))); }
     100% { transform: translateY(0) rotate(0deg); }
   }
   @keyframes jitter {
@@ -114,7 +116,7 @@
   }
 
   // ---------- session mode ----------
-  const S = { on: false, items: [], win: null, pos: { x: 0, y: 0 }, goal: null, scale: 0.4, scaleGoal: 1, alpha: 0, alphaGoal: 1, flip: 1, mode: 'wander', current: null, lastMove: 0, last: 0, randomFiles: false, turn: 0 }
+  const S = { on: false, items: [], win: null, pos: { x: 0, y: 0 }, goal: null, scale: 0.4, scaleGoal: 1, alpha: 0, alphaGoal: 1, flip: 1, mode: 'wander', current: null, lastMove: 0, last: 0, randomFiles: false, turn: 0, possessedAt: 0 }
 
   function el(cls, box, item) {
     const d = document.createElement(cls === 'copy' ? 'img' : 'div')
@@ -201,8 +203,12 @@
       S.scaleGoal = 0.6
       S.alphaGoal = 0.82
       if (it.maskEl) it.maskEl.classList.add('on')
-      if (it.copyEl) it.copyEl.classList.add('on', 'possessed')
+      if (it.copyEl) {
+        it.copyEl.style.setProperty('--amp', '1')
+        it.copyEl.classList.add('on', 'possessed')
+      }
       it.auraEl.classList.add('on')
+      S.possessedAt = now
     } else if (S.mode === 'wander' && now - S.lastMove > 1400) {
       S.goal = wanderGoal()
       S.lastMove = now
@@ -227,7 +233,14 @@
     }
     S.scale += (S.scaleGoal - S.scale) * Math.min(1, dt * 6)
     S.alpha += (S.alphaGoal - S.alpha) * Math.min(1, dt * 5)
-    const bob = Math.sin(now / 260) * (S.mode === 'possess' ? 3 : 6)
+    // The longer Pip stays in one file, the calmer it gets: the wobble eases from full strength to
+    // about a fifth (half after ~2 s, settled after ~6 s). A new file starts lively again.
+    let calm = 1
+    if (S.mode === 'possess' && S.current) {
+      calm = 0.2 + 0.8 * Math.exp(-(now - S.possessedAt) / 2800)
+      if (S.current.copyEl) S.current.copyEl.style.setProperty('--amp', calm.toFixed(3))
+    }
+    const bob = Math.sin(now / 260) * (S.mode === 'possess' ? 3 * calm : 6)
     pipEl.style.opacity = S.alpha.toFixed(3)
     pipEl.style.transform = `translate(${S.pos.x - W / 2}px, ${S.pos.y - H / 2 + bob}px) scale(${(S.scale * S.flip).toFixed(3)}, ${S.scale.toFixed(3)})`
     requestAnimationFrame(tick)
