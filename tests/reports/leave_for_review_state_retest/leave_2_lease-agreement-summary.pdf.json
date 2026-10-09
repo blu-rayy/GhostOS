@@ -1,0 +1,80 @@
+{
+  "request": {
+    "category": "uncertain",
+    "accept": true
+  },
+  "status": 200,
+  "response": {
+    "file_id": "dd753690",
+    "relative_path": "ls/legal/lease-agreement-summary.pdf",
+    "file_type": "pdf",
+    "size_bytes": 1020,
+    "sha256": "4538c2e2306137414f574f3a216ea56da1c71756255c94fbc6c506e5b00516f9",
+    "excerpt": "LEASE AGREEMENT - SUMMARY (fictional)\nLessor: Example Properties Inc.\nLessee: Mara Villanueva Studio\nMonthly rent: PHP 28,000.00\nTerm: 12 months, renewable\nNotice period: 60 days",
+    "status": "needs_review",
+    "classification": {
+      "category": "uncertain",
+      "merchant": null,
+      "date": null,
+      "amount_text": null,
+      "amount": null,
+      "currency": null,
+      "evidence_quote": null,
+      "evidence_verified": false,
+      "explanation": "This is a lease agreement, which falls under legal documents and does not involve a transaction with a merchant or financial amount to be recorded as a receipt or invoice.",
+      "document_kind": "legal",
+      "field_profile": "none"
+    },
+    "review_flags": [
+      {
+        "code": "missing_evidence_quote",
+        "message": "No evidence quote was provided for verification"
+      },
+      {
+        "code": "missing_currency",
+        "message": "No currency found in the document"
+      },
+      {
+        "code": "non_transactional_document",
+        "message": "This is not a transaction document and has no expense fields"
+      }
+    ],
+    "duplicate_of": null,
+    "user_corrected": true,
+    "review_disposition": "leave_for_review"
+  },
+  "state_before": {
+    "status": "needs_review",
+    "user_corrected": false,
+    "review_disposition": "none",
+    "flags": [
+      "missing_evidence_quote",
+      "missing_currency",
+      "non_transactional_document"
+    ],
+    "category": "other",
+    "document_kind": "legal",
+    "field_profile": "none",
+    "merchant": null,
+    "date": null,
+    "amount": null,
+    "currency": null
+  },
+  "state_after_get": {
+    "status": "needs_review",
+    "user_corrected": true,
+    "review_disposition": "leave_for_review",
+    "flags": [
+      "missing_evidence_quote",
+      "missing_currency",
+      "non_transactional_document"
+    ],
+    "category": "uncertain",
+    "document_kind": "legal",
+    "field_profile": "none",
+    "merchant": null,
+    "date": null,
+    "amount": null,
+    "currency": null
+  }
+}

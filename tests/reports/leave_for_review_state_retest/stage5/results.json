@@ -1,0 +1,284 @@
+[
+  {
+    "id": "A1",
+    "check": "Re-fetched plan matches reviewed plan",
+    "expected": "scan scan_1d788bbc1289; plan plan_scan_1d788bbc1289; partial; blocking 2; 4 ops {'ls/receipts/bayside-office-mart.pdf': 'Uncategorized/bayside-office-mart.pdf', 'ls/legal/lease-agreement-summary.pdf': 'Uncategorized/lease-agreement-summary.pdf', 'ls/identity/birth-certificate.pdf': 'Other/birth-certificate.pdf', 'ls/receipts/sunbeam-cafe-receipt.pdf': 'Receipts/2026-09/sunbeam-cafe-receipt.pdf'}",
+    "actual": "scan scan_1d788bbc1289; plan plan_scan_1d788bbc1289; partial; blocking 2; {'ls/identity/birth-certificate.pdf': 'Other/birth-certificate.pdf', 'ls/legal/lease-agreement-summary.pdf': 'Uncategorized/lease-agreement-summary.pdf', 'ls/receipts/bayside-office-mart.pdf': 'Uncategorized/bayside-office-mart.pdf', 'ls/receipts/sunbeam-cafe-receipt.pdf': 'Receipts/2026-09/sunbeam-cafe-receipt.pdf'}",
+    "status": "PASS"
+  },
+  {
+    "id": "A2",
+    "check": "Left-for-review documents unchanged",
+    "expected": "leave_for_review / needs_review / original flags",
+    "actual": {
+      "ls/receipts/bayside-office-mart.pdf": {
+        "status": "needs_review",
+        "review_disposition": "leave_for_review",
+        "user_corrected": true,
+        "flags": [
+          "amount_conflict"
+        ],
+        "category": "uncertain"
+      },
+      "ls/legal/lease-agreement-summary.pdf": {
+        "status": "needs_review",
+        "review_disposition": "leave_for_review",
+        "user_corrected": true,
+        "flags": [
+          "missing_evidence_quote",
+          "missing_currency",
+          "non_transactional_document"
+        ],
+        "category": "uncertain"
+      }
+    },
+    "status": "PASS"
+  },
+  {
+    "id": "A3",
+    "check": "Birth certificate filed; receipt accepted",
+    "expected": "birth: filed/ok/other -> Other/; Sunbeam: ok, accepted row",
+    "actual": {
+      "ls/identity/birth-certificate.pdf": {
+        "status": "ok",
+        "review_disposition": "filed",
+        "user_corrected": true,
+        "flags": [],
+        "category": "other"
+      },
+      "ls/receipts/sunbeam-cafe-receipt.pdf": {
+        "status": "ok",
+        "review_disposition": "none",
+        "user_corrected": false,
+        "flags": [],
+        "category": "receipt"
+      },
+      "rows": [
+        [
+          "ls/receipts/sunbeam-cafe-receipt.pdf",
+          "accepted"
+        ]
+      ]
+    },
+    "status": "PASS"
+  },
+  {
+    "id": "A4",
+    "check": "Original hashes",
+    "expected": "4 files match setup manifest; no other files in root",
+    "actual": "match",
+    "status": "PASS"
+  },
+  {
+    "id": "A5",
+    "check": "Destinations free and contained",
+    "expected": "all destinations absent; all inside root; no GhostOS Reports yet",
+    "actual": {
+      "free": {
+        "Uncategorized/bayside-office-mart.pdf": true,
+        "Uncategorized/lease-agreement-summary.pdf": true,
+        "Other/birth-certificate.pdf": true,
+        "Receipts/2026-09/sunbeam-cafe-receipt.pdf": true
+      },
+      "contained": true,
+      "reports_dir": false
+    },
+    "status": "PASS"
+  },
+  {
+    "id": "A6",
+    "check": "Outside-root canary and in-process copy",
+    "expected": "unchanged",
+    "actual": "canary unchanged; in-process unchanged",
+    "status": "PASS"
+  },
+  {
+    "id": "V0",
+    "check": "Approval accepted",
+    "expected": "HTTP 200 with batch_id",
+    "actual": "HTTP 200; batch batch_c0a405492f92",
+    "status": "PASS"
+  },
+  {
+    "id": "V1",
+    "check": "Exact-case destinations exist",
+    "expected": "all 4 True",
+    "actual": {
+      "Uncategorized/bayside-office-mart.pdf": true,
+      "Uncategorized/lease-agreement-summary.pdf": true,
+      "Other/birth-certificate.pdf": true,
+      "Receipts/2026-09/sunbeam-cafe-receipt.pdf": true
+    },
+    "status": "PASS"
+  },
+  {
+    "id": "V2",
+    "check": "Destination hashes equal setup manifest (no overwrite, byte-identical)",
+    "expected": "all 4 True",
+    "actual": {
+      "ls/receipts/bayside-office-mart.pdf": true,
+      "ls/legal/lease-agreement-summary.pdf": true,
+      "ls/identity/birth-certificate.pdf": true,
+      "ls/receipts/sunbeam-cafe-receipt.pdf": true
+    },
+    "status": "PASS"
+  },
+  {
+    "id": "V3",
+    "check": "No organized files left in source paths/directories",
+    "expected": "originals gone; no files under ls/",
+    "actual": {
+      "originals_gone": {
+        "ls/receipts/bayside-office-mart.pdf": true,
+        "ls/legal/lease-agreement-summary.pdf": true,
+        "ls/identity/birth-certificate.pdf": true,
+        "ls/receipts/sunbeam-cafe-receipt.pdf": true
+      },
+      "files_under_source_dirs": []
+    },
+    "status": "PASS"
+  },
+  {
+    "id": "V4",
+    "check": "Only expected files in root",
+    "expected": "4 destinations + 1 report CSV",
+    "actual": {
+      "csvs": [
+        "GhostOS Reports/expenses-202610092104.csv"
+      ],
+      "unexpected": []
+    },
+    "status": "PASS"
+  },
+  {
+    "id": "V5",
+    "check": "CSV contains exactly the Sunbeam row",
+    "expected": "header + ['ls/receipts/sunbeam-cafe-receipt.pdf', 'SUNBEAM CAFE', '2026-09-21', 'receipt', '683.20', 'PHP']",
+    "actual": [
+      [
+        "source_file",
+        "merchant",
+        "date",
+        "category",
+        "amount",
+        "currency"
+      ],
+      [
+        "ls/receipts/sunbeam-cafe-receipt.pdf",
+        "SUNBEAM CAFE",
+        "2026-09-21",
+        "receipt",
+        "683.20",
+        "PHP"
+      ]
+    ],
+    "status": "PASS"
+  },
+  {
+    "id": "V6",
+    "check": "Left-for-review documents remain unresolved and are absent from CSV",
+    "expected": "needs_review / leave_for_review / flags kept; not in CSV",
+    "actual": {
+      "states": {
+        "ls/receipts/bayside-office-mart.pdf": {
+          "status": "needs_review",
+          "review_disposition": "leave_for_review",
+          "user_corrected": true,
+          "flags": [
+            "amount_conflict"
+          ],
+          "category": "uncertain"
+        },
+        "ls/legal/lease-agreement-summary.pdf": {
+          "status": "needs_review",
+          "review_disposition": "leave_for_review",
+          "user_corrected": true,
+          "flags": [
+            "missing_evidence_quote",
+            "missing_currency",
+            "non_transactional_document"
+          ],
+          "category": "uncertain"
+        }
+      },
+      "in_csv": false
+    },
+    "status": "PASS"
+  },
+  {
+    "id": "V7",
+    "check": "No out-of-root writes",
+    "expected": "canary + in-process copy unchanged; base holds only LS1, LS1-inprocess, outside-canary",
+    "actual": {
+      "canary": true,
+      "inprocess": true,
+      "base": [
+        "LS1",
+        "LS1-inprocess",
+        "outside-canary"
+      ]
+    },
+    "status": "PASS"
+  },
+  {
+    "id": "U0",
+    "check": "Undo accepted",
+    "expected": "HTTP 200",
+    "actual": "HTTP 200",
+    "status": "PASS"
+  },
+  {
+    "id": "U1",
+    "check": "All four original paths and hashes restored",
+    "expected": "all 4 True",
+    "actual": {
+      "ls/identity/birth-certificate.pdf": true,
+      "ls/legal/lease-agreement-summary.pdf": true,
+      "ls/receipts/bayside-office-mart.pdf": true,
+      "ls/receipts/sunbeam-cafe-receipt.pdf": true
+    },
+    "status": "PASS"
+  },
+  {
+    "id": "U2",
+    "check": "Destinations vacated",
+    "expected": "no file at any destination",
+    "actual": {
+      "Uncategorized/bayside-office-mart.pdf": false,
+      "Uncategorized/lease-agreement-summary.pdf": false,
+      "Other/birth-certificate.pdf": false,
+      "Receipts/2026-09/sunbeam-cafe-receipt.pdf": false
+    },
+    "status": "PASS"
+  },
+  {
+    "id": "U3",
+    "check": "Leftover CSV after undo (known behaviour, recorded separately)",
+    "expected": "only the report CSV remains",
+    "actual": [
+      "GhostOS Reports/expenses-202610092104.csv"
+    ],
+    "status": "PASS"
+  },
+  {
+    "id": "U4",
+    "check": "Empty folders after undo (known behaviour, recorded separately)",
+    "expected": "recorded",
+    "actual": [
+      "Other",
+      "Receipts/2026-09",
+      "Uncategorized"
+    ],
+    "status": "PASS"
+  },
+  {
+    "id": "U5",
+    "check": "Canary and in-process copy unchanged after undo",
+    "expected": "unchanged",
+    "actual": {
+      "canary": true,
+      "inprocess": true
+    },
+    "status": "PASS"
+  }
+]

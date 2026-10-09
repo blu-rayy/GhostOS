@@ -1,0 +1,55 @@
+{
+  "plan_id": "plan_scan_1d788bbc1289",
+  "scan_id": "scan_1d788bbc1289",
+  "mode": "blocking",
+  "operations": [
+    {
+      "file_id": "322dc54e",
+      "original_relative_path": "ls/identity/birth-certificate.pdf",
+      "destination_relative_path": "Other/birth-certificate.pdf",
+      "reason": "Non-transactional document",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "dd753690",
+      "original_relative_path": "ls/legal/lease-agreement-summary.pdf",
+      "destination_relative_path": "Uncategorized/lease-agreement-summary.pdf",
+      "reason": "Left for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "0e9c7149",
+      "original_relative_path": "ls/receipts/bayside-office-mart.pdf",
+      "destination_relative_path": "Uncategorized/bayside-office-mart.pdf",
+      "reason": "Left for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "cd4031a3",
+      "original_relative_path": "ls/receipts/sunbeam-cafe-receipt.pdf",
+      "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "reason": "receipt dated 2026-09-21",
+      "collision_suffixed": false
+    }
+  ],
+  "report_rows": [
+    {
+      "file_id": "cd4031a3",
+      "source_filename": "ls/receipts/sunbeam-cafe-receipt.pdf",
+      "category": "receipt",
+      "date": "2026-09-21",
+      "merchant": "SUNBEAM CAFE",
+      "amount": "683.20",
+      "currency": "PHP",
+      "status": "accepted"
+    }
+  ],
+  "totals": [
+    {
+      "currency": "PHP",
+      "amount": "683.20",
+      "row_count": 1
+    }
+  ],
+  "blocking_review_count": 2
+}

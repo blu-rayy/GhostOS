@@ -1,0 +1,229 @@
+[
+  {
+    "id": "S0",
+    "check": "Live scan preconditions",
+    "expected": "Bayside needs_review+amount_conflict; lease needs_review with flags; birth certificate needs_review; Sunbeam ok",
+    "actual": {
+      "ls/identity/birth-certificate.pdf": [
+        "needs_review",
+        [
+          "missing_evidence_quote",
+          "non_transactional_document"
+        ]
+      ],
+      "ls/legal/lease-agreement-summary.pdf": [
+        "needs_review",
+        [
+          "missing_evidence_quote",
+          "missing_currency",
+          "non_transactional_document"
+        ]
+      ],
+      "ls/receipts/bayside-office-mart.pdf": [
+        "needs_review",
+        [
+          "amount_conflict"
+        ]
+      ],
+      "ls/receipts/sunbeam-cafe-receipt.pdf": [
+        "ok",
+        []
+      ]
+    },
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "S1",
+    "check": "review_disposition exposed before any correction",
+    "expected": "'none' on every document",
+    "actual": {
+      "ls/identity/birth-certificate.pdf": "none",
+      "ls/legal/lease-agreement-summary.pdf": "none",
+      "ls/receipts/bayside-office-mart.pdf": "none",
+      "ls/receipts/sunbeam-cafe-receipt.pdf": "none"
+    },
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L1-P",
+    "check": "Leave for review on bayside-office-mart.pdf (PATCH response)",
+    "expected": "200; disposition leave_for_review; status needs_review; flags preserved ['amount_conflict']; category uncertain; merchant/date/amount/currency unchanged",
+    "actual": "HTTP 200; disposition leave_for_review; status needs_review; flags ['amount_conflict']; category uncertain; tx unchanged; user_corrected True",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L1-G",
+    "check": "Leave for review on bayside-office-mart.pdf (GET)",
+    "expected": "200; disposition leave_for_review; status needs_review; flags preserved ['amount_conflict']; category uncertain; merchant/date/amount/currency unchanged",
+    "actual": "HTTP 200; disposition leave_for_review; status needs_review; flags ['amount_conflict']; category uncertain; tx unchanged; user_corrected True",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L2-P",
+    "check": "Leave for review on lease-agreement-summary.pdf (PATCH response)",
+    "expected": "200; disposition leave_for_review; status needs_review; flags preserved ['missing_evidence_quote', 'missing_currency', 'non_transactional_document']; category uncertain; merchant/date/amount/currency unchanged",
+    "actual": "HTTP 200; disposition leave_for_review; status needs_review; flags ['missing_evidence_quote', 'missing_currency', 'non_transactional_document']; category uncertain; tx unchanged; user_corrected True",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L2-G",
+    "check": "Leave for review on lease-agreement-summary.pdf (GET)",
+    "expected": "200; disposition leave_for_review; status needs_review; flags preserved ['missing_evidence_quote', 'missing_currency', 'non_transactional_document']; category uncertain; merchant/date/amount/currency unchanged",
+    "actual": "HTTP 200; disposition leave_for_review; status needs_review; flags ['missing_evidence_quote', 'missing_currency', 'non_transactional_document']; category uncertain; tx unchanged; user_corrected True",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "F1",
+    "check": "File it on the birth certificate (control: behaviour stays separate)",
+    "expected": "200; disposition filed; status ok; flags cleared; category other",
+    "actual": "HTTP 200; disposition filed; status ok; flags []; category other",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B1",
+    "check": "Blocking preview counts the left-for-review documents",
+    "expected": "mode blocking; blocking_review_count 2 (Bayside, lease)",
+    "actual": "mode blocking; blocking 2",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B2",
+    "check": "Blocking preview destinations",
+    "expected": "Bayside, lease -> Uncategorized/; birth -> Other/; Sunbeam -> Receipts/2026-09/",
+    "actual": {
+      "ls/identity/birth-certificate.pdf": "Other/birth-certificate.pdf",
+      "ls/legal/lease-agreement-summary.pdf": "Uncategorized/lease-agreement-summary.pdf",
+      "ls/receipts/bayside-office-mart.pdf": "Uncategorized/bayside-office-mart.pdf",
+      "ls/receipts/sunbeam-cafe-receipt.pdf": "Receipts/2026-09/sunbeam-cafe-receipt.pdf"
+    },
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B3",
+    "check": "Default blocking approval with left-for-review items",
+    "expected": "HTTP 409 unresolved review items; filesystem unchanged",
+    "actual": "HTTP 409 {'detail': 'Plan has 2 unresolved review items'}; filesystem unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P1",
+    "check": "Partial preview destinations",
+    "expected": "Bayside, lease -> Uncategorized/; birth -> Other/; Sunbeam -> Receipts/2026-09/",
+    "actual": {
+      "ls/identity/birth-certificate.pdf": "Other/birth-certificate.pdf",
+      "ls/legal/lease-agreement-summary.pdf": "Uncategorized/lease-agreement-summary.pdf",
+      "ls/receipts/bayside-office-mart.pdf": "Uncategorized/bayside-office-mart.pdf",
+      "ls/receipts/sunbeam-cafe-receipt.pdf": "Receipts/2026-09/sunbeam-cafe-receipt.pdf"
+    },
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P2",
+    "check": "Partial preview report rows",
+    "expected": "only Sunbeam accepted PHP 683.20; no row for left-for-review documents",
+    "actual": [
+      [
+        "ls/receipts/sunbeam-cafe-receipt.pdf",
+        "accepted",
+        "683.20",
+        "PHP"
+      ]
+    ],
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P3",
+    "check": "Partial preview totals and mode",
+    "expected": "mode partial; PHP 683.20",
+    "actual": "mode partial; totals [{'currency': 'PHP', 'amount': '683.20', 'row_count': 1}]; blocking 2",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P4",
+    "check": "Left-for-review documents still unresolved after previews",
+    "expected": "status needs_review, disposition leave_for_review, flags preserved",
+    "actual": {
+      "ls/receipts/bayside-office-mart.pdf": [
+        "needs_review",
+        "leave_for_review",
+        [
+          "amount_conflict"
+        ]
+      ],
+      "ls/legal/lease-agreement-summary.pdf": [
+        "needs_review",
+        "leave_for_review",
+        [
+          "missing_evidence_quote",
+          "missing_currency",
+          "non_transactional_document"
+        ]
+      ]
+    },
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "G1",
+    "check": "Scans, corrections, previews and refused approval wrote nothing",
+    "expected": "root, in-process root and canary unchanged",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "RV1",
+    "check": "In-process (mocked classifier): Leave for review bumps plan_revision; stored record keeps flags; old partial snapshot becomes stale",
+    "expected": "200; revision +1; disposition leave_for_review; status needs_review; flags preserved; snapshot.session_revision != plan_revision",
+    "actual": "HTTP 200; revision 0->1; disposition leave_for_review; status needs_review; flags preserved; snapshot rev 0",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "UI1",
+    "check": "Frontend handling of review_disposition (code inspection)",
+    "expected": "UI treats leave_for_review as unresolved in blocking mode",
+    "actual": "frontend has no review_disposition; isBlocking/isNeeds = status needs_review && !user_corrected -> a left-for-review document counts as decided",
+    "status": "FAIL",
+    "owner": "Dev 3",
+    "note": "In blocking mode the UI would enable 'Continue to totals' and the backend then refuses approval (409). Partial mode is unaffected."
+  },
+  {
+    "id": "UI2",
+    "check": "Actual browser click on 'Leave for review'",
+    "expected": "observed in a browser",
+    "actual": "not performed (no browser automation in this run)",
+    "status": "NOT TESTED",
+    "owner": "QA",
+    "note": ""
+  }
+]

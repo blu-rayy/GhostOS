@@ -1,0 +1,482 @@
+[
+  {
+    "id": "E1",
+    "area": "DA-7 evidence",
+    "method": "LIVE",
+    "check": "d67/invoices/INV-1043_Pixelforge_Studio.pdf validated amount",
+    "expected": "status ok, amount 18648.00",
+    "actual": "status ok, amount '18648.00', amount_text 'PHP 18,648.00', flags []",
+    "status": "PASS",
+    "owner": "",
+    "note": ""
+  },
+  {
+    "id": "E2",
+    "area": "DA-7 evidence",
+    "method": "LIVE",
+    "check": "d67/receipts/sunbeam-cafe-receipt.pdf validated amount",
+    "expected": "status ok, amount 683.20",
+    "actual": "status ok, amount '683.20', amount_text 'PHP 683.20', flags []",
+    "status": "PASS",
+    "owner": "",
+    "note": ""
+  },
+  {
+    "id": "E3",
+    "area": "DA-7 evidence",
+    "method": "LIVE",
+    "check": "d67/receipts/tibay-hardware-receipt.csv validated amount",
+    "expected": "status ok, amount 2145.00",
+    "actual": "status ok, amount '2145.00', amount_text '2145.00', flags []",
+    "status": "PASS",
+    "owner": "",
+    "note": ""
+  },
+  {
+    "id": "E4",
+    "area": "DA-7 evidence",
+    "method": "LIVE",
+    "check": "d67/archive/2026/invoice.pdf validated amount",
+    "expected": "status ok, amount 3470.00",
+    "actual": "status ok, amount '3470.00', amount_text 'PHP 3,470.00', flags []",
+    "status": "PASS",
+    "owner": "",
+    "note": ""
+  },
+  {
+    "id": "E5",
+    "area": "DA-7 evidence",
+    "method": "LIVE",
+    "check": "Bayside conflicting totals flagged",
+    "expected": "needs_review with amount_conflict; amount null",
+    "actual": "status needs_review, amount None, amount_text 'PHP 1,520.00', flags ['amount_conflict']",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "E6",
+    "area": "DA-7 evidence",
+    "method": "LIVE",
+    "check": "Card statement not one expense",
+    "expected": "kind statement, profile reference (or non-transaction), no accepted row",
+    "actual": "invoice/statement/reference, flags ['amount_conflict', 'missing_merchant', 'non_transactional_document', 'transaction_fields_on_non_transactional']; plan row []",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "V1",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH tibay-hardware-receipt.csv {\"amount\": \"abc\"}",
+    "expected": "HTTP 422 (unparseable amount); record and plan unchanged",
+    "actual": "HTTP 422 amount must be a parseable monetary value; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "V2",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH tibay-hardware-receipt.csv {\"date\": \"2026-13-45\"}",
+    "expected": "HTTP 422 (invalid ISO date); record and plan unchanged",
+    "actual": "HTTP 422 date must be an ISO date (YYYY-MM-DD); record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "V3",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH tibay-hardware-receipt.csv {\"currency\": \"XYZ\"}",
+    "expected": "HTTP 422 (unsupported currency); record and plan unchanged",
+    "actual": "HTTP 422 currency must be a supported currency code; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "V4",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH tibay-hardware-receipt.csv {\"amount\": \"9999.99\"}",
+    "expected": "HTTP 422 (amount contradicts source evidence); record and plan unchanged",
+    "actual": "HTTP 422 amount correction is not supported by validated source evidence; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "V5",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH tibay-hardware-receipt.csv {\"destination_relative_path\": \"../../escape.csv\"}",
+    "expected": "HTTP 422 (client destination path); record and plan unchanged",
+    "actual": "HTTP 422 Unsupported backend-controlled fields: destination_relative_path; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "V6",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH tibay-hardware-receipt.csv {\"operations\": [{\"file_id\": \"dc9d2726\", \"destination_relative_path\": \"C:/Windows/x.csv\"}]}",
+    "expected": "HTTP 422 (client operations); record and plan unchanged",
+    "actual": "HTTP 422 Unsupported backend-controlled fields: operations; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "V7",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH tibay-hardware-receipt.csv {\"field_profile\": \"transaction\"}",
+    "expected": "HTTP 422 (client field_profile); record and plan unchanged",
+    "actual": "HTTP 422 Unsupported backend-controlled fields: field_profile; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "V8",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH tibay-hardware-receipt.csv {\"editable_fields\": [\"amount\"]}",
+    "expected": "HTTP 422 (client editable-field list); record and plan unchanged",
+    "actual": "HTTP 422 Unsupported backend-controlled fields: editable_fields; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "V9",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH tibay-hardware-receipt.csv {\"allowed_fields\": [\"amount\"]}",
+    "expected": "HTTP 422 (client allowed-field list); record and plan unchanged",
+    "actual": "HTTP 422 Unsupported backend-controlled fields: allowed_fields; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "V10",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH tibay-hardware-receipt.csv {\"accept\": \"yes\"}",
+    "expected": "HTTP 422 (non-boolean accept); record and plan unchanged",
+    "actual": "HTTP 422 accept must be a boolean; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "V11",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "filesystem after V1-V10",
+    "expected": "unchanged",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B1",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH bayside-office-mart.pdf {\"amount\": \"1250.00\"}",
+    "expected": "HTTP 422 (Bayside subtotal: source is ambiguous); record and plan unchanged",
+    "actual": "HTTP 422 amount correction is not supported by validated source evidence; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B2",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH bayside-office-mart.pdf {\"amount\": \"1520.00\"}",
+    "expected": "HTTP 422 (Bayside amount due: source is ambiguous); record and plan unchanged",
+    "actual": "HTTP 422 amount correction is not supported by validated source evidence; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "C1",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH card-statement-sep2026.pdf {\"amount\": \"5391.06\"}",
+    "expected": "HTTP 422 (statement: no transaction amount); record and plan unchanged",
+    "actual": "HTTP 422 document_kind 'statement' cannot use transaction category 'invoice'; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "C2",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH card-statement-sep2026.pdf {\"category\": \"invoice\", \"accept\": true}",
+    "expected": "HTTP 422 (statement cannot take a transaction category); record and plan unchanged",
+    "actual": "HTTP 422 document_kind 'statement' cannot use transaction category 'invoice'; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "S1",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH sunbeam-cafe-receipt.pdf {\"amount\": \"610.00\"}",
+    "expected": "HTTP 422 (Sunbeam subtotal is not the authoritative total); record and plan unchanged",
+    "actual": "HTTP 422 amount correction is not supported by validated source evidence; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P1",
+    "area": "DA-6",
+    "method": "LIVE",
+    "check": "PATCH INV-1043_Pixelforge_Studio.pdf {\"amount\": \"18500.00\"}",
+    "expected": "HTTP 422 (Pixelforge subtotal is not the authoritative total); record and plan unchanged",
+    "actual": "HTTP 422 amount correction is not supported by validated source evidence; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "S2",
+    "area": "DA-7",
+    "method": "LIVE",
+    "check": "Sunbeam source-supported amount correction {amount: 683.20}",
+    "expected": "HTTP 200; amount kept",
+    "actual": "HTTP 200; amount '683.20'",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B3",
+    "area": "DA-7",
+    "method": "LIVE",
+    "check": "Bayside accept-as-is {accept: true} (no amount)",
+    "expected": "no accepted row; nothing added to totals",
+    "actual": "HTTP 200; flags after []; row ('accepted', '1520.00'); totals [{'currency': 'PHP', 'amount': '26466.20', 'row_count': 5}]",
+    "status": "FAIL",
+    "owner": "Dev 1",
+    "note": "live amount_text was 'PHP 1,520.00'; revival needs a parseable amount_text"
+  },
+  {
+    "id": "C3",
+    "area": "DA-7",
+    "method": "LIVE",
+    "check": "Card statement accept-as-is",
+    "expected": "no accepted row",
+    "actual": "HTTP 422; row None",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "R1",
+    "area": "Report",
+    "method": "LIVE + production render_report (prepared, not committed)",
+    "check": "CSV rows = accepted transactions only",
+    "expected": [
+      "d67/archive/2026/invoice.pdf",
+      "d67/invoices/INV-1043_Pixelforge_Studio.pdf",
+      "d67/receipts/sunbeam-cafe-receipt.pdf",
+      "d67/receipts/tibay-hardware-receipt.csv"
+    ],
+    "actual": [
+      "d67/archive/2026/invoice.pdf",
+      "d67/invoices/INV-1043_Pixelforge_Studio.pdf",
+      "d67/receipts/bayside-office-mart.pdf",
+      "d67/receipts/sunbeam-cafe-receipt.pdf",
+      "d67/receipts/tibay-hardware-receipt.csv"
+    ],
+    "status": "FAIL",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "R2",
+    "area": "Report",
+    "method": "LIVE + render_report",
+    "check": "Totals recomputed from the CSV = independent ground truth = plan totals",
+    "expected": {
+      "PHP": "24946.20"
+    },
+    "actual": {
+      "csv": {
+        "PHP": "26466.20"
+      },
+      "plan": {
+        "PHP": "26466.20"
+      }
+    },
+    "status": "FAIL",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "R3",
+    "area": "Report",
+    "method": "LIVE",
+    "check": "No Bayside or statement row in the CSV",
+    "expected": "absent",
+    "actual": [
+      "d67/receipts/bayside-office-mart.pdf"
+    ],
+    "status": "FAIL",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "G1",
+    "area": "Plan",
+    "method": "LIVE",
+    "check": "Destinations from the backend map, relative, inside the root, unique",
+    "expected": "Invoices|Receipts/YYYY-MM, Other, Uncategorized (or GhostOS Organized/...)",
+    "actual": [
+      "Invoices/2026-09/invoice.pdf",
+      "Invoices/2026-10/INV-1043_Pixelforge_Studio.pdf",
+      "Uncategorized/card-statement-sep2026.pdf",
+      "Receipts/2026-09/bayside-office-mart.pdf",
+      "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "Receipts/2026-09/tibay-hardware-receipt.csv"
+    ],
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "UI1",
+    "area": "UI contract",
+    "method": "LIVE",
+    "check": "Check-screen 'Looks right' payload with empty fields {amount:null, date:null, merchant:null, accept:true}",
+    "expected": "record behaviour (the UI sends null for empty inputs)",
+    "actual": "HTTP 422 amount must be a parseable monetary value",
+    "status": "RECORDED",
+    "owner": "Dev 1 + Dev 3",
+    "note": "If 422, the Check screen cannot 'mark checked' a transaction document whose amount field is empty"
+  },
+  {
+    "id": "G2",
+    "area": "Filesystem",
+    "method": "LIVE",
+    "check": "Live root and canary after all live steps",
+    "expected": "unchanged",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M0",
+    "area": "DA-7 evidence",
+    "method": "INPROCESS mocked",
+    "check": "mocked Bayside (amount_text 'PHP 1,520.00') after the real validator",
+    "expected": "needs_review, amount_conflict, amount null",
+    "actual": "status needs_review, flags ['amount_conflict'], amount None",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "RV1",
+    "area": "Stage 5",
+    "method": "INPROCESS mocked (store read directly)",
+    "check": "rejected PATCH tibay-hardware-receipt.csv {\"amount\": \"abc\"}",
+    "expected": "422; plan_revision, plan snapshot, classification, flags, status, user_corrected unchanged",
+    "actual": "HTTP 422; revision 0->0; snapshot unchanged; record unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "RV2",
+    "area": "Stage 5",
+    "method": "INPROCESS mocked (store read directly)",
+    "check": "rejected PATCH tibay-hardware-receipt.csv {\"currency\": \"XYZ\"}",
+    "expected": "422; plan_revision, plan snapshot, classification, flags, status, user_corrected unchanged",
+    "actual": "HTTP 422; revision 0->0; snapshot unchanged; record unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "RV3",
+    "area": "Stage 5",
+    "method": "INPROCESS mocked (store read directly)",
+    "check": "rejected PATCH bayside-office-mart.pdf {\"amount\": \"1520.00\"}",
+    "expected": "422; plan_revision, plan snapshot, classification, flags, status, user_corrected unchanged",
+    "actual": "HTTP 422; revision 0->0; snapshot unchanged; record unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "RV4",
+    "area": "Stage 5",
+    "method": "INPROCESS mocked (store read directly)",
+    "check": "rejected PATCH tibay-hardware-receipt.csv {\"field_profile\": \"transaction\"}",
+    "expected": "422; plan_revision, plan snapshot, classification, flags, status, user_corrected unchanged",
+    "actual": "HTTP 422; revision 0->0; snapshot unchanged; record unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "RV5",
+    "area": "Stage 5",
+    "method": "INPROCESS",
+    "check": "snapshot still current after rejected corrections",
+    "expected": "snapshot.session_revision == session.plan_revision",
+    "actual": "0 vs 0",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "RV6",
+    "area": "Stage 5",
+    "method": "INPROCESS",
+    "check": "accepted (valid) correction makes the snapshot stale",
+    "expected": "200; revision bumped; snapshot.session_revision != plan_revision (approval would get 409 stale)",
+    "actual": "HTTP 200; snapshot 0 vs revision 1",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M1",
+    "area": "DA-7",
+    "method": "INPROCESS mocked",
+    "check": "Bayside accept-as-is {accept: true} with a parseable but rejected amount_text 'PHP 1,520.00'",
+    "expected": "no accepted row; amount not revived from raw text",
+    "actual": "HTTP 200; flags after []; stored amount None; row ('accepted', '1520.00'); totals [{'currency': 'PHP', 'amount': '26466.20', 'row_count': 5}]",
+    "status": "FAIL",
+    "owner": "Dev 1",
+    "note": "accept:true clears review_flags, so the new flag-based gate no longer applies; _build_plan then falls back to _parse_amount(amount_text)"
+  },
+  {
+    "id": "M2",
+    "area": "Filesystem",
+    "method": "INPROCESS",
+    "check": "mock root and canary",
+    "expected": "unchanged",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  }
+]

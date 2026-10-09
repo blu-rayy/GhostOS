@@ -1,0 +1,61 @@
+{
+  "body": {
+    "amount": "610.00"
+  },
+  "status": 422,
+  "response": {
+    "detail": "amount correction is not supported by validated source evidence"
+  },
+  "doc_before": {
+    "file_id": "e0c19c6c",
+    "relative_path": "d67/receipts/sunbeam-cafe-receipt.pdf",
+    "file_type": "pdf",
+    "size_bytes": 1217,
+    "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+    "excerpt": "SUNBEAM CAFE (fictional)\nSample Street, Quezon City\nOR No. 2026-118204\nDate: 09/21/2026 10:15 AM\n1 x Flat white: PHP 180.00\n1 x Spanish latte: PHP 190.00\n2 x Butter croissant @ 120.00: PHP 240.00\nSubtotal: PHP 610.00\nVAT 12%: PHP 73.20\nFINAL TOTAL: PHP 683.20\nPaid by card ending 0000",
+    "status": "ok",
+    "classification": {
+      "category": "receipt",
+      "merchant": "SUNBEAM CAFE",
+      "date": "2026-09-21",
+      "amount_text": "PHP 683.20",
+      "amount": "683.20",
+      "currency": "PHP",
+      "evidence_quote": "FINAL TOTAL: PHP 683.20",
+      "evidence_verified": true,
+      "explanation": "The document is a transaction record from a caf\u00e9 showing a final total amount, which classifies it as a receipt.",
+      "document_kind": "receipt",
+      "field_profile": "transaction"
+    },
+    "review_flags": [],
+    "duplicate_of": null,
+    "user_corrected": false
+  },
+  "doc_after": {
+    "file_id": "e0c19c6c",
+    "relative_path": "d67/receipts/sunbeam-cafe-receipt.pdf",
+    "file_type": "pdf",
+    "size_bytes": 1217,
+    "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+    "excerpt": "SUNBEAM CAFE (fictional)\nSample Street, Quezon City\nOR No. 2026-118204\nDate: 09/21/2026 10:15 AM\n1 x Flat white: PHP 180.00\n1 x Spanish latte: PHP 190.00\n2 x Butter croissant @ 120.00: PHP 240.00\nSubtotal: PHP 610.00\nVAT 12%: PHP 73.20\nFINAL TOTAL: PHP 683.20\nPaid by card ending 0000",
+    "status": "ok",
+    "classification": {
+      "category": "receipt",
+      "merchant": "SUNBEAM CAFE",
+      "date": "2026-09-21",
+      "amount_text": "PHP 683.20",
+      "amount": "683.20",
+      "currency": "PHP",
+      "evidence_quote": "FINAL TOTAL: PHP 683.20",
+      "evidence_verified": true,
+      "explanation": "The document is a transaction record from a caf\u00e9 showing a final total amount, which classifies it as a receipt.",
+      "document_kind": "receipt",
+      "field_profile": "transaction"
+    },
+    "review_flags": [],
+    "duplicate_of": null,
+    "user_corrected": false
+  },
+  "plan_before_id": "plan_scan_01f5e1f4a0d0",
+  "plan_unchanged": true
+}
