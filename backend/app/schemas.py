@@ -78,24 +78,10 @@ def normalize_document_kind(value: object) -> DocumentKind | None:
 
 
 def field_profile_for(document_kind: DocumentKind | None) -> FieldProfile:
-    """Derive the editable-field profile from the backend-owned ``document_kind``.
+    """Compatibility wrapper for the backend-owned awareness policy."""
+    from app.services.document_awareness import derive_field_profile
 
-    This mapping lives in application code, never in model output. The model
-    cannot request a field list or a path; it can only describe what kind of
-    document it believes it is looking at.
-
-    - ``transaction``: merchant/date/amount/currency may be shown (receipt,
-      invoice).
-    - ``reference``: a non-transactional reference document such as a bank or
-      card statement; no transaction fields by default.
-    - ``none``: no editable transaction fields (civil/identity, legal, medical,
-      other, uncertain, or unknown).
-    """
-    if document_kind in ("receipt", "invoice"):
-        return "transaction"
-    if document_kind == "statement":
-        return "reference"
-    return "none"
+    return derive_field_profile(document_kind)
 
 
 class ScanRequest(BaseModel):
@@ -212,7 +198,9 @@ class ClassificationRecord(BaseModel):
     @property
     def field_profile(self) -> FieldProfile:
         """Backend-derived editable-field profile (never supplied by the model)."""
-        return field_profile_for(self.document_kind)
+        from app.services.document_awareness import derive_field_profile
+
+        return derive_field_profile(self.document_kind, legacy_category=self.category)
 
 
 class ProposedOperation(BaseModel):
@@ -265,6 +253,7 @@ class ClassifyResponse(BaseModel):
                     "file_id": "file-001",
                     "classification": {
                         "category": "receipt",
+                        "document_kind": "receipt",
                         "merchant": "Coffee Shop",
                         "date": "2026-10-08",
                         "amount_text": "PHP 185.00",
@@ -272,6 +261,7 @@ class ClassifyResponse(BaseModel):
                         "evidence_quote": "Total: PHP 185.00",
                         "explanation": "The document contains a merchant receipt total.",
                     },
+                    "field_profile": "transaction",
                     "proposed_operation": {
                         "file_id": "file-001",
                         "original_relative_path": "inbox/coffee.pdf",
@@ -288,6 +278,7 @@ class ClassifyResponse(BaseModel):
 
     file_id: str = Field(..., min_length=1)
     classification: ClassificationRecord
+    field_profile: FieldProfile = "none"
     proposed_operation: ProposedOperation | None = None
     needs_review: bool = False
     review_reason: str | None = None

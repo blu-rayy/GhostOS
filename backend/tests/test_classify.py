@@ -60,6 +60,8 @@ def test_classify_receipt_returns_200_with_operation(monkeypatch):
     data = response.json()
     assert data["file_id"] == "file-001"
     assert data["classification"]["category"] == "receipt"
+    assert data["field_profile"] == "transaction"
+    assert data["classification"]["document_kind"] == "receipt"
     assert data["needs_review"] is False
     assert data["proposed_operation"] is not None
     assert "organized/receipts" in data["proposed_operation"]["destination_relative_path"]
@@ -86,6 +88,28 @@ def test_classify_uncertain_needs_review_no_operation(monkeypatch):
     data = response.json()
     assert data["needs_review"] is True
     assert data["proposed_operation"] is None
+
+
+def test_classify_statement_exposes_reference_profile(monkeypatch):
+    content = json.dumps({
+        "category": "other",
+        "document_kind": "statement",
+        "merchant": None,
+        "date": None,
+        "amount_text": None,
+        "currency": None,
+        "evidence_quote": "Account statement",
+        "explanation": "Multiple account transactions are present.",
+    })
+    monkeypatch.setattr(local_ai, "urlopen", _mock_urlopen(content))
+    response = client.post("/api/classify", json={
+        "file_id": "file-statement",
+        "text_excerpt": "Account statement",
+    })
+    assert response.status_code == 200
+    data = response.json()
+    assert data["classification"]["document_kind"] == "statement"
+    assert data["field_profile"] == "reference"
 
 
 def test_classify_ollama_unavailable_returns_503(monkeypatch):

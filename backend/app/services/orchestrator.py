@@ -41,6 +41,7 @@ from app.services import local_ai
 from app.services.classification_validation import validate_classification
 from app.services.operations import build_proposed_operation
 from app.schemas import ClassificationRecord
+from app.services.document_awareness import field_profile_for_classification
 
 SUPPORTED_EXTENSIONS = {".pdf", ".txt", ".csv"}
 MAX_FILES = 100
@@ -235,8 +236,14 @@ def _build_plan(session: ScanSession) -> Plan:
                 collision_suffixed=(n > 1),
             ))
 
-        # Report rows for invoices and receipts only
-        if c and category in ("invoice", "receipt"):
+        # Report rows require a transaction profile as well as an invoice or
+        # receipt category. Statements and other non-transactional documents
+        # must never become one expense merely because they contain amounts.
+        if (
+            c
+            and category in ("invoice", "receipt")
+            and field_profile_for_classification(c) == "transaction"
+        ):
             # Prefer the canonical `amount` field (set by the scan worker and by
             # human corrections). Fall back to re-parsing `amount_text` only when
             # no canonical amount exists, so corrected amounts are never ignored.

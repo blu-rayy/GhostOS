@@ -221,6 +221,75 @@ def test_corrected_amount_is_used_in_plan(tmp_path):
     assert plan["blocking_review_count"] == 0
 
 
+def test_non_transactional_corrections_are_rejected(tmp_path):
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_statement_correction",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    for file_id, kind in (("statement1", "statement"), ("civil1", "identity_or_civil")):
+        sess.documents.append(DocumentRecord(
+            file_id=file_id,
+            relative_path=f"{file_id}.txt",
+            file_type="txt",
+            size_bytes=1,
+            sha256="c" * 64,
+            excerpt="reference",
+            status="needs_review",
+            classification={
+                "category": "other",
+                "document_kind": kind,
+                "merchant": None,
+                "date": None,
+                "amount_text": None,
+                "amount": None,
+                "currency": None,
+                "evidence_quote": "reference",
+                "evidence_verified": True,
+                "explanation": "",
+            },
+        ))
+    ss.put_scan(sess)
+
+    for file_id in ("statement1", "civil1"):
+        response = client.patch(
+            f"/api/documents/{file_id}",
+            json={"amount": "100.00", "accept": True},
+        )
+        assert response.status_code == 422
+
+
+def test_session_response_exposes_derived_document_profile(tmp_path):
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_profile_response",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    sess.documents.append(DocumentRecord(
+        file_id="statement-response",
+        relative_path="statement.txt",
+        file_type="txt",
+        size_bytes=1,
+        sha256="d" * 64,
+        excerpt="statement",
+        status="ok",
+        classification={"category": "other", "document_kind": "statement"},
+    ))
+    ss.put_scan(sess)
+
+    response = client.get("/api/scans/test_profile_response")
+    assert response.status_code == 200
+    classification = response.json()["documents"][0]["classification"]
+    assert classification["document_kind"] == "statement"
+    assert classification["field_profile"] == "reference"
+
+
 def test_other_documents_are_excluded_from_expense_report_rows(tmp_path):
     """Non-expense classifications cannot become report rows from an amount alone."""
     from app.services.session_store import DocumentRecord, ScanSession, store as ss

@@ -12,6 +12,7 @@ from app.schemas import (
     ScanRequest,
     ScanResponse,
 )
+from app.services.document_awareness import derive_field_profile, field_profile_for_classification
 
 
 client = TestClient(app)
@@ -74,6 +75,28 @@ def test_document_kind_derives_field_profile() -> None:
     assert ClassificationRecord(category="other", document_kind="legal").field_profile == "none"
     assert ClassificationRecord(category="other", document_kind="medical").field_profile == "none"
     assert ClassificationRecord(category="other").field_profile == "none"
+
+
+@pytest.mark.parametrize(
+    ("kind", "profile"),
+    [
+        ("receipt", "transaction"),
+        ("invoice", "transaction"),
+        ("statement", "reference"),
+        ("identity_or_civil", "none"),
+        ("legal", "none"),
+        ("medical", "none"),
+        ("other", "none"),
+        ("uncertain", "none"),
+    ],
+)
+def test_backend_profile_derivation_is_bounded(kind: str, profile: str) -> None:
+    assert derive_field_profile(kind) == profile
+
+
+def test_legacy_classification_uses_category_compatibility_fallback() -> None:
+    assert field_profile_for_classification({"category": "receipt"}) == "transaction"
+    assert field_profile_for_classification({"category": "other"}) == "none"
 
 
 def test_field_profile_is_not_a_model_supplied_field() -> None:
