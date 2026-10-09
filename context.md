@@ -390,6 +390,24 @@ Only Electron (`window.ghostos` bridge, `contextIsolation: true`,
 `nodeIntegration: false`) has a native folder picker; browser mode requires
 a typed/pasted path.
 
+Desktop Pip (controlled demo, Windows desktop app only, **off by default**):
+Settings → "Pip on your desktop" (bottom of the panel; remembered on this
+computer). Only for a folder picked with the native picker.
+- Reading: GhostOS opens the folder in File Explorer, then
+  `electron/find-folder-window.ps1` (read-only) reads the window and every
+  visible icon's box once, and the main process snapshots those icons. On a
+  transparent click-through overlay (`electron/pip-overlay.html`) Pip
+  "possesses" the icon of each file the backend reports as `current_file`
+  (snapshot lifts and wobbles over a patch hiding the real icon), and carries
+  a box around in between. When reading ends he waves and leaves, and GhostOS
+  comes back to the front.
+- After a move with no failures: Explorer is brought forward and Pip flies
+  into the folder that got the most files.
+Purely cosmetic: nothing clicks, types, scrolls or touches files. Because icon
+positions are read once, don't scroll or move the Explorer window while Pip
+is out, and don't click away during the move. If anything doesn't match it
+silently does nothing.
+
 Pure libs: `lib/money.ts` (BigInt-cents decimal math, no floats; parses
 typed corrections), `lib/format.ts` (display: currency symbols, JPY without
 decimals, dates), `lib/report.ts` (CSV export, accepted rows only),

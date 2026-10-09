@@ -40,6 +40,26 @@ export interface AppState {
   activity: ActivityEvent[]
   /** History or Settings side panel, open over the current step. */
   panel: Panel | null
+  /** Settings toggle: Pip appears in File Explorer while reading and after moving (desktop only). */
+  desktopPip: boolean
+}
+
+const DESKTOP_PIP_KEY = 'ghostos.desktopPip'
+
+export function loadDesktopPip(): boolean {
+  try {
+    return localStorage.getItem(DESKTOP_PIP_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+export function saveDesktopPip(on: boolean): void {
+  try {
+    localStorage.setItem(DESKTOP_PIP_KEY, on ? '1' : '0')
+  } catch {
+    // Storage blocked: the toggle still works for this session.
+  }
 }
 
 export const initialState: AppState = {
@@ -63,6 +83,7 @@ export const initialState: AppState = {
   actionError: null,
   activity: [],
   panel: null,
+  desktopPip: false,
 }
 
 export type Action =
@@ -84,6 +105,6 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'log':
       return { ...state, activity: [action.event, ...state.activity] }
     case 'resetSession':
-      return { ...initialState, activity: state.activity, status: state.status, statusError: state.statusError }
+      return { ...initialState, activity: state.activity, status: state.status, statusError: state.statusError, desktopPip: state.desktopPip }
   }
 }

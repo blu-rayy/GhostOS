@@ -15,8 +15,13 @@ export type PipMood = 'hello' | 'waiting' | 'reading' | 'suspicious' | 'done' | 
 
 const INK = '#1a1a1a'
 export const INK_FILTER_ID = 'ghostos-ink'
+/**
+ * Same wobble scaled for 24-unit icons. The filter works in each SVG's own units, so the
+ * Pip filter (made for a 120-unit drawing) bends an icon five times as hard and smears it.
+ */
+export const ICON_INK_FILTER_ID = 'ghostos-ink-icon'
 
-/** SVG filter that gives strokes a slightly hand-inked wobble. Render once per document. */
+/** SVG filters that give strokes a slightly hand-inked wobble. Render once per document. */
 export function InkDefs() {
   return (
     <svg width="0" height="0" className="absolute" aria-hidden focusable="false">
@@ -24,6 +29,10 @@ export function InkDefs() {
         <filter id={INK_FILTER_ID} x="-5%" y="-5%" width="110%" height="110%">
           <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves={2} seed={7} />
           <feDisplacementMap in="SourceGraphic" scale={2.3} />
+        </filter>
+        <filter id={ICON_INK_FILTER_ID} x="-10%" y="-10%" width="120%" height="120%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.2" numOctaves={2} seed={7} />
+          <feDisplacementMap in="SourceGraphic" scale={0.5} />
         </filter>
       </defs>
     </svg>
@@ -278,8 +287,11 @@ export function SpeechBubble({ children, className, tail = 'left', tailOffset = 
     <div className={cx('relative rounded-[18px] border-[2.5px] border-ink bg-paper font-display', tail === 'down' ? 'px-4 py-2.5 text-[24px] leading-tight shadow-card-sm' : 'px-3 py-2 text-[22px] leading-7', className)}>
       {children}
       {tail === 'down' ? (
-        <svg width="26" height="22" viewBox="0 0 26 22" className="absolute -bottom-[21px]" style={{ left: tailOffset }} aria-hidden focusable="false">
-          <path d="M2 1 8 20 20 1" fill="#fff" stroke={INK} strokeWidth="2.5" strokeLinejoin="round" />
+        // Starts 6px inside the bubble so the white fill fully covers the bubble's bottom
+        // border between the two tail strokes (no hairline at fractional display scales).
+        <svg width="26" height="28" viewBox="0 0 26 28" className="absolute -bottom-[21px]" style={{ left: tailOffset }} aria-hidden focusable="false">
+          <path d="M2 0H20V7L8 26 2 7Z" fill="#fff" />
+          <path d="M2 7 8 26 20 7" fill="none" stroke={INK} strokeWidth="2.5" strokeLinejoin="round" />
         </svg>
       ) : (
         <svg width="22" height="18" viewBox="0 0 22 18" className="absolute -left-[20px] bottom-2.5" aria-hidden focusable="false">

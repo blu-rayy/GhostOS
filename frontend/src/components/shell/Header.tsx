@@ -5,7 +5,7 @@ import { STEPS, canOpenStep, isStepDone, stepForView, type StepContext, type Ste
 import type { Panel } from '../../types/ui'
 import { Tag } from '../paper/Chip'
 import { IconButton } from '../paper/Button'
-import { HistoryIcon, LockIcon, SettingsIcon } from '../paper/icons'
+import { ComputerIcon, HistoryIcon, LockIcon, SettingsIcon } from '../paper/icons'
 import { PipMark } from '../pip/Pip'
 import { cx } from '../ui/cx'
 import { useServiceStates } from './useServiceStates'
@@ -27,7 +27,10 @@ export function Header() {
     <header className="relative z-10 flex h-16 shrink-0 items-center gap-5 border-b-[2.5px] border-ink bg-paper px-7">
       <div className="flex items-center gap-2">
         <PipMark size={32} />
-        <span className="font-display text-[28px] leading-none">ghostOS</span>
+        {/* Gochi Hand's capitals barely differ from lowercase, so "OS" is set larger. */}
+        <span className="font-display text-[28px] leading-none">
+          ghost<span className="text-[37px] tracking-[0.03em]">OS</span>
+        </span>
       </div>
 
       <nav aria-label="Steps" className="ml-4">
@@ -147,7 +150,10 @@ function StatusPill() {
       title={usingFixtures ? 'Demo mode: the sample data is bundled with the app. Nothing is sent anywhere.' : 'The local service reports no requests outside this computer.'}
     >
       <LockIcon size={16} crisp />
-      {WORDS.offline.toLowerCase()}
+      <span>{WORDS.offline.toLowerCase().split(' · ')[0]}</span>
+      <span aria-hidden className="text-[13px] leading-none">•</span>
+      <ComputerIcon size={16} crisp />
+      <span className="sr-only">on this computer</span>
     </span>
   )
 }

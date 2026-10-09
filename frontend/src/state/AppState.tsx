@@ -7,7 +7,7 @@ import { resolvePlatform } from '../platform/electron'
 import type { GhostOSPlatform } from '../platform/types'
 import type { DocumentCorrection, DocumentRecord } from '../types/api'
 import type { ActivityEvent, View } from '../types/ui'
-import { initialState, reducer, type Action, type AppState } from './reducer'
+import { initialState, loadDesktopPip, reducer, saveDesktopPip, type Action, type AppState } from './reducer'
 
 /**
  * Session state + actions. All data comes from `api` (src/api): the fixture
@@ -23,6 +23,18 @@ let eventSeq = 0
 function makeEvent(e: Omit<ActivityEvent, 'id' | 'at'>): ActivityEvent {
   eventSeq += 1
   return { id: `ev${Date.now()}_${eventSeq}`, at: new Date().toISOString(), ...e }
+}
+
+/** First path segment that most destinations share ("Receipts/2026-09/a.pdf" -> "Receipts"). */
+function busiestTopFolder(paths: string[]): string | null {
+  const counts = new Map<string, number>()
+  for (const p of paths) {
+    const top = p.split('/')[0]
+    if (top && top !== p) counts.set(top, (counts.get(top) ?? 0) + 1)
+  }
+  let best: string | null = null
+  for (const [name, n] of counts) if (best === null || n > (counts.get(best) ?? 0)) best = name
+  return best
 }
 
 export interface Counts {
@@ -54,12 +66,13 @@ interface AppApi {
   undoBatch(): Promise<void>
   logExport(filename: string, rows: number): void
   resetSession(): void
+  setDesktopPip(on: boolean): void
 }
 
 const Ctx = createContext<AppApi | null>(null)
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, initialState)
+  const [state, dispatch] = useReducer(reducer, initialState, (init) => ({ ...init, desktopPip: loadDesktopPip() }))
   const stateRef = useRef(state)
   useEffect(() => {
     stateRef.current = state
@@ -178,8 +191,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
       let lastProcessed = 0
       let lastFile: string | null = null
+      // Desktop Pip (Settings toggle): only for a real folder picked in the desktop app.
+      const pip = s.desktopPip && s.folder.path ? platform.desktopPip : undefined
       const fail = (message: string) => {
         stopPolling()
+        pip?.stop()
         patch({ phase: 'scan_failed', scanError: message })
         log({ type: 'scan_failed', level: 'error', title: 'Scan stopped', detail: message })
       }
@@ -191,9 +207,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             log({ type: 'document_analyzed', level: 'info', title: `Analyzed ${basename(lastFile)}` })
           }
           lastProcessed = progress.files_processed
+          if (pip && progress.current_file && progress.current_file !== lastFile) pip.target(progress.current_file)
           lastFile = progress.current_file
           if (progress.state === 'error') return fail(progress.error ?? 'The scan failed.')
           if (progress.state === 'done') {
+            pip?.stop()
             const scan = await api.getScan(scanId)
             // Go straight to Check. An open History/Settings panel stays on top.
             patch({ scan, phase: 'reviewing', ...(stateRef.current.view === 'scanning' ? { view: 'files' as const } : {}) })
@@ -214,6 +232,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       try {
         const first = await api.startScan(root)
         patch({ progress: first })
+        if (pip && s.folder.path) pip.start(s.folder.path)
         poll(first.scan_id)
       } catch (e) {
         fail(errorText(e))
@@ -262,6 +281,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           )
         }
         log({ type: 'report_generated', level: 'success', title: 'Totals list written', detail: batch.report_relative_path })
+        // Desktop Pip (Settings toggle): Pip flies into the real folder that received the most
+        // files. Cosmetic; never affects the result.
+        const root = s.folder?.path
+        if (s.desktopPip && root && batch.failed.length === 0 && batch.moved > 0 && platform.desktopPip) {
+          const top = busiestTopFolder(s.plan.operations.map((op) => op.destination_relative_path))
+          if (top) platform.desktopPip.intoFolder(root, top)
+        }
       } catch (e) {
         patch({ busy: null, phase: 'reviewing', actionError: errorText(e), view: 'report', approvedPlan: null })
         log({ type: 'action_failed', level: 'error', title: 'Approval failed. Nothing was moved.', detail: errorText(e) })
@@ -297,7 +323,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
     resetSession() {
       stopPolling()
+      if (stateRef.current.phase === 'scanning') platform.desktopPip?.stop()
       dispatch({ type: 'resetSession' })
+    },
+
+    setDesktopPip(on) {
+      saveDesktopPip(on)
+      patch({ desktopPip: on })
     },
   }
 

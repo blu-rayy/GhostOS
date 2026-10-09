@@ -15,7 +15,7 @@ const TONE: Record<ServiceState, ChipTone> = { ok: 'done', down: 'oops', fixture
  * demo mode), the privacy rules, limits, and the demo scenarios while demo data is in use.
  */
 export function SettingsPanel() {
-  const { state, resetSession, platform, usingFixtures } = useApp()
+  const { state, resetSession, platform, usingFixtures, setDesktopPip } = useApp()
   const svc = useServiceStates()
   const s = state.status
   // mockScenario is a plain module object; mirror it in local state so the boxes re-render.
@@ -74,6 +74,19 @@ export function SettingsPanel() {
           </PaperButton>
         </Section>
       )}
+
+      <Section title="Pip on your desktop">
+        {platform.desktopPip ? (
+          <Box
+            checked={state.desktopPip}
+            onChange={setDesktopPip}
+            label="Let Pip out of the app"
+            sub="While reading, GhostOS opens the folder in File Explorer and Pip haunts each file as it's read. After moving, he dives into the new folder. Just an animation: Pip never clicks, moves or changes anything. Keep the Explorer window still and don't scroll it."
+          />
+        ) : (
+          <p className="m-0 text-[16px] text-graphite">Only in the Windows desktop app.</p>
+        )}
+      </Section>
     </div>
   )
 }
