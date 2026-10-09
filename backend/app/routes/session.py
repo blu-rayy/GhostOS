@@ -247,6 +247,7 @@ def get_scan(scan_id: str) -> dict:
                 "review_flags": d.review_flags,
                 "duplicate_of": d.duplicate_of,
                 "user_corrected": d.user_corrected,
+                "review_disposition": getattr(d, "review_disposition", "none"),
             }
             for d in session.documents
         ],
@@ -278,6 +279,7 @@ def correct_document(file_id: str, body: dict) -> dict:
         "allowed_fields",
         "destination_relative_path",
         "operations",
+        "review_disposition",
     }
     supplied_forbidden = sorted(forbidden_fields.intersection(body))
     if supplied_forbidden:
@@ -437,8 +439,13 @@ def correct_document(file_id: str, body: dict) -> dict:
 
     if body.get("accept"):
         doc.user_corrected = True
-        doc.review_flags = []
-        doc.status = "ok"
+        if body.get("category") == "uncertain":
+            doc.review_disposition = "leave_for_review"
+            doc.status = "needs_review"
+        else:
+            doc.review_disposition = "filed"
+            doc.review_flags = []
+            doc.status = "ok"
 
     return {
         "file_id": doc.file_id,
@@ -452,6 +459,7 @@ def correct_document(file_id: str, body: dict) -> dict:
         "review_flags": doc.review_flags,
         "duplicate_of": doc.duplicate_of,
         "user_corrected": doc.user_corrected,
+        "review_disposition": getattr(doc, "review_disposition", "none"),
     }
 
 

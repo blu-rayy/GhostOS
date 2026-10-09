@@ -198,7 +198,11 @@ def _build_plan(session: ScanSession, mode: SortMode = "blocking") -> Plan:
         elif doc.status == "needs_review" and not doc.user_corrected:
             folder = "Uncategorized"
             reason = "Waiting for human review"
-        elif doc.user_corrected and category == "uncertain":
+        elif doc.review_disposition == "leave_for_review" or (
+            doc.review_disposition == "none"
+            and doc.user_corrected
+            and category == "uncertain"
+        ):
             # The explicit "Leave for review" correction is distinct from
             # filing a non-transactional document under Other/.
             folder = "Uncategorized"
@@ -257,7 +261,10 @@ def _build_plan(session: ScanSession, mode: SortMode = "blocking") -> Plan:
             and not (
                 mode == "partial"
                 and doc.status == "needs_review"
-                and not doc.user_corrected
+                and (
+                    not doc.user_corrected
+                    or doc.review_disposition == "leave_for_review"
+                )
             )
         ):
             # Prefer the canonical `amount` field (set by the scan worker and by
@@ -314,7 +321,11 @@ def _build_plan(session: ScanSession, mode: SortMode = "blocking") -> Plan:
 
     blocking = sum(
         1 for d in session.documents
-        if d.status == "needs_review" and not d.user_corrected
+        if d.status == "needs_review"
+        and (
+            not d.user_corrected
+            or d.review_disposition == "leave_for_review"
+        )
     )
 
     return Plan(

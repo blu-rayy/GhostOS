@@ -763,7 +763,11 @@ def test_explicit_leave_for_review_routes_uncategorized_through_commit(tmp_path)
         json={"category": "uncertain", "accept": True},
     )
     assert correction.status_code == 200, correction.text
-    assert correction.json()["classification"]["field_profile"] == "reference"
+    correction_payload = correction.json()
+    assert correction_payload["classification"]["field_profile"] == "reference"
+    assert correction_payload["status"] == "needs_review"
+    assert correction_payload["review_flags"] == [{"code": "non_transactional_document", "message": "review"}]
+    assert correction_payload["review_disposition"] == "leave_for_review"
 
     preview = client.get(f"/api/scans/{sess.scan_id}/plan")
     assert preview.status_code == 200, preview.text
@@ -771,11 +775,70 @@ def test_explicit_leave_for_review_routes_uncategorized_through_commit(tmp_path)
     destination = payload["operations"][0]["destination_relative_path"]
     assert destination.startswith("Uncategorized/")
     assert payload["report_rows"] == []
+    assert payload["totals"] == []
+    assert payload["blocking_review_count"] == 1
 
-    approval = client.post(f"/api/plans/{payload['plan_id']}/approve", json={})
+    blocked = client.post(f"/api/plans/{payload['plan_id']}/approve", json={})
+    assert blocked.status_code == 409
+
+    partial = client.get(f"/api/scans/{sess.scan_id}/plan?mode=partial")
+    assert partial.status_code == 200, partial.text
+    partial_payload = partial.json()
+    assert partial_payload["operations"][0]["destination_relative_path"] == destination
+    approval = client.post(
+        f"/api/plans/{partial_payload['plan_id']}/approve",
+        json={"mode": "partial"},
+    )
     assert approval.status_code == 200, approval.text
     assert (tmp_path / destination).is_file()
     assert not source.exists()
+    stored = ss.find_document("leave-statement-review")
+    assert stored is not None
+    assert stored.status == "needs_review"
+    assert stored.review_flags == [{"code": "non_transactional_document", "message": "review"}]
+    assert stored.review_disposition == "leave_for_review"
+
+
+def test_filed_non_transactional_document_uses_other_and_filed_disposition(tmp_path):
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_filed_other_disposition",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    sess.documents.append(DocumentRecord(
+        file_id="filed-statement",
+        relative_path="statement.txt",
+        file_type="txt",
+        size_bytes=1,
+        sha256="7" * 64,
+        excerpt="Account statement",
+        status="needs_review",
+        classification={
+            "category": "other",
+            "document_kind": "statement",
+            "field_profile": "reference",
+            "evidence_quote": "Account statement",
+        },
+        review_flags=[{"code": "non_transactional_document", "message": "review"}],
+    ))
+    ss.put_scan(sess)
+
+    response = client.patch(
+        "/api/documents/filed-statement",
+        json={"category": "other", "accept": True},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "ok"
+    assert data["review_flags"] == []
+    assert data["review_disposition"] == "filed"
+    plan = client.get(f"/api/scans/{sess.scan_id}/plan").json()
+    assert plan["operations"][0]["destination_relative_path"].startswith("Other/")
+    assert plan["report_rows"] == []
+    assert plan["totals"] == []
 
 
 def test_session_response_exposes_derived_document_profile(tmp_path):
