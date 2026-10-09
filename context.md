@@ -229,13 +229,18 @@ Before changing code:
 
 # GhostOS — Implementation State (observed, not planned)
 
-Observed from the repository on 2026-10-10 (around midnight). The plan above is the target;
-this section describes what is actually built. Verify against the repo
-before claiming more.
+Observed from the repository on 2026-10-10 (deadline day). The plan above is
+the target; this section describes what is actually built. Verify against the
+repo before claiming more.
 
 End-to-end flow that works: folder select → async scan (poll progress) →
 review/correct documents → plan preview (read-only) → approve (moves files +
 writes CSV) → undo (restore originals).
+
+**Phase 4 gate demonstrated 2026-10-10:** controlled 3-file live-model run
+(scan → review → plan → approve → report → undo, 0 failures, 0 conflicts,
+CSV total PHP 2650.50 exact) logged at `tests/reports/e2e-demo-2026-10-10.md`.
+Code freeze proposed on the backend pipeline as of `8069727`.
 
 ## Repo layout
 
@@ -250,8 +255,8 @@ writes CSV) → undo (restore originals).
   plus static HTML reference boards for each screen state (1a–1d, 2a–2e,
   3a–3d, 4a–4d).
 - `backend/scripts/` — offline evaluation tools (`evaluate_classification.py`,
-  `evaluate_dataset.py`, `evaluate_sample_folder.py`); run against a real
-  local Ollama, write aggregates only to `backend/evaluation_output/`.
+  `evaluate_sample_folder.py`); run against a real local Ollama, write
+  aggregates only to `backend/evaluation_output/`.
 - `docs/qa/` — QA strategy + checklists (`phase1-checklist.md`,
   `phase2-frontend-qa.md`).
 - `tests/` (repo root) — fixtures/integration/reports workspace.
@@ -270,10 +275,17 @@ python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 Tests (from `backend/`, venv active): `python -m pytest`
-(last recorded: 58 passed, 1 skipped — the skip is the real-Ollama
-integration test, which only runs when a local Ollama + model is present.
-`test_cors.py` and more validation tests were added since; re-run for the
-current count.)
+(124 passed, including the real-Ollama integration test when
+`qwen3:4b-instruct` is installed locally.)
+
+Accuracy harness (from `backend/`, model required):
+`python scripts/evaluate_sample_folder.py` — runs the live pipeline on all 20
+files in `tests/fixtures/sample_folder/` and grades against
+`tests/fixtures/expected_results/ground_truth.json` (per-field accuracy,
+review precision/recall, duplicate/collision integrity, injection-safety
+checks, JSON report). Last measured: category 17/20, amount 20/20,
+evidence 15/20, precision 0.57 / recall 1.0, ~2.1s/file, 0 errors.
+Reports are written to `backend/evaluation_output/` (gitignored by design).
 
 Routers (all mounted in `backend/app/main.py`):
 
@@ -291,8 +303,15 @@ Services in `backend/app/services/`:
 - `extractor.py` — SHA-256 + bounded text excerpt (1500 chars).
 - `local_ai.py` — Ollama adapter, strict `ClassificationRecord` validation,
   controlled error types (unavailable/timeout/validation/response).
-- `orchestrator.py` — async scan worker (scan → extract → classify),
-  review-flag logic, plan builder.
+  Field-enumerating system prompt, `temperature: 0`, no Ollama `format:` schema
+  (it suppressed optional fields on `qwen3:4b-instruct`); JSON fences tolerated.
+- `classification_validation.py` — source-aware validator: exact evidence
+  check, authoritative-final-total vs reconciliation-component resolution with
+  arithmetic cross-check, `ambiguous_amount` / currency / missing-field /
+  `quotation_document` flags, `uncertain` always reviewed. Knows PHP, USD, EUR,
+  GBP, SGD (+S$), JPY (+¥).
+- `orchestrator.py` — async scan worker (scan → extract → classify →
+  **validate**), plan builder. `plan_id` deterministic (`plan_{scan_id}`).
 - `operations.py` — backend-owned destination rules (model never picks paths).
 - `session_store.py` — in-memory thread-safe store for scans + batches.
 - `report.py` — expense CSV writer. Mirrors `frontend/src/lib/report.ts`
@@ -319,9 +338,9 @@ Canonical schemas: `backend/app/schemas.py` (`ScanRequest`, `FileRecord`,
 - `classify.py` passes `request.file_id` as `original_relative_path`
   placeholder — single-file classify destinations are not real paths.
 - `GET /` still returns `{"phase": 1}` (stale label, harmless).
-- CORS allows only `http://127.0.0.1:5173` and `http://localhost:5173`
-  (GET/POST/PATCH). The browser dev server can call the real API; other
-  origins are blocked. Add an origin here if the dev port changes.
+- CORS middleware is present (`app/main.py`), scoped to
+  `http://127.0.0.1:5173` + `http://localhost:5173` (GET/POST/PATCH/OPTIONS) —
+  browser live-mode works. Add an origin there if the dev port changes.
 - Supported currencies: PHP, USD, EUR, GBP, SGD, JPY (symbols ₱ $ € £ S$ ¥),
   in `classification_validation.py` and the classifier prompt in
   `local_ai.py`. The frontend mirrors this in `lib/money.ts`, `lib/format.ts`
@@ -340,10 +359,10 @@ Scripts (from `frontend/`): `dev:browser` (Vite on `127.0.0.1:5173`),
 `dev:electron` (needs Vite already running), `dev` (both),
 `build` (`tsc -b && vite build`), `typecheck` (`tsc -b`), `lint` (oxlint),
 `test` (`vitest run`), `preview`, `electron:preview` (build, then run
-Electron on `dist/`). Vitest: 6 files, 23 tests (`api/mock.test.ts`,
-`lib/money.test.ts`, `lib/report.test.ts`, `lib/totals.test.ts`,
-`lib/viewModel.test.ts`, `lib/viewModel.flags.test.ts`). Lint has two known
-`no-useless-escape` warnings in `report.test.ts`.
+Electron on `dist/`). Vitest (a declared devDependency): 6 files, 23 tests
+(`api/mock.test.ts`, `lib/money.test.ts`, `lib/report.test.ts`,
+`lib/totals.test.ts`, `lib/viewModel.test.ts`, `lib/viewModel.flags.test.ts`).
+Lint has two known `no-useless-escape` warnings in `report.test.ts`.
 
 API layer (`frontend/src/api/`):
 
@@ -379,6 +398,12 @@ PaperDialog + `useFocusTrap`, StickyNote, HatchProgress, NumberedSteps,
 PageFooter, icons, `CheckComponents` for Step 2), `pip/Pip` (mascot; at most
 one per screen, only in empty/scanning/done/error moments), `ui/cx`.
 
+**Backend requests R1–R8** from the paper redesign sit in
+`docs/frontend-api-handoff.md` (background approve jobs, retry/cancel,
+rescan-one-file, income/expense direction, candidate amounts, …) —
+proposed, NOT agreed; treat as post-deadline unless the team explicitly
+accepts one. R2/R5 are documentation-only answers Dev 1 can give.
+
 State: `frontend/src/state/AppState.tsx` + `reducer.ts` — all backend calls
 go through `api`; nothing touches the filesystem directly. Header polls
 `getStatus` every 10 s. Scan progress polls every 500 ms. A successful
@@ -406,7 +431,9 @@ computer). Only for a folder picked with the native picker.
 Purely cosmetic: nothing clicks, types, scrolls or touches files. Because icon
 positions are read once, don't scroll or move the Explorer window while Pip
 is out, and don't click away during the move. If anything doesn't match it
-silently does nothing.
+silently does nothing. With demo data (no backend) and a picked folder, Pip
+haunts random visible files and the demo scan slows to 32 s, for testing the
+animation.
 
 Pure libs: `lib/money.ts` (BigInt-cents decimal math, no floats; parses
 typed corrections), `lib/format.ts` (display: currency symbols, JPY without
@@ -419,16 +446,27 @@ Fixtures: `frontend/src/fixtures/scan.json` (18 docs, 5 skipped, edge cases:
 duplicates, timeout, injection, multi-currency, uncertain, missing date,
 evidence mismatch), `status.json`.
 
-## Git state (2026-10-10, ~00:00)
+## Git state (2026-10-10, pre-freeze)
 
-- `main` and `feat/ui-paper` are level at `293b51b` (later commits may exist;
-  check `git log origin/main`). `main` includes: session-management layer,
-  the full paper UI (Steps 1–4, side panels, old screens deleted), backend
-  CORS, prompt-based classification with SGD/JPY support, evaluation
-  scripts, and matching frontend currency handling.
-- Other remote branches (may be merged or stale — check before reusing):
-  `feature/frontend-fixture-ui`, `qa/phase1-fixtures`.
-- Remaining work and owners: see `TODO.md`.
+- `main` includes: session-management layer, validation integration + prompt
+  fix + SGD/JPY support, Dev 1's validator-safety rewrite
+  (authoritative/component amounts, `quotation_document`, CORS) + tests,
+  commit/report recovery safety, the e2e demo log
+  (`tests/reports/e2e-demo-2026-10-10.md`), vitest devDependency,
+  `pyrightconfig.json`, and from `feat/ui-paper`: the full paper UI (Steps 1–4,
+  History/Settings side panels, old screens deleted), frontend currency
+  handling, brand assets (`docs/brand/`), Pip app icon, and desktop Pip.
+  Check `git log origin/main` for anything newer.
+- Flag-name mapping (validator → frontend): 8 codes identical; 3 renamed
+  (`evidence_quote_not_found`→`evidence_not_found`,
+  `invalid_amount_format`→`amount_unparseable`,
+  `ambiguous_amount`→`amount_conflict`); unknown flags pass through.
+- Older remote branches (may be merged or stale — check before reusing):
+  `feature/phase2-step1-classify`, `feature/step3-scanner`,
+  `feature/step4-extraction`, `developer-1-jj/phase1-step2-contracts`,
+  `feature/frontend-fixture-ui`, `feature/phase2-step2-session-management`,
+  `qa/phase1-fixtures`, `assets/ghost-icons`,
+  `fix/remove-duplicate-continue-button`.
 
 ## Picking up work
 

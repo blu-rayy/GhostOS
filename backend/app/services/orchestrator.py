@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import os
 import threading
+import copy
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -25,6 +26,7 @@ from app.services.session_store import (
     Plan,
     ProposedOp,
     ReportRow,
+    PlanSnapshot,
     ScanSession,
     SkippedFile,
     store,
@@ -424,4 +426,33 @@ def get_plan(scan_id: str) -> Plan:
     session = store.get_scan(scan_id)
     if session is None:
         raise KeyError(f"Scan {scan_id!r} not found")
-    return _build_plan(session)
+
+    plan_id = f"plan_{scan_id}"
+    existing = store.get_plan_snapshot(plan_id)
+    if existing is not None and existing.session_revision == session.plan_revision:
+        return copy.deepcopy(existing.plan)
+
+    # A GET of the preview endpoint is the explicit request for a fresh
+    # preview after a correction or other session revision.
+    plan = _build_plan(session)
+    identities = tuple(
+        sorted(
+            (
+                op.file_id,
+                (
+                    next((d.relative_path for d in session.documents if d.file_id == op.file_id), ""),
+                    next((d.sha256 for d in session.documents if d.file_id == op.file_id), ""),
+                ),
+            )
+            for op in plan.operations
+        )
+    )
+    store.put_plan_snapshot(
+        plan_id,
+        PlanSnapshot(
+            plan=copy.deepcopy(plan),
+            session_revision=session.plan_revision,
+            source_identities=identities,
+        ),
+    )
+    return copy.deepcopy(plan)
