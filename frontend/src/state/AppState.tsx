@@ -271,7 +271,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const s = stateRef.current
       if (!s.batch) return
       patch({ busy: 'undo', actionError: null, phase: 'undoing' })
-      log({ type: 'undo_started', level: 'info', title: `Undo started for ${s.batch.batch_id}` })
+      log({ type: 'undo_started', level: 'info', title: 'Putting files back', detail: `Batch ${s.batch.batch_id}` })
       try {
         const undo = await api.undoBatch(s.batch.batch_id)
         patch({ undo, busy: null, phase: 'undone' })
@@ -281,7 +281,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         log({
           type: 'undo_completed',
           level: undo.conflicts.length ? 'warning' : 'success',
-          title: undo.conflicts.length ? 'Undo partially completed' : 'Undo completed',
+          title: undo.conflicts.length ? 'Put back (some files stayed)' : 'Put back',
           detail: `${undo.restored} restored, ${undo.conflicts.length} left in organized location.`,
         })
       } catch (e) {

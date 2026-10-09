@@ -1,8 +1,8 @@
 import { AppShell } from './components/shell/AppShell';
 import { ActivityPage } from './pages/ActivityPage';
-import { CompletionPage } from './pages/CompletionPage';
 import { FilesPage } from './pages/FilesPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { DonePage } from './pages/done/DonePage';
 import { StartPage } from './pages/start/StartPage';
 import { TotalsPage } from './pages/totals/TotalsPage';
 import { AppStateProvider, useApp } from './state/AppState';
@@ -24,7 +24,8 @@ function CurrentView() {
     case 'activity':
       return <ActivityPage />;
     case 'completion':
-      return <CompletionPage />;
+      // Step 4 · Done (paper redesign).
+      return <DonePage />;
     case 'settings':
       return <SettingsPage />;
   }

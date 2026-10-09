@@ -40,6 +40,10 @@ export const PIP_LINES = {
   scanStopped: "*sigh*. that didn't work.",
   /** Totals screen (step 3) versions, per docs/design/step3-totals.md. */
   carrying: (n: number) => `carrying ${n} ${n === 1 ? 'file' : 'files'}. my back.`,
+  /** Done screen (step 4) versions, per docs/design/step4-done.md. */
+  sorted: (n: number) => `${n} ${n === 1 ? 'file' : 'files'}. sorted. you're welcome.`,
+  undone: 'fine. undone. as if i never tried.',
+  comfy: (k: number) => (k === 1 ? 'one of them got comfy.' : k === 2 ? 'two of them got comfy.' : k === 3 ? '3 of them got comfy.' : 'a few of them got comfy.'),
   refused: (k: number) => (k === 1 ? 'one of them refused to budge.' : k === 2 ? 'two of them refused to budge.' : k === 3 ? '3 of them refused to budge.' : 'a few of them refused to budge.'),
 } as const
 

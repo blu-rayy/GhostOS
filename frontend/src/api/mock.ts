@@ -252,7 +252,7 @@ export const mockApi: GhostApi = {
           {
             file_id: op.file_id,
             relative_path: op.original_relative_path,
-            reason: 'A different file now exists at the original path (content hash differs). Left at its organized location.',
+            reason: 'a different file with this name is in the old spot now (simulated)',
           },
         ],
       }

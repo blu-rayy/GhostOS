@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { useApp } from '../../state/AppState'
 import type { BatchResult, PlanPreview } from '../../types/api'
 import { PIP_LINES } from '../../lib/copy'
@@ -8,9 +8,9 @@ import { PaperButton } from '../../components/paper/Button'
 import { Chip } from '../../components/paper/Chip'
 import { PageFooter } from '../../components/paper/PageFooter'
 import { PaperCard } from '../../components/paper/PaperCard'
-import { PaperDialog } from '../../components/paper/PaperDialog'
 import { StickyNote } from '../../components/paper/StickyNote'
 import { PipWithBubble } from '../../components/pip/Pip'
+import { PutBackConfirm } from '../done/DonePage'
 
 /**
  * 3d · Some files didn't move (BatchResult.failed[] not empty).
@@ -77,6 +77,7 @@ export function MoveProblems({ batch, plan, folderName }: { batch: BatchResult; 
       <PutBackConfirm
         open={confirmOpen}
         n={moved}
+        savedCsv={state.activity.some((e) => e.type === 'report_exported')}
         onCancel={() => setConfirmOpen(false)}
         onConfirm={() => {
           setConfirmOpen(false)
@@ -86,33 +87,5 @@ export function MoveProblems({ batch, plan, folderName }: { batch: BatchResult; 
         }}
       />
     </>
-  )
-}
-
-/** 4b-style confirmation for putting the moved files back. "Keep them" has initial focus; Esc keeps. */
-function PutBackConfirm({ open, n, onCancel, onConfirm }: { open: boolean; n: number; onCancel: () => void; onConfirm: () => void }) {
-  const keep = useRef<HTMLButtonElement>(null)
-  return (
-    <PaperDialog open={open} onCancel={onCancel} role="alertdialog" variant="b" labelledBy="put-back-title" describedBy="put-back-desc" initialFocus={keep}>
-      <div className="px-8 pb-6 pt-6">
-        <h2 id="put-back-title" className="m-0 font-display text-[36px] font-normal leading-tight">
-          Put {files(n)} back?
-        </h2>
-        <p id="put-back-desc" className="m-0 mt-2 text-[18px] leading-7">
-          Each file that moved goes back to <strong>exactly where it was</strong> before you pressed Move.
-        </p>
-        <StickyNote tilt={-0.8} className="mt-4 px-4 py-3">
-          <p className="m-0 text-[17px] leading-6">If you changed a moved file since, Pip leaves that one alone and tells you.</p>
-        </StickyNote>
-        <div className="mt-6 flex items-center justify-end gap-4">
-          <PaperButton ref={keep} variant="secondary" size="sm" onClick={onCancel}>
-            Keep them where they are
-          </PaperButton>
-          <PaperButton variant="primary" size="sm" className="!shadow-[5px_5px_0_#ffb3b3]" onClick={onConfirm}>
-            Put {files(n)} back
-          </PaperButton>
-        </div>
-      </div>
-    </PaperDialog>
   )
 }

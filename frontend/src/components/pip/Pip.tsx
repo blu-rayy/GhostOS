@@ -11,7 +11,7 @@ import { cx } from '../ui/cx'
  * "ink" wobble filter rendered once by <InkDefs /> in the app shell.
  */
 
-export type PipMood = 'hello' | 'waiting' | 'reading' | 'suspicious' | 'done' | 'sigh' | 'guard' | 'carrying'
+export type PipMood = 'hello' | 'waiting' | 'reading' | 'suspicious' | 'done' | 'sigh' | 'guard' | 'carrying' | 'shrug'
 
 const INK = '#1a1a1a'
 export const INK_FILTER_ID = 'ghostos-ink'
@@ -137,17 +137,38 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
       </>
     ),
   },
+  /** Step 4 · Done 4a, exact SVG from docs/design/step4-done/4a-all-tidy.html. */
   done: {
-    label: 'Pip reluctantly satisfied, one tiny party streamer',
+    label: 'Pip holding a clipboard with a check mark, looking smug',
     art: (
       <>
-        <path d="M104 22q4 4 0 8t0 8" {...line} strokeWidth={2.5} />
-        <Body />
-        <path d="M99 76c5-3 7-8 6-14M21 80c-5 2-8 6-7 11" {...line} strokeWidth={3} />
-        <Glasses />
-        <path d="M41 63q6-4 12 0M67 63q6-4 12 0" {...line} strokeWidth={2.6} />
+        <Ground />
+        <Body w={3} />
+        <Hair />
+        <Glasses w={2.6} />
+        <Lids y={60} />
         <Bags />
-        <path d="M55 86q6 3 11-1" {...line} strokeWidth={3} />
+        <path d="M54 86q6 3 11-1" {...line} strokeWidth={2.4} />
+        <path d="M70 88h22v28H70Z" fill="#9be8b8" stroke={INK} strokeWidth="2.6" strokeLinejoin="round" />
+        <path d="M76 86h10v5H76Z" fill="#fff" stroke={INK} strokeWidth="2" />
+        <path d="M75 102l4 4 8-9" {...line} strokeWidth={2.8} strokeLinejoin="round" />
+        <path d="M21 80c-5 2-8 6-7 11" {...line} strokeWidth={2.6} />
+      </>
+    ),
+  },
+  /** Step 4 · Done 4c, exact SVG from docs/design/step4-done/4c-put-back.html. */
+  shrug: {
+    label: 'Pip shrugging',
+    art: (
+      <>
+        <Ground />
+        <Body w={3} />
+        <Hair />
+        <Glasses w={2.6} />
+        <Lids />
+        <Bags />
+        <path d="M53 87h14" {...line} strokeWidth={2.6} />
+        <path d="M21 80q-9-2-12-10M99 80q9-2 12-10" {...line} strokeWidth={2.6} />
       </>
     ),
   },
