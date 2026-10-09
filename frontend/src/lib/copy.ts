@@ -3,7 +3,7 @@
  * principles board. Keep plain words here so every screen says the same thing.
  */
 
-export const STEP_LABELS = ['Start', 'Check', 'Expenses', 'Done'] as const
+export const STEP_LABELS = ['Start', 'Check', 'Totals', 'Done'] as const
 
 export const WORDS = {
   needsReview: 'Check this',
@@ -35,4 +35,17 @@ export const PIP_LINES = {
   done: (n: number) => `${n} files moved. report's ready. you're welcome.`,
   sigh: "couldn't read this one. nothing changed.",
   guard: 'offline. your files stay right here. so do I.',
+  /** Start screen (step 1) versions, per docs/design/step1-start.md. */
+  startReading: (n: number | null) => (n ? `reading ${n} files. riveting.` : 'reading. riveting.'),
+  scanStopped: "*sigh*. that didn't work.",
+  /** Totals screen (step 3) versions, per docs/design/step3-totals.md. */
+  carrying: (n: number) => `carrying ${n} ${n === 1 ? 'file' : 'files'}. my back.`,
+  /** Done screen (step 4) versions, per docs/design/step4-done.md. */
+  sorted: (n: number) => `${n} ${n === 1 ? 'file' : 'files'}. sorted. you're welcome.`,
+  undone: 'fine. undone. as if i never tried.',
+  comfy: (k: number) => (k === 1 ? 'one of them got comfy.' : k === 2 ? 'two of them got comfy.' : k === 3 ? '3 of them got comfy.' : 'a few of them got comfy.'),
+  refused: (k: number) => (k === 1 ? 'one of them refused to budge.' : k === 2 ? 'two of them refused to budge.' : k === 3 ? '3 of them refused to budge.' : 'a few of them refused to budge.'),
 } as const
+
+/** Name shown for the bundled sample folder (never presented as a real folder). */
+export const DEMO_FOLDER_NAME = 'Demo files'

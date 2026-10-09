@@ -1,34 +1,31 @@
 import { AppShell } from './components/shell/AppShell';
 import { ActivityPage } from './pages/ActivityPage';
-import { CompletionPage } from './pages/CompletionPage';
-import { DashboardPage } from './pages/DashboardPage';
 import { FilesPage } from './pages/FilesPage';
-import { FolderSelectPage } from './pages/FolderSelectPage';
-import { PlanPage } from './pages/PlanPage';
-import { ReportPage } from './pages/ReportPage';
-import { ScanningPage } from './pages/ScanningPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { DonePage } from './pages/done/DonePage';
+import { StartPage } from './pages/start/StartPage';
+import { TotalsPage } from './pages/totals/TotalsPage';
 import { AppStateProvider, useApp } from './state/AppState';
 
 function CurrentView() {
   const { state } = useApp();
   switch (state.view) {
+    // Step 1 · Start (paper redesign): one page, state picked from the session phase.
     case 'dashboard':
-      return <DashboardPage />;
     case 'folder':
-      return <FolderSelectPage />;
     case 'scanning':
-      return <ScanningPage />;
+      return <StartPage />;
     case 'files':
       return <FilesPage />;
+    // Step 3 · Totals (paper redesign) replaces the old plan and report screens.
     case 'plan':
-      return <PlanPage />;
     case 'report':
-      return <ReportPage />;
+      return <TotalsPage />;
     case 'activity':
       return <ActivityPage />;
     case 'completion':
-      return <CompletionPage />;
+      // Step 4 · Done (paper redesign).
+      return <DonePage />;
     case 'settings':
       return <SettingsPage />;
   }

@@ -1,5 +1,5 @@
 /**
- * The 4-step flow (Start → Check → Expenses → Done) mapped onto the app's views
+ * The 4-step flow (Start → Check → Totals → Done) mapped onto the app's views
  * and session phase. Pure functions only.
  */
 import type { SessionPhase, View } from '../types/ui'
@@ -27,8 +27,8 @@ export function stepForView(view: View): StepIndex | null {
     case 'scanning':
       return 0
     case 'files':
-    case 'plan':
       return 1
+    case 'plan':
     case 'report':
       return 2
     case 'completion':
@@ -45,17 +45,26 @@ export interface StepContext {
   hasApprovedPlan: boolean
 }
 
-/** Whether the user may jump to this step right now. */
-export function canOpenStep(i: StepIndex, ctx: StepContext): boolean {
-  if (i === 0) return true
-  if (i === 1 || i === 2) return ctx.hasScan && ctx.phase !== 'scanning'
-  return ctx.hasApprovedPlan
+/** A step is finished once the flow has moved past it (or the user is past it). */
+export function isStepDone(i: StepIndex, ctx: StepContext, current: StepIndex | null = null): boolean {
+  if (i === 0) return ctx.hasScan && ctx.phase !== 'scanning'
+  if (i === 1) return ctx.hasApprovedPlan || (current !== null && current > 1)
+  if (i === 2) return ctx.hasApprovedPlan
+  // Not while Totals is open (e.g. 3d: some files didn't move and the user is still deciding).
+  return ctx.hasApprovedPlan && ctx.phase !== 'organizing' && current !== 2
 }
 
-/** A step is finished once the flow has moved past it. */
-export function isStepDone(i: StepIndex, ctx: StepContext): boolean {
-  const moved = ctx.hasApprovedPlan && ctx.phase !== 'organizing'
-  if (i === 0) return ctx.hasScan && ctx.phase !== 'scanning'
-  if (i === 1 || i === 2) return ctx.hasApprovedPlan
-  return moved
+/**
+ * Whether a step in the tracker can be clicked. Only moves the current flow already
+ * allows: Totals → Check while reviewing, Totals ↔ Done after files moved. Start is
+ * never reopened from the tracker once a scan exists, and nothing is clickable while
+ * files are moving. Forward steps open through each screen's own "next" button.
+ */
+export function canOpenStep(i: StepIndex, current: StepIndex | null, ctx: StepContext): boolean {
+  if (i === current) return false
+  if (ctx.phase === 'organizing' || ctx.phase === 'undoing') return false
+  if (ctx.hasApprovedPlan) return i === 2 || i === 3
+  if (ctx.hasScan && ctx.phase === 'reviewing') return i === 1 || (i === 2 && current === null)
+  // Before a scan exists, Start is the only place to be (e.g. coming back from History).
+  return i === 0
 }

@@ -18,7 +18,8 @@
   --paper: 255 255 255; /* #FFFFFF */
   --pencil: 241 241 239; /* #F1F1EF quiet fills, disabled */
   --graphite: 107 107 107; /* #6B6B6B secondary text (5.3:1 on paper) */
-  --dots: 212 212 212; /* dotted grid */
+  --dots: 214 214 214; /* #D6D6D6 dotted grid */
+  --path-box: 246 246 244; /* #F6F6F4 folder path box */
 
   /* Highlighters: only ever behind ink text */
   --hl-check: 255 224 102; /* #FFE066 needs you */
@@ -72,6 +73,11 @@
   --color-note-check: rgb(var(--note-check));
   --color-note-oops: rgb(var(--note-oops));
   --color-row-selected: rgb(var(--row-selected));
+  --color-dot: rgb(var(--dots));
+  --color-path-box: rgb(var(--path-box));
+  --color-sticky: rgb(var(--note-check));
+  --color-sticky-pink: rgb(var(--note-oops));
+  --color-btn-shadow: #9a9a9a;
 
   --color-bg: rgb(var(--bg));
   --color-surface-1: rgb(var(--surface-1));
@@ -124,6 +130,10 @@
   --shadow-raised: 4px 4px 0 rgb(26 26 26);
   --shadow-raised-soft: 4px 4px 0 rgb(154 154 154);
   --shadow-card: 6px 6px 0 rgb(26 26 26);
+  --shadow-card-sm: 4px 4px 0 rgb(26 26 26);
+  --shadow-sticky: 5px 5px 0 rgb(26 26 26);
+  --shadow-btn: 5px 5px 0 #9a9a9a;
+  --shadow-btn-ink: 5px 5px 0 rgb(26 26 26);
   --shadow-sheet: 8px 8px 0 rgb(26 26 26);
   /* Legacy names */
   --shadow-panel: none;
@@ -177,10 +187,6 @@
     background: rgb(var(--hl-check));
     color: rgb(var(--ink));
   }
-  :focus-visible {
-    outline: 3px solid rgb(var(--ink));
-    outline-offset: 3px;
-  }
   button:not(:disabled) {
     cursor: pointer;
   }
@@ -207,8 +213,14 @@
   /* The sketchbook page: white paper with a dotted grid. */
   .paper-grid {
     background-color: rgb(var(--paper));
-    background-image: radial-gradient(rgb(var(--dots)) 1.3px, transparent 1.4px);
+    background-image: radial-gradient(rgb(var(--dots)) 1.2px, transparent 1.3px);
     background-size: 22px 22px;
+  }
+
+  /* Marker stroke on a key word, e.g. "Move files" in running text. */
+  .marker {
+    background: linear-gradient(transparent 50%, rgb(var(--hl-check)) 50%, rgb(var(--hl-check)) 92%, transparent 92%);
+    padding: 0 3px;
   }
 
   /* Hand-drawn outlines: irregular radii make boxes look inked, not machined. */
@@ -282,4 +294,14 @@
     line-height: var(--text-xs--line-height);
     color: rgb(var(--graphite));
   }
+}
+
+/*
+ * Focus ring for every control: ink outline + yellow halo. Unlayered on purpose so it
+ * wins over the offset-shadow utilities on buttons and cards. Never remove outlines.
+ */
+:focus-visible {
+  outline: 3px solid rgb(var(--ink));
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgb(var(--hl-check));
 }
