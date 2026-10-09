@@ -1,0 +1,45 @@
+{
+  "commit": "0641adb247aeb4841a65b5fedb51dc1789234dfb",
+  "created_at": "2026-10-09T21:24:27.126599+00:00",
+  "canary_sha256": "ecc59c19b108a870050cefdf108a86ce59f4e0d3f76a6c7c710d3055ba3bd766",
+  "authoritative_totals": {
+    "d7b/receipts/bayside-office-mart.pdf": null,
+    "d7b/invoices/INV-1043_Pixelforge_Studio.pdf": "18648.00",
+    "d7b/receipts/sunbeam-cafe-receipt.pdf": "683.20"
+  },
+  "fixture_source": {
+    "d7b/receipts/bayside-office-mart.pdf": "receipts/bayside-office-mart.pdf",
+    "d7b/invoices/INV-1043_Pixelforge_Studio.pdf": "invoices/INV-1043_Pixelforge_Studio.pdf",
+    "d7b/receipts/sunbeam-cafe-receipt.pdf": "receipts/sunbeam-cafe-receipt.pdf"
+  },
+  "roots": {
+    "D7-L": {
+      "d7b/invoices/INV-1043_Pixelforge_Studio.pdf": {
+        "sha256": "a4a03b73a0af92d7de9299e61083648b42a130492841fb12f22688751638cff7",
+        "size": 1331
+      },
+      "d7b/receipts/bayside-office-mart.pdf": {
+        "sha256": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+        "size": 1124
+      },
+      "d7b/receipts/sunbeam-cafe-receipt.pdf": {
+        "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+        "size": 1217
+      }
+    },
+    "D7-M": {
+      "d7b/invoices/INV-1043_Pixelforge_Studio.pdf": {
+        "sha256": "a4a03b73a0af92d7de9299e61083648b42a130492841fb12f22688751638cff7",
+        "size": 1331
+      },
+      "d7b/receipts/bayside-office-mart.pdf": {
+        "sha256": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+        "size": 1124
+      },
+      "d7b/receipts/sunbeam-cafe-receipt.pdf": {
+        "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+        "size": 1217
+      }
+    }
+  }
+}
