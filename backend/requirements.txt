@@ -2,3 +2,5 @@ fastapi
 uvicorn
 pydantic
 PyMuPDF
+pytest
+httpx2

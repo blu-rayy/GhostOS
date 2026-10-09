@@ -62,3 +62,14 @@ The response should contain:
 
 FastAPI's interactive documentation is available at
 <http://127.0.0.1:8000/docs>.
+
+## Tests
+
+From the `backend` directory, with the virtual environment activated, run:
+
+```powershell
+python -m pytest
+```
+
+The contract examples endpoint is available at
+<http://127.0.0.1:8000/api/contracts/examples>.
