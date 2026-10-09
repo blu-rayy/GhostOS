@@ -83,10 +83,6 @@ function Lids({ y = 61, r = 3 }: { y?: number; r?: number }) {
   )
 }
 
-function Bags() {
-  return <path d="M40 77q7 3 14 0M66 77q7 3 14 0" {...line} strokeWidth={1.6} />
-}
-
 /** The single curl of hair used on the large moods. */
 function Hair() {
   return <path d="M60 21q5-9-2-13" {...line} strokeWidth={2.4} />
@@ -104,7 +100,6 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
         <path d="M21 80c-5 2-8 6-7 11" {...line} strokeWidth={3} />
         <Glasses />
         <Lids y={60} r={4} />
-        <Bags />
         <path d="M53 88q7-5 14 0" {...line} strokeWidth={3} />
       </>
     ),
@@ -117,7 +112,6 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
         <Hair />
         <Glasses w={2.6} />
         <Lids />
-        <Bags />
         <path d="M52 87h12" {...line} strokeWidth={2.6} />
         <path d="M68 95h18v15a4 4 0 0 1-4 4H72a4 4 0 0 1-4-4Z" fill="#fff" stroke={INK} strokeWidth="2.6" strokeLinejoin="round" />
         <path d="M86 99h3a4 4 0 0 1 0 8h-3" stroke={INK} strokeWidth="2.6" fill="none" />
@@ -150,7 +144,6 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
         <path d="M40 61h14" {...line} strokeWidth={2.6} />
         <path d="M44 61.5a3 3 0 0 0 6 0Z" fill={INK} />
         <circle cx="73" cy="62" r="3.5" fill={INK} />
-        <Bags />
         <path d="M52 88q4-3 8 0t8 0" {...line} strokeWidth={3} />
         <path d="M96 14q8-4 10 3t-6 9v4M100 35v1" {...line} strokeWidth={3} />
       </>
@@ -165,7 +158,6 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
         <Hair />
         <Glasses w={2.6} />
         <Lids y={60} />
-        <Bags />
         <path d="M54 86q6 3 11-1" {...line} strokeWidth={2.4} />
         <path d="M70 88h22v28H70Z" fill="#9be8b8" stroke={INK} strokeWidth="2.6" strokeLinejoin="round" />
         <path d="M76 86h10v5H76Z" fill="#fff" stroke={INK} strokeWidth="2" />
@@ -183,7 +175,6 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
         <Hair />
         <Glasses w={2.6} />
         <Lids />
-        <Bags />
         <path d="M53 87h14" {...line} strokeWidth={2.6} />
         <path d="M21 80q-9-2-12-10M99 80q9-2 12-10" {...line} strokeWidth={2.6} />
       </>
@@ -200,7 +191,6 @@ const MOODS: Record<PipMood, { label: string; art: ReactNode }> = {
           <path d="M75 55l-4 12" {...line} strokeWidth={1.4} />
         </g>
         <path d="M41 62q6 3 12 0M67 59q6 3 12 0" {...line} strokeWidth={2.3} />
-        <Bags />
         <ellipse cx="60" cy="88" rx="4" ry="3" fill="none" stroke={INK} strokeWidth="2.3" />
         <path d="M66 90q8 2 14-2" {...line} strokeWidth={1.6} strokeDasharray="3 3" />
         <path d="M21 80c-5 2-8 6-7 11M99 80c5 2 8 6 7 11" {...line} strokeWidth={2.6} />
