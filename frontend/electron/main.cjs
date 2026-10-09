@@ -15,6 +15,8 @@ function createWindow() {
     minHeight: 640,
     backgroundColor: '#0e1117',
     title: 'GhostOS',
+    // Pip, rendered from public/pip.svg (Windows needs a PNG/ICO, not SVG).
+    icon: path.join(__dirname, 'icon.png'),
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
@@ -61,6 +63,9 @@ ipcMain.handle('ghostos:select-folder', async (event) => {
   const folderPath = result.filePaths[0];
   return { name: path.basename(folderPath) || folderPath, path: folderPath, documentCount: null };
 });
+
+// Own taskbar identity on Windows, so the window shows Pip instead of grouping under Electron.
+if (process.platform === 'win32') app.setAppUserModelId('com.ghostos.app');
 
 app.whenReady().then(() => {
   createWindow();
