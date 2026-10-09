@@ -1,0 +1,14 @@
+{
+  "root": "<ROOT_DA>",
+  "files": {
+    "receipts/sunbeam-cafe-receipt.pdf": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+    "identity/birth-certificate.pdf": "df083a5d7500220e94e943891489ab6dc100a88a783426a351e864ef6c4edd1b",
+    "identity/drivers-license-record.txt": "a834865ede0b6a3b8d47b243fb53676ef679a35410c23dded2d9f4c95f753b69",
+    "misc/bank-statement-oct2026.txt": "b3fe6daa6638a8d26466aa54b270e6fe513acf55aa5c00e02741fa985c5ffcb2",
+    "misc/card-statement-sep2026.pdf": "af2bda441bd6a6c020cf481ddcb7b95713d533616b71f1175da380f7e0b2cac5",
+    "legal/lease-agreement-summary.pdf": "4538c2e2306137414f574f3a216ea56da1c71756255c94fbc6c506e5b00516f9",
+    "medical/prescription-note.txt": "bc8053568aef131073e7df2fe61233f470f3c321d928baba74d49b2df2cdec66",
+    "misc/aircon-payment-note.txt": "01f6370bfbecc66efeb3fe21ae9110df05e23878d4fb248a4bf5b9e6a3c72c06",
+    "invoices/meralite-power-bill-sep2026.txt": "235258aea7f3410e1aed7cb6899cd8184e41b4ade598d64ff325125caf509aca"
+  }
+}

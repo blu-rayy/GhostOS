@@ -1,0 +1,227 @@
+[
+  {
+    "id": "A0",
+    "test": "D1 guard",
+    "method": "live",
+    "input": "corrections landed on this run's scan",
+    "expected": "user_corrected true on this scan",
+    "actual": {
+      "card_statement": true,
+      "drivers_license": true
+    },
+    "status": "PASS",
+    "owner": "",
+    "note": ""
+  },
+  {
+    "id": "A1-card_statement",
+    "test": "DA-1 correction outcome",
+    "method": "live",
+    "input": "PATCH misc/card-statement-sep2026.pdf {\"category\": \"invoice\", \"accept\": true}",
+    "expected": "record whether accepted or rejected",
+    "actual": "HTTP 200; stored category=invoice, kind=statement, profile=reference",
+    "status": "CONTRACT DECISION REQUIRED",
+    "owner": "Dev 1 + team",
+    "note": "Spec asks the backend to reject contradictory combinations; the correction is accepted but neutralised in planning."
+  },
+  {
+    "id": "A2-card_statement",
+    "test": "DA-1 routing",
+    "method": "live",
+    "input": "plan after the category switch for misc/card-statement-sep2026.pdf",
+    "expected": "destination under Other/ (not Invoices/ or Receipts/); no report row",
+    "actual": "destination=Other/card-statement-sep2026.pdf; report_row=None",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "A1-drivers_license",
+    "test": "DA-1 correction outcome",
+    "method": "live",
+    "input": "PATCH identity/drivers-license-record.txt {\"category\": \"receipt\", \"accept\": true}",
+    "expected": "record whether accepted or rejected",
+    "actual": "HTTP 200; stored category=receipt, kind=identity_or_civil, profile=none",
+    "status": "CONTRACT DECISION REQUIRED",
+    "owner": "Dev 1 + team",
+    "note": "Spec asks the backend to reject contradictory combinations; the correction is accepted but neutralised in planning."
+  },
+  {
+    "id": "A2-drivers_license",
+    "test": "DA-1 routing",
+    "method": "live",
+    "input": "plan after the category switch for identity/drivers-license-record.txt",
+    "expected": "destination under Other/ (not Invoices/ or Receipts/); no report row",
+    "actual": "destination=Other/drivers-license-record.txt; report_row=None",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "A3",
+    "test": "DA-1 totals",
+    "method": "live",
+    "input": "plan totals after the category switches",
+    "expected": "receipt only: {'PHP': '683.20'}",
+    "actual": {
+      "PHP": "683.20"
+    },
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "A4",
+    "test": "no writes",
+    "method": "live",
+    "input": "after A",
+    "expected": "folder unchanged",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "C1",
+    "test": "F6 kind correction",
+    "method": "live",
+    "input": "PATCH identity/birth-certificate.pdf {\"document_kind\": \"receipt\"}",
+    "expected": "record current behaviour",
+    "actual": "HTTP 200; kind=receipt, profile=transaction, status=needs_review; plan destination=Needs Review/birth-certificate.pdf, report_row=None",
+    "status": "CONTRACT DECISION REQUIRED",
+    "owner": "Dev 1 + team",
+    "note": ""
+  },
+  {
+    "id": "C2",
+    "test": "F6 kind correction",
+    "method": "live",
+    "input": "PATCH identity/birth-certificate.pdf {\"document_kind\": 5}",
+    "expected": "record current behaviour",
+    "actual": "HTTP 422; detail=document_kind must be a supported string or null",
+    "status": "CONTRACT DECISION REQUIRED",
+    "owner": "Dev 1 + team",
+    "note": ""
+  },
+  {
+    "id": "D1",
+    "test": "statement reclassification: amount on a statement before any kind change",
+    "method": "live",
+    "input": "PATCH misc/bank-statement-oct2026.txt {\"amount\": \"9120.50\", \"currency\": \"PHP\", \"accept\": true}",
+    "expected": "record behaviour; eligibility for totals",
+    "actual": "HTTP 422; detail=Document field profile 'reference' does not allow transaction corrections: amount, currency; destination=Needs Review/bank-statement-oct2026.txt; report_row=None; totals={'PHP': '683.20'}",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": "D1 expects 422 because a statement's profile is 'reference'."
+  },
+  {
+    "id": "D2",
+    "test": "statement reclassification: user changes the kind to receipt",
+    "method": "live",
+    "input": "PATCH misc/bank-statement-oct2026.txt {\"document_kind\": \"receipt\"}",
+    "expected": "record behaviour; eligibility for totals",
+    "actual": "HTTP 200; kind=receipt, profile=transaction, status=needs_review; destination=Needs Review/bank-statement-oct2026.txt; report_row=None; totals={'PHP': '683.20'}",
+    "status": "CONTRACT DECISION REQUIRED",
+    "owner": "Dev 1 + team",
+    "note": ""
+  },
+  {
+    "id": "D3",
+    "test": "statement reclassification: user enters payment details and accepts",
+    "method": "live",
+    "input": "PATCH misc/bank-statement-oct2026.txt {\"merchant\": \"Sample National Bank\", \"date\": \"2026-09-30\", \"amount\": \"9120.50\", \"currency\": \"PHP\", \"accept\": true}",
+    "expected": "record behaviour; eligibility for totals",
+    "actual": "HTTP 200; kind=receipt, profile=transaction, status=ok; destination=Other/bank-statement-oct2026.txt; report_row=None; totals={'PHP': '683.20'}",
+    "status": "CONTRACT DECISION REQUIRED",
+    "owner": "Dev 1 + team",
+    "note": ""
+  },
+  {
+    "id": "D4",
+    "test": "no writes",
+    "method": "live",
+    "input": "after C and D",
+    "expected": "folder unchanged",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B1",
+    "test": "DA-5 explicit null kind",
+    "method": "controlled unit (production functions, constructed record, status ok)",
+    "input": "classification category=invoice, explicit null kind",
+    "expected": "profile none; no report row; destination Other/",
+    "actual": "profile=none; destination=Other/statement.txt; report_row=None; totals=[]",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B2",
+    "test": "DA-5 kind key absent (legacy record)",
+    "method": "controlled unit (production functions, constructed record, status ok)",
+    "input": "classification category=invoice, kind key absent (legacy record)",
+    "expected": "record legacy behaviour",
+    "actual": "profile=transaction; destination=Invoices/2026-09/statement.txt; report_row=accepted; totals=[('PHP', '9120.50')]",
+    "status": "CONTRACT DECISION REQUIRED",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B3-bank_statement",
+    "test": "DA-5 new scan, model returns no document_kind",
+    "method": "MOCKED model response via in-process TestClient",
+    "input": "scan misc/bank-statement-oct2026.txt with mocked category=invoice, document_kind=null",
+    "expected": "profile none; not eligible for totals; routed safely",
+    "actual": "stored kind key present=False; API kind=invoice, profile=transaction; status=needs_review flags=['amount_conflict']; destination=Needs Review/bank-statement-oct2026.txt; report_row=needs_review",
+    "status": "FAIL",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B4-bank_statement",
+    "test": "DA-5 after the user accepts as-is",
+    "method": "MOCKED model response via in-process TestClient",
+    "input": "PATCH misc/bank-statement-oct2026.txt {accept: true}",
+    "expected": "statement never counted",
+    "actual": "HTTP 200; destination=Invoices/2026-09/bank-statement-oct2026.txt; report_row=accepted; totals={'PHP': '9120.50'}",
+    "status": "FAIL",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B3-card_statement",
+    "test": "DA-5 new scan, model returns no document_kind",
+    "method": "MOCKED model response via in-process TestClient",
+    "input": "scan misc/card-statement-sep2026.pdf with mocked category=invoice, document_kind=null",
+    "expected": "profile none; not eligible for totals; routed safely",
+    "actual": "stored kind key present=False; API kind=invoice, profile=transaction; status=needs_review flags=['amount_conflict']; destination=Needs Review/card-statement-sep2026.pdf; report_row=needs_review",
+    "status": "FAIL",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B4-card_statement",
+    "test": "DA-5 after the user accepts as-is",
+    "method": "MOCKED model response via in-process TestClient",
+    "input": "PATCH misc/card-statement-sep2026.pdf {accept: true}",
+    "expected": "statement never counted",
+    "actual": "HTTP 200; destination=Invoices/2026-09/card-statement-sep2026.pdf; report_row=accepted; totals={'PHP': '14511.56'}",
+    "status": "FAIL",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B5",
+    "test": "no writes",
+    "method": "MOCKED in-process",
+    "input": "after B3/B4",
+    "expected": "mock folder unchanged",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  }
+]

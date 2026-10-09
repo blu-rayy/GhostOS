@@ -1,0 +1,43 @@
+﻿{
+    "request":  {
+                    "body":  {
+                                 "category":  "receipt",
+                                 "accept":  true
+                             },
+                    "method":  "PATCH",
+                    "path":  "/api/documents/987aefe8"
+                },
+    "status":  200,
+    "classification_after":  {
+                                 "category":  "receipt",
+                                 "merchant":  "Sample National Bank",
+                                 "date":  "2026-09-30",
+                                 "amount_text":  null,
+                                 "amount":  "9120.50",
+                                 "currency":  "PHP",
+                                 "evidence_quote":  null,
+                                 "evidence_verified":  false,
+                                 "explanation":  "This is a bank statement, which is a non-transactional document and thus classified as \u0027other\u0027 in category and \u0027statement\u0027 in document_kind.",
+                                 "document_kind":  "receipt",
+                                 "field_profile":  "transaction"
+                             },
+    "destination":  "GhostOS Organized/Receipts/2026-09/bank-statement-oct2026.txt",
+    "report_row":  {
+                       "file_id":  "987aefe8",
+                       "source_filename":  "misc/bank-statement-oct2026.txt",
+                       "category":  "receipt",
+                       "date":  "2026-09-30",
+                       "merchant":  "Sample National Bank",
+                       "amount":  "9120.50",
+                       "currency":  "PHP",
+                       "status":  "accepted"
+                   },
+    "totals":  [
+                   {
+                       "currency":  "PHP",
+                       "amount":  "9803.70",
+                       "row_count":  2
+                   }
+               ],
+    "folder_unchanged":  true
+}
