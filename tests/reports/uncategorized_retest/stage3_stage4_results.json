@@ -1,0 +1,334 @@
+[
+  {
+    "id": "N0",
+    "check": "Root A and canary match the setup manifest",
+    "expected": "identical",
+    "actual": "identical",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "N1.1",
+    "check": "blocking preview destination for inbox-a/receipts/sunbeam-cafe-receipt.pdf",
+    "expected": "Receipts/2026-09/sunbeam-cafe-receipt.pdf (status ok)",
+    "actual": "Receipts/2026-09/sunbeam-cafe-receipt.pdf (status ok, flags [])",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "N1.2",
+    "check": "blocking preview destination for inbox-a/identity/birth-certificate.pdf",
+    "expected": "Uncategorized/birth-certificate.pdf (status needs_review/failed)",
+    "actual": "Uncategorized/birth-certificate.pdf (status needs_review, flags ['missing_evidence_quote', 'non_transactional_document'])",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "N1.3",
+    "check": "blocking preview destination for inbox-a/receipts/bayside-office-mart.pdf",
+    "expected": "Uncategorized/bayside-office-mart.pdf (status needs_review/failed)",
+    "actual": "Uncategorized/bayside-office-mart.pdf (status needs_review, flags ['amount_conflict'])",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "N1.4",
+    "check": "blocking preview destination for inbox-a/misc/aircon-payment-note.txt",
+    "expected": "Uncategorized/aircon-payment-note.txt (status needs_review/failed)",
+    "actual": "Uncategorized/aircon-payment-note.txt (status needs_review, flags ['missing_evidence_quote', 'missing_amount', 'missing_merchant', 'missing_date'])",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "N1.5",
+    "check": "blocking preview destination for inbox-a/scans/empty-scan.txt",
+    "expected": "Uncategorized/empty-scan.txt (status needs_review/failed)",
+    "actual": "Uncategorized/empty-scan.txt (status needs_review, flags ['model_error'])",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "N1.6",
+    "check": "No Unsorted/ destination",
+    "expected": "none start with Unsorted/",
+    "actual": "none",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "N1.7",
+    "check": "Birth certificate has no report row",
+    "expected": "absent",
+    "actual": "absent",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "N1.8",
+    "check": "Review warnings present on unresolved documents",
+    "expected": "each needs_review/failed document has >=1 flag",
+    "actual": {
+      "inbox-a/identity/birth-certificate.pdf": [
+        "missing_evidence_quote",
+        "non_transactional_document"
+      ],
+      "inbox-a/misc/aircon-payment-note.txt": [
+        "missing_evidence_quote",
+        "missing_amount",
+        "missing_merchant",
+        "missing_date"
+      ],
+      "inbox-a/receipts/bayside-office-mart.pdf": [
+        "amount_conflict"
+      ],
+      "inbox-a/scans/empty-scan.txt": [
+        "model_error"
+      ]
+    },
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "N1.9",
+    "check": "Preview does not change root A",
+    "expected": "identical to setup",
+    "actual": "identical",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "N2",
+    "check": "Empty-body (blocking) approval while reviews are open",
+    "expected": "HTTP 409 'unresolved review items'; root A and canary unchanged",
+    "actual": "HTTP 409 {\"detail\": \"Plan has 4 unresolved review items\"}; filesystem unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "N3",
+    "check": "Partial approval against a blocking-mode preview",
+    "expected": "HTTP 409 mode mismatch; root A and canary unchanged",
+    "actual": "HTTP 409 {\"detail\": \"Plan mode is 'blocking' but approval requested 'partial'; refresh the preview before approval\"}; filesystem unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P0",
+    "check": "Root B and canary match the setup manifest",
+    "expected": "identical",
+    "actual": "identical",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P1-sunbeam-cafe-receipt.pdf",
+    "check": "transaction classified cleanly: inbox-b/receipts/sunbeam-cafe-receipt.pdf",
+    "expected": "status ok, receipt/transaction, PHP 683.20, dated 2026-09",
+    "actual": "status ok, receipt/transaction, PHP 683.20, date 2026-09-21",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P1-tibay-hardware-receipt.csv",
+    "check": "transaction classified cleanly: inbox-b/receipts/tibay-hardware-receipt.csv",
+    "expected": "status ok, receipt/transaction, PHP 2145.00, dated 2026-09",
+    "actual": "status ok, receipt/transaction, PHP 2145.00, date 2026-09-27",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P2a",
+    "check": "Licence before the decision: non-transactional, no transaction values",
+    "expected": "kind identity_or_civil, profile none, merchant/date/amount/currency null",
+    "actual": "kind identity_or_civil, profile none, status needs_review, tx={'merchant': None, 'date': None, 'amount': None, 'currency': None}",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P2b",
+    "check": "'File it' decision {category: other, accept: true} on the licence",
+    "expected": "HTTP 200; category other; kind/profile unchanged; no transaction values; user_corrected true",
+    "actual": "HTTP 200; category other, kind identity_or_civil, profile none, tx={'merchant': None, 'date': None, 'amount': None, 'currency': None}, status ok, user_corrected True",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P2c",
+    "check": "D1 guard: the decision landed on root B's own scan",
+    "expected": "user_corrected true on this scan",
+    "actual": true,
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P3a",
+    "check": "Partial preview mode and plan id",
+    "expected": "mode partial, plan_scan_1cabbc9828aa",
+    "actual": "mode partial, plan_scan_1cabbc9828aa",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P3.1",
+    "check": "partial destination for inbox-b/receipts/sunbeam-cafe-receipt.pdf",
+    "expected": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+    "actual": "Receipts/2026-09/sunbeam-cafe-receipt.pdf (receipt dated 2026-09-21)",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P3.2",
+    "check": "partial destination for inbox-b/receipts/tibay-hardware-receipt.csv",
+    "expected": "Receipts/2026-09/tibay-hardware-receipt.csv",
+    "actual": "Receipts/2026-09/tibay-hardware-receipt.csv (receipt dated 2026-09-27)",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P3.3",
+    "check": "partial destination for inbox-b/identity/drivers-license-record.txt",
+    "expected": "Other/drivers-license-record.txt",
+    "actual": "Other/drivers-license-record.txt (Non-transactional document)",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P3.4",
+    "check": "partial destination for inbox-b/legal/lease-agreement-summary.pdf",
+    "expected": "Uncategorized/lease-agreement-summary.pdf",
+    "actual": "Uncategorized/lease-agreement-summary.pdf (Waiting for human review)",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P3.5",
+    "check": "partial destination for inbox-b/receipts/bayside-office-mart.pdf",
+    "expected": "Uncategorized/bayside-office-mart.pdf",
+    "actual": "Uncategorized/bayside-office-mart.pdf (Waiting for human review)",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P3.6",
+    "check": "No Unsorted/ destination",
+    "expected": "none",
+    "actual": "none",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P4a",
+    "check": "Report rows: only the two accepted receipts",
+    "expected": [
+      [
+        "inbox-b/receipts/sunbeam-cafe-receipt.pdf",
+        "accepted",
+        "683.20",
+        "PHP"
+      ],
+      [
+        "inbox-b/receipts/tibay-hardware-receipt.csv",
+        "accepted",
+        "2145.00",
+        "PHP"
+      ]
+    ],
+    "actual": [
+      [
+        "inbox-b/receipts/sunbeam-cafe-receipt.pdf",
+        "accepted",
+        "683.20",
+        "PHP"
+      ],
+      [
+        "inbox-b/receipts/tibay-hardware-receipt.csv",
+        "accepted",
+        "2145.00",
+        "PHP"
+      ]
+    ],
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P4b",
+    "check": "Totals = independently calculated PHP 2,828.20 (2 rows)",
+    "expected": {
+      "PHP": [
+        "2828.20",
+        2
+      ]
+    },
+    "actual": {
+      "PHP": [
+        "2828.20",
+        2
+      ]
+    },
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P4c",
+    "check": "Blocking review count reported (lease + Bayside unresolved)",
+    "expected": 2,
+    "actual": 2,
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P4d",
+    "check": "Review warnings visible on the two unresolved documents",
+    "expected": "each has >=1 flag",
+    "actual": {
+      "inbox-b/legal/lease-agreement-summary.pdf": [
+        "missing_evidence_quote",
+        "missing_currency",
+        "non_transactional_document"
+      ],
+      "inbox-b/receipts/bayside-office-mart.pdf": [
+        "amount_conflict"
+      ]
+    },
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "P5",
+    "check": "Root B, root A and canary unchanged (no approve/commit/undo on B)",
+    "expected": "identical",
+    "actual": "B identical, A identical, canary identical",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  }
+]

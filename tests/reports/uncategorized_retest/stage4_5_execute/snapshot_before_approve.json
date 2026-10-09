@@ -1,0 +1,31 @@
+{
+  "files": {
+    "inbox-b/identity/drivers-license-record.txt": {
+      "sha256": "a834865ede0b6a3b8d47b243fb53676ef679a35410c23dded2d9f4c95f753b69",
+      "size": 157
+    },
+    "inbox-b/legal/lease-agreement-summary.pdf": {
+      "sha256": "4538c2e2306137414f574f3a216ea56da1c71756255c94fbc6c506e5b00516f9",
+      "size": 1020
+    },
+    "inbox-b/receipts/bayside-office-mart.pdf": {
+      "sha256": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+      "size": 1124
+    },
+    "inbox-b/receipts/sunbeam-cafe-receipt.pdf": {
+      "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+      "size": 1217
+    },
+    "inbox-b/receipts/tibay-hardware-receipt.csv": {
+      "sha256": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9",
+      "size": 293
+    }
+  },
+  "dirs": [
+    "inbox-b",
+    "inbox-b/identity",
+    "inbox-b/legal",
+    "inbox-b/receipts"
+  ],
+  "empty_dirs": []
+}

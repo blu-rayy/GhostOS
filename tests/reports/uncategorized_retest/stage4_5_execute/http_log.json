@@ -1,0 +1,121 @@
+[
+  {
+    "at": "2026-10-09T19:49:13.492492+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_1cabbc9828aa/plan?mode=partial",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_1cabbc9828aa",
+        "scan_id": "scan_1cabbc9828aa",
+        "mode": "partial",
+        "operations": [
+          {
+            "file_id": "d784a132",
+            "original_relative_path": "inbox-b/identity/drivers-license-record.txt",
+            "destination_relative_path": "Other/drivers-license-record.txt",
+            "reason": "Non-transactional document",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "303ef664",
+            "original_relative_path": "inbox-b/legal/lease-agreement-summary.pdf",
+            "destination_relative_path": "Uncategorized/lease-agreement-summary.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "3478bf04",
+            "original_relative_path": "inbox-b/receipts/bayside-office-mart.pdf",
+            "destination_relative_path": "Uncategorized/bayside-office-mart.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "bd3ef904",
+            "original_relative_path": "inbox-b/receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "e175ec04",
+            "original_relative_path": "inbox-b/receipts/tibay-hardware-receipt.csv",
+            "destination_relative_path": "Receipts/2026-09/tibay-hardware-receipt.csv",
+            "reason": "receipt dated 2026-09-27",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "bd3ef904",
+            "source_filename": "inbox-b/receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          },
+          {
+            "file_id": "e175ec04",
+            "source_filename": "inbox-b/receipts/tibay-hardware-receipt.csv",
+            "category": "receipt",
+            "date": "2026-09-27",
+            "merchant": "Tibay Hardware (fictional)",
+            "amount": "2145.00",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "2828.20",
+            "row_count": 2
+          }
+        ],
+        "blocking_review_count": 2
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:49:13.526626+00:00",
+    "request": {
+      "method": "POST",
+      "path": "/api/plans/plan_scan_1cabbc9828aa/approve",
+      "body": {
+        "mode": "partial"
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "batch_id": "batch_1ce449203861",
+        "moved": 5,
+        "failed": [],
+        "report_relative_path": "GhostOS Reports/expenses-202610091949.csv",
+        "committed_at": "2026-10-09T19:49:13.500680+00:00"
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:49:13.571431+00:00",
+    "request": {
+      "method": "POST",
+      "path": "/api/batches/batch_1ce449203861/undo",
+      "body": {}
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "batch_id": "batch_1ce449203861",
+        "restored": 5,
+        "conflicts": []
+      }
+    }
+  }
+]
