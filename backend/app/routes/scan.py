@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from app.schemas import ScanRequest, ScanResponse
 from app.services.scanner import scan_folder
 
-router = APIRouter(prefix="/api/scan", tags=["scan"])
+router = APIRouter(prefix="/api/scan-v1", tags=["scan-v1"])
 
 @router.post("", response_model=ScanResponse)
 def scan_directory(request: ScanRequest):
