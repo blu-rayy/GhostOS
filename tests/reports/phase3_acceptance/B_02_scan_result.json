@@ -1,0 +1,125 @@
+{
+  "scan_id": "scan_bf77c62ddde8",
+  "root": "<ROOT_B>",
+  "scanned_at": "2026-10-09T17:15:54.468210+00:00",
+  "files_seen": 5,
+  "max_files": 100,
+  "documents": [
+    {
+      "file_id": "71b6586e",
+      "relative_path": "archive/2026/invoice.pdf",
+      "file_type": "pdf",
+      "size_bytes": 1211,
+      "sha256": "0bec9fe8f96693999451669e264d62772ffe2de3ea48548fec5d6c4957ac8024",
+      "excerpt": "CARABAO PAPER SUPPLY CO.\nUnit 5, Sample Industrial Park, Valenzuela City (fictional)\nSALES INVOICE No. 000784\nDate: 18 Sep 2026\nSold to: Mara Villanueva Studio\nA4 bond paper 80gsm, 10 reams @ PHP 265.00 = PHP 2,650.00\nKraft envelopes, 2 boxes @ PHP 410.00 = PHP 820.00\nTOTAL AMOUNT DUE: PHP 3,470.00\nTerms: 30 days",
+      "status": "ok",
+      "classification": {
+        "category": "invoice",
+        "merchant": "CARABAO PAPER SUPPLY CO.",
+        "date": "2026-09-18",
+        "amount_text": "PHP 3,470.00",
+        "amount": "3470.00",
+        "currency": "PHP",
+        "evidence_quote": "TOTAL AMOUNT DUE: PHP 3,470.00",
+        "evidence_verified": true,
+        "explanation": "The document is a sales invoice with a clear total amount due, indicating it is classified as an invoice."
+      },
+      "review_flags": [],
+      "duplicate_of": null,
+      "user_corrected": false
+    },
+    {
+      "file_id": "801968e1",
+      "relative_path": "downloads/greenleaf-grocer-2026-09-14 (1).txt",
+      "file_type": "txt",
+      "size_bytes": 431,
+      "sha256": "165d4ac5289f2d4c5296221a1cb4cdca11de33c4cb1ada1bd309571fa3a7fdc4",
+      "excerpt": "GREENLEAF GROCER - Sample Branch (fictional)\nOfficial Receipt No. 0045123\nDate: 14/09/2026  Time: 17:42\nCashier: 03\n\nBrown rice 2kg          1 x 189.00     189.00\nEggs, tray of 30        1 x 285.00     285.00\nBananas 1kg             1 x 120.00     120.00\nCooking oil 1L          2 x 156.25     312.50\nCoffee beans 250g       1 x 380.00     380.00\n\nTOTAL: PHP 1,286.50\nCASH: PHP 1,500.00\nCHANGE: PHP 213.50\n\nThank you for shopping!",
+      "status": "ok",
+      "classification": {
+        "category": "receipt",
+        "merchant": "GREENLEAF GROCER - Sample Branch (fictional)",
+        "date": "2026-09-14",
+        "amount_text": "PHP 1,286.50",
+        "amount": "1286.50",
+        "currency": "PHP",
+        "evidence_quote": "TOTAL: PHP 1,286.50",
+        "evidence_verified": true,
+        "explanation": "The document is an official receipt from a grocery store, and the final total amount is clearly stated at the end."
+      },
+      "review_flags": [],
+      "duplicate_of": null,
+      "user_corrected": false
+    },
+    {
+      "file_id": "c61adc49",
+      "relative_path": "inbox/invoice.pdf",
+      "file_type": "pdf",
+      "size_bytes": 1298,
+      "sha256": "d34d23a313745851815763807d69b5369f5a9ed3028b07c2b21401139afe3ae5",
+      "excerpt": "BRIGHTLINE WEB HOSTING LLC\n1200 Example Parkway, Suite 400, Austin, TX (fictional)\nINVOICE\nInvoice number: BWH-2026-0917\nInvoice date: 2026-09-03\nBill to: Mara Villanueva Studio\nDescription: Business Hosting Plan - annual renewal\nService period: 2026-09-03 to 2027-09-02\nAmount: USD 59.88\nTotal due: USD 59.88\nPayment due by 2026-09-17. Thank you for your business.",
+      "status": "ok",
+      "classification": {
+        "category": "invoice",
+        "merchant": "BRIGHTLINE WEB HOSTING LLC",
+        "date": "2026-09-03",
+        "amount_text": "USD 59.88",
+        "amount": "59.88",
+        "currency": "USD",
+        "evidence_quote": "Total due: USD 59.88",
+        "evidence_verified": true,
+        "explanation": "The document is labeled as an invoice with a 'Total due' field, which matches the definition of an invoice."
+      },
+      "review_flags": [],
+      "duplicate_of": null,
+      "user_corrected": false
+    },
+    {
+      "file_id": "a71f12f6",
+      "relative_path": "receipts/greenleaf-grocer-2026-09-14.txt",
+      "file_type": "txt",
+      "size_bytes": 431,
+      "sha256": "165d4ac5289f2d4c5296221a1cb4cdca11de33c4cb1ada1bd309571fa3a7fdc4",
+      "excerpt": "GREENLEAF GROCER - Sample Branch (fictional)\nOfficial Receipt No. 0045123\nDate: 14/09/2026  Time: 17:42\nCashier: 03\n\nBrown rice 2kg          1 x 189.00     189.00\nEggs, tray of 30        1 x 285.00     285.00\nBananas 1kg             1 x 120.00     120.00\nCooking oil 1L          2 x 156.25     312.50\nCoffee beans 250g       1 x 380.00     380.00\n\nTOTAL: PHP 1,286.50\nCASH: PHP 1,500.00\nCHANGE: PHP 213.50\n\nThank you for shopping!",
+      "status": "ok",
+      "classification": {
+        "category": "receipt",
+        "merchant": "GREENLEAF GROCER - Sample Branch (fictional)",
+        "date": "2026-09-14",
+        "amount_text": "PHP 1,286.50",
+        "amount": "1286.50",
+        "currency": "PHP",
+        "evidence_quote": "TOTAL: PHP 1,286.50",
+        "evidence_verified": true,
+        "explanation": "The document is an official receipt from a grocery store, and the final total amount is clearly stated at the end."
+      },
+      "review_flags": [],
+      "duplicate_of": "801968e1",
+      "user_corrected": false
+    },
+    {
+      "file_id": "75438af4",
+      "relative_path": "receipts/sunbeam-cafe-receipt.pdf",
+      "file_type": "pdf",
+      "size_bytes": 1217,
+      "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+      "excerpt": "SUNBEAM CAFE (fictional)\nSample Street, Quezon City\nOR No. 2026-118204\nDate: 09/21/2026 10:15 AM\n1 x Flat white: PHP 180.00\n1 x Spanish latte: PHP 190.00\n2 x Butter croissant @ 120.00: PHP 240.00\nSubtotal: PHP 610.00\nVAT 12%: PHP 73.20\nFINAL TOTAL: PHP 683.20\nPaid by card ending 0000",
+      "status": "ok",
+      "classification": {
+        "category": "receipt",
+        "merchant": "SUNBEAM CAFE",
+        "date": "2026-09-21",
+        "amount_text": "PHP 683.20",
+        "amount": "683.20",
+        "currency": "PHP",
+        "evidence_quote": "FINAL TOTAL: PHP 683.20",
+        "evidence_verified": true,
+        "explanation": "The document contains a final total amount clearly stated and is formatted as a receipt from a cafe."
+      },
+      "review_flags": [],
+      "duplicate_of": null,
+      "user_corrected": false
+    }
+  ],
+  "skipped": []
+}

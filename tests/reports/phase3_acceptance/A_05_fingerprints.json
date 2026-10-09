@@ -1,0 +1,44 @@
+{
+  "before": {
+    "files": {
+      "receipts/bayside-office-mart.pdf": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+      "receipts/tibay-hardware-receipt.csv": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9"
+    },
+    "canary": "5a7980030b5198c0a4665078cb8680411c766cf51c78b82449220e96abdbe9f5"
+  },
+  "after_scan": {
+    "files": {
+      "receipts/bayside-office-mart.pdf": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+      "receipts/tibay-hardware-receipt.csv": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9"
+    },
+    "canary": "5a7980030b5198c0a4665078cb8680411c766cf51c78b82449220e96abdbe9f5"
+  },
+  "after_preview": {
+    "files": {
+      "receipts/bayside-office-mart.pdf": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+      "receipts/tibay-hardware-receipt.csv": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9"
+    },
+    "canary": "5a7980030b5198c0a4665078cb8680411c766cf51c78b82449220e96abdbe9f5"
+  },
+  "after_approve_1": {
+    "files": {
+      "receipts/bayside-office-mart.pdf": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+      "receipts/tibay-hardware-receipt.csv": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9"
+    },
+    "canary": "5a7980030b5198c0a4665078cb8680411c766cf51c78b82449220e96abdbe9f5"
+  },
+  "after_approve_2": {
+    "files": {
+      "receipts/bayside-office-mart.pdf": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+      "receipts/tibay-hardware-receipt.csv": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9"
+    },
+    "canary": "5a7980030b5198c0a4665078cb8680411c766cf51c78b82449220e96abdbe9f5"
+  },
+  "final": {
+    "files": {
+      "receipts/bayside-office-mart.pdf": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+      "receipts/tibay-hardware-receipt.csv": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9"
+    },
+    "canary": "5a7980030b5198c0a4665078cb8680411c766cf51c78b82449220e96abdbe9f5"
+  }
+}
