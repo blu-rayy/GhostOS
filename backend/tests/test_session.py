@@ -280,3 +280,343 @@ def test_approve_unknown_plan():
 def test_undo_unknown_batch():
     resp = client.post("/api/batches/unknown/undo", json={})
     assert resp.status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# Filesystem safety at the commit/undo boundary
+# ---------------------------------------------------------------------------
+
+def _put_done_session_with_files(tmp_path, names: tuple[str, ...] = ("receipt.txt",)):
+    """Create a real, already-scanned session for filesystem-boundary tests."""
+    import hashlib
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    session = ScanSession(
+        scan_id=f"safe_{tmp_path.name}",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    for index, name in enumerate(names):
+        path = tmp_path / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        content = f"Receipt {index}\nTotal: PHP {100 + index}.00".encode()
+        path.write_bytes(content)
+        digest = hashlib.sha256(content).hexdigest()
+        session.documents.append(DocumentRecord(
+            file_id=f"{session.scan_id}_file_{index}",
+            relative_path=name,
+            file_type="txt",
+            size_bytes=len(content),
+            sha256=digest,
+            excerpt=content.decode(),
+            status="ok",
+            classification={
+                "category": "receipt",
+                "merchant": "Test Shop",
+                "date": "2026-10-09",
+                "amount_text": f"PHP {100 + index}.00",
+                "amount": f"{100 + index}.00",
+                "currency": "PHP",
+                "evidence_quote": f"Total: PHP {100 + index}.00",
+                "evidence_verified": True,
+                "explanation": "Test receipt",
+            },
+        ))
+    ss.put_scan(session)
+    return session
+
+
+def _approve_safe_session(session):
+    plan = client.get(f"/api/scans/{session.scan_id}/plan").json()
+    response = client.post(f"/api/plans/{plan['plan_id']}/approve", json={})
+    assert response.status_code == 200, response.text
+    return plan, response.json()
+
+
+def _require_symlink(link, target):
+    try:
+        link.symlink_to(target, target_is_directory=target.is_dir())
+    except (OSError, NotImplementedError) as exc:
+        pytest.skip(f"Symlinks unavailable on this platform: {exc}")
+
+
+@pytest.mark.parametrize("relative_path", ["../outside.txt", "C:/outside.txt"])
+def test_commit_rejects_traversal_and_absolute_paths(tmp_path, relative_path):
+    outside = tmp_path.parent / "outside.txt"
+    outside.write_text("must remain untouched")
+    session = _put_done_session_with_files(tmp_path)
+    session.documents[0].relative_path = relative_path
+    plan, result = _approve_safe_session(session)
+
+    assert result["moved"] == 0
+    assert len(result["failed"]) == 1
+    assert outside.read_text() == "must remain untouched"
+    assert (tmp_path / "receipt.txt").exists()
+
+
+def test_commit_rejects_symlink_source_and_destination_parent(tmp_path):
+    outside = tmp_path.parent / "outside-target"
+    outside.mkdir()
+    outside_file = outside / "secret.txt"
+    outside_file.write_text("outside")
+
+    source_session = _put_done_session_with_files(tmp_path / "source")
+    source_link = tmp_path / "source" / "link.txt"
+    _require_symlink(source_link, outside_file)
+    source_session.documents[0].relative_path = "link.txt"
+    _, source_result = _approve_safe_session(source_session)
+    assert source_result["moved"] == 0
+    assert outside_file.read_text() == "outside"
+
+    destination_root = tmp_path / "destination"
+    destination_session = _put_done_session_with_files(destination_root)
+    destination_parent = destination_root / "Receipts"
+    destination_parent_target = outside / "dest"
+    destination_parent_target.mkdir()
+    destination_parent.unlink(missing_ok=True)
+    _require_symlink(destination_parent, destination_parent_target)
+    _, destination_result = _approve_safe_session(destination_session)
+    assert destination_result["moved"] == 0
+    assert (destination_root / "receipt.txt").exists()
+    assert not any(destination_parent_target.rglob("receipt.txt"))
+
+
+@pytest.mark.parametrize("mutation", ["changed", "missing"])
+def test_commit_rechecks_source_identity_and_existence(tmp_path, mutation):
+    session = _put_done_session_with_files(tmp_path)
+    source = tmp_path / "receipt.txt"
+    if mutation == "changed":
+        source.write_text("changed after scan")
+    else:
+        source.unlink()
+
+    _, result = _approve_safe_session(session)
+    assert result["moved"] == 0
+    assert len(result["failed"]) == 1
+
+
+def test_commit_never_overwrites_existing_destination(tmp_path):
+    session = _put_done_session_with_files(tmp_path)
+    destination = tmp_path / "Receipts" / "2026-10" / "receipt.txt"
+    destination.parent.mkdir(parents=True)
+    destination.write_text("existing destination")
+
+    _, result = _approve_safe_session(session)
+    assert result["moved"] == 0
+    assert destination.read_text() == "existing destination"
+    assert (tmp_path / "receipt.txt").exists()
+
+
+def test_undo_rejects_edited_or_replaced_moved_file(tmp_path):
+    session = _put_done_session_with_files(tmp_path)
+    _, result = _approve_safe_session(session)
+    moved = tmp_path / "Receipts" / "2026-10" / "receipt.txt"
+    moved.write_text("edited after commit")
+
+    undo = client.post(f"/api/batches/{result['batch_id']}/undo", json={})
+    assert undo.status_code == 200
+    assert undo.json()["restored"] == 0
+    assert undo.json()["conflicts"]
+    assert moved.read_text() == "edited after commit"
+    assert not (tmp_path / "receipt.txt").exists()
+
+
+def test_undo_rejects_occupied_original_path(tmp_path):
+    session = _put_done_session_with_files(tmp_path)
+    _, result = _approve_safe_session(session)
+    original = tmp_path / "receipt.txt"
+    original.write_text("different file")
+
+    undo = client.post(f"/api/batches/{result['batch_id']}/undo", json={})
+    assert undo.json()["restored"] == 0
+    assert "different file" == original.read_text()
+
+
+def test_undo_rejects_symlink_original_path_without_touching_outside(tmp_path):
+    session = _put_done_session_with_files(tmp_path)
+    _, result = _approve_safe_session(session)
+    outside = tmp_path.parent / "undo-outside.txt"
+    outside.write_text("outside")
+    _require_symlink(tmp_path / "receipt.txt", outside)
+
+    undo = client.post(f"/api/batches/{result['batch_id']}/undo", json={})
+    assert undo.json()["restored"] == 0
+    assert outside.read_text() == "outside"
+
+
+def test_partial_commit_and_retry_are_reported_without_overwrite(tmp_path):
+    session = _put_done_session_with_files(tmp_path, ("a.txt", "b.txt"))
+    (tmp_path / "b.txt").unlink()
+
+    plan, first = _approve_safe_session(session)
+    assert first["moved"] == 1
+    assert len(first["failed"]) == 1
+    moved_a = tmp_path / "Receipts" / "2026-10" / "a.txt"
+    assert moved_a.exists()
+
+    retry = client.post(f"/api/plans/{plan['plan_id']}/approve", json={})
+    assert retry.status_code == 200
+    # Re-approval is idempotent: it returns the original batch result and
+    # does not attempt to move the already-committed operation again.
+    assert retry.json()["batch_id"] == first["batch_id"]
+    assert retry.json()["moved"] == first["moved"]
+    assert retry.json()["failed"] == first["failed"]
+    assert moved_a.read_text().startswith("Receipt 0")
+
+
+def test_partial_undo_is_safe_and_idempotent_on_retry(tmp_path):
+    session = _put_done_session_with_files(tmp_path, ("a.txt", "b.txt"))
+    _, result = _approve_safe_session(session)
+    moved_b = tmp_path / "Receipts" / "2026-10" / "b.txt"
+    moved_b.write_text("edited")
+
+    first = client.post(f"/api/batches/{result['batch_id']}/undo", json={}).json()
+    assert first["restored"] == 1
+    assert len(first["conflicts"]) == 1
+    assert (tmp_path / "a.txt").exists()
+
+    second = client.post(f"/api/batches/{result['batch_id']}/undo", json={}).json()
+    assert second["restored"] == 0
+    assert len(second["conflicts"]) == 1
+    assert (tmp_path / "a.txt").exists()
+    assert moved_b.read_text() == "edited"
+
+
+def test_approval_commits_exact_previewed_operations(tmp_path):
+    session = _put_done_session_with_files(tmp_path, ("inbox/receipt.txt", "archive/receipt.txt"))
+    preview = client.get(f"/api/scans/{session.scan_id}/plan").json()
+    preview_operations = preview["operations"]
+
+    approval = client.post(f"/api/plans/{preview['plan_id']}/approve", json={})
+    assert approval.status_code == 200, approval.text
+    assert len(preview_operations) == 2
+    for operation in preview_operations:
+        assert not (tmp_path / operation["original_relative_path"]).exists()
+        assert (tmp_path / operation["destination_relative_path"]).exists()
+
+
+def test_correction_after_preview_requires_fresh_preview(tmp_path):
+    session = _put_done_session_with_files(tmp_path)
+    preview = client.get(f"/api/scans/{session.scan_id}/plan").json()
+
+    correction = client.patch(
+        f"/api/documents/{session.scan_id}_file_0",
+        json={"category": "invoice", "accept": True},
+    )
+    assert correction.status_code == 200
+
+    stale_approval = client.post(f"/api/plans/{preview['plan_id']}/approve", json={})
+    assert stale_approval.status_code == 409
+    assert "stale" in stale_approval.json()["detail"].lower()
+    assert (tmp_path / "receipt.txt").exists()
+
+    refreshed = client.get(f"/api/scans/{session.scan_id}/plan").json()
+    assert refreshed["operations"][0]["destination_relative_path"].startswith("Invoices/")
+    approved = client.post(f"/api/plans/{refreshed['plan_id']}/approve", json={})
+    assert approved.status_code == 200
+    assert (tmp_path / refreshed["operations"][0]["destination_relative_path"]).exists()
+
+
+def test_report_preparation_failure_happens_before_any_move(tmp_path, monkeypatch):
+    import app.routes.session as session_routes
+
+    session = _put_done_session_with_files(tmp_path)
+
+    def fail_prepare(*args, **kwargs):
+        raise OSError("temporary report directory unavailable")
+
+    monkeypatch.setattr(session_routes, "write_report_temp", fail_prepare)
+    preview = client.get(f"/api/scans/{session.scan_id}/plan").json()
+    response = client.post(f"/api/plans/{preview['plan_id']}/approve", json={})
+
+    assert response.status_code == 503
+    batch_id = response.json()["detail"]["batch_id"]
+    batch = session_store.store.get_batch(batch_id)
+    assert batch is not None
+    assert batch.state == "failed"
+    assert batch.moved == 0
+    assert (tmp_path / "receipt.txt").exists()
+    assert not list((tmp_path / "GhostOS Reports").glob("*.csv"))
+
+
+def test_partial_commit_report_contains_only_successful_moves(tmp_path):
+    session = _put_done_session_with_files(tmp_path, ("a.txt", "b.txt"))
+    (tmp_path / "b.txt").unlink()
+
+    plan, result = _approve_safe_session(session)
+    report = (tmp_path / result["report_relative_path"]).read_text(encoding="utf-8-sig")
+
+    assert result["moved"] == 1
+    assert len(result["failed"]) == 1
+    assert "a.txt" in report
+    assert "b.txt" not in report
+    batch = session_store.store.get_batch(result["batch_id"])
+    assert batch is not None
+    assert batch.state == "partial"
+    assert sum(entry.commit_state == "committed" for entry in batch.entries) == 1
+    assert plan["report_rows"][0]["status"] == "accepted"
+
+
+def test_report_publication_failure_is_recoverable_without_moving_again(tmp_path, monkeypatch):
+    import app.routes.session as session_routes
+
+    session = _put_done_session_with_files(tmp_path)
+    original_publish = session_routes.publish_report
+    calls = 0
+
+    def fail_once(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise OSError("final report publication failed")
+        return original_publish(*args, **kwargs)
+
+    monkeypatch.setattr(session_routes, "publish_report", fail_once)
+    preview = client.get(f"/api/scans/{session.scan_id}/plan").json()
+    first = client.post(f"/api/plans/{preview['plan_id']}/approve", json={})
+
+    assert first.status_code == 503
+    batch_id = first.json()["detail"]["batch_id"]
+    batch = session_store.store.get_batch(batch_id)
+    assert batch is not None
+    assert batch.state == "report_pending"
+    assert batch.moved == 1
+    moved = tmp_path / "Receipts" / "2026-10" / "receipt.txt"
+    assert moved.exists()
+    assert not (tmp_path / "receipt.txt").exists()
+
+    retry = client.post(f"/api/plans/{preview['plan_id']}/approve", json={})
+    assert retry.status_code == 200
+    assert retry.json()["batch_id"] == batch_id
+    assert retry.json()["moved"] == 1
+    assert moved.exists()
+    assert not (tmp_path / "receipt.txt").exists()
+    assert (tmp_path / retry.json()["report_relative_path"]).exists()
+    assert session_store.store.get_batch(batch_id).state == "committed"
+
+
+def test_report_publication_failure_still_allows_safe_undo(tmp_path, monkeypatch):
+    import app.routes.session as session_routes
+
+    session = _put_done_session_with_files(tmp_path)
+    monkeypatch.setattr(session_routes, "publish_report", lambda *args, **kwargs: (_ for _ in ()).throw(OSError("publish failed")))
+    preview = client.get(f"/api/scans/{session.scan_id}/plan").json()
+    failed = client.post(f"/api/plans/{preview['plan_id']}/approve", json={})
+    batch_id = failed.json()["detail"]["batch_id"]
+
+    undo = client.post(f"/api/batches/{batch_id}/undo", json={})
+    assert undo.status_code == 200
+    assert undo.json()["restored"] == 1
+    assert (tmp_path / "receipt.txt").exists()
+
+
+def test_existing_report_is_not_overwritten(tmp_path):
+    from app.services.report import reserve_report_path
+
+    first = reserve_report_path(tmp_path, "GhostOS Reports/expenses-test.csv")
+    (tmp_path / first).write_text("earlier report", encoding="utf-8")
+    second = reserve_report_path(tmp_path, "GhostOS Reports/expenses-test.csv")
+
+    assert second != first
+    assert (tmp_path / first).read_text(encoding="utf-8") == "earlier report"

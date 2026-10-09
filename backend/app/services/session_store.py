@@ -58,6 +58,7 @@ class ScanSession:
     skipped: list[SkippedFile] = field(default_factory=list)
     files_seen: int = 0
     max_files: int = 100
+    plan_revision: int = 0
 
 
 # ---------------------------------------------------------------------------
@@ -102,6 +103,15 @@ class Plan:
     blocking_review_count: int
 
 
+@dataclass(frozen=True)
+class PlanSnapshot:
+    """The exact preview payload and source identities approved by the user."""
+
+    plan: Plan
+    session_revision: int
+    source_identities: tuple[tuple[str, tuple[str, str]], ...]
+
+
 # ---------------------------------------------------------------------------
 # Batch (committed operations for undo)
 # ---------------------------------------------------------------------------
@@ -111,6 +121,14 @@ class BatchEntry:
     file_id: str
     original_path: str   # absolute
     moved_to: str        # absolute
+    # Relative paths and identity are retained so undo can revalidate the
+    # original selected root instead of trusting stale absolute paths.
+    original_relative_path: str = ""
+    moved_relative_path: str = ""
+    sha256: str = ""
+    commit_state: str = "planned"
+    undo_state: str = "pending"
+    error: str | None = None
 
 
 @dataclass
@@ -120,6 +138,13 @@ class Batch:
     entries: list[BatchEntry]
     report_relative_path: str
     committed_at: str
+    root_path: str = ""
+    moved: int = 0
+    failed: list[dict] = field(default_factory=list)
+    state: str = "preparing"  # preparing | committing | report_pending | committed | partial | failed | undone
+    report_state: str = "pending"  # pending | prepared | published | failed
+    report_temp_relative_path: str | None = None
+    report_error: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -131,6 +156,7 @@ class SessionStore:
         self._lock = threading.Lock()
         self._scans: dict[str, ScanSession] = {}
         self._batches: dict[str, Batch] = {}
+        self._plan_snapshots: dict[str, PlanSnapshot] = {}
 
     # scans
     def put_scan(self, session: ScanSession) -> None:
@@ -149,6 +175,24 @@ class SessionStore:
                         return doc
         return None
 
+    def bump_revision_for_document(self, file_id: str) -> bool:
+        """Invalidate existing previews after a document correction."""
+        with self._lock:
+            for session in self._scans.values():
+                if any(doc.file_id == file_id for doc in session.documents):
+                    session.plan_revision += 1
+                    return True
+        return False
+
+    # plan snapshots
+    def put_plan_snapshot(self, plan_id: str, snapshot: PlanSnapshot) -> None:
+        with self._lock:
+            self._plan_snapshots[plan_id] = snapshot
+
+    def get_plan_snapshot(self, plan_id: str) -> Optional[PlanSnapshot]:
+        with self._lock:
+            return self._plan_snapshots.get(plan_id)
+
     # batches
     def put_batch(self, batch: Batch) -> None:
         with self._lock:
@@ -157,6 +201,10 @@ class SessionStore:
     def get_batch(self, batch_id: str) -> Optional[Batch]:
         with self._lock:
             return self._batches.get(batch_id)
+
+    def get_batch_for_plan(self, plan_id: str) -> Optional[Batch]:
+        with self._lock:
+            return next((batch for batch in self._batches.values() if batch.plan_id == plan_id), None)
 
 
 # Singleton store shared across the FastAPI process
