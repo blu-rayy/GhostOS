@@ -44,14 +44,28 @@ export const FLAG_TARGET: Record<ReviewFlagCode, FlagTarget> = {
   amount_conflict: 'amount',
   missing_date: 'date',
   missing_amount: 'amount',
+  missing_merchant: 'merchant',
+  missing_currency: 'amount',
+  invalid_currency: 'amount',
+  currency_mismatch: 'amount',
+  missing_evidence_quote: 'evidence',
+  uncertain_classification: 'category',
   low_confidence: 'category',
   model_error: 'document',
   possible_injection: 'document',
 }
 
+/**
+ * Field a flag belongs to. Codes the UI doesn't know yet (e.g. a new backend
+ * validator code) fall back to 'document' so their message is never dropped.
+ */
+export function flagTarget(code: string): FlagTarget {
+  return Object.hasOwn(FLAG_TARGET, code) ? FLAG_TARGET[code as ReviewFlagCode] : 'document'
+}
+
 export function flagsFor(d: DocumentRecord, target: FlagTarget): ReviewFlag[] {
   if (d.user_corrected) return []
-  return d.review_flags.filter((f) => FLAG_TARGET[f.code] === target)
+  return d.review_flags.filter((f) => flagTarget(f.code) === target)
 }
 
 export interface FileRow {
