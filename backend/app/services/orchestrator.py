@@ -104,27 +104,6 @@ def _map_validation_flags(validator_flags: tuple[str, ...]) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
-# Amount parsing
-# ---------------------------------------------------------------------------
-
-def _parse_amount(amount_text: Optional[str]) -> Optional[str]:
-    """Extract a decimal amount string from raw amount_text. Returns None on failure."""
-    if not amount_text:
-        return None
-    import re
-    # Strip currency symbols and whitespace, keep digits/commas/periods
-    cleaned = re.sub(r"[^\d.,]", "", amount_text.replace(",", "."))
-    # If multiple periods, keep only the last segment
-    parts = cleaned.split(".")
-    if len(parts) > 2:
-        cleaned = "".join(parts[:-1]) + "." + parts[-1]
-    try:
-        return str(Decimal(cleaned))
-    except InvalidOperation:
-        return None
-
-
-# ---------------------------------------------------------------------------
 # Plan builder (backend-owned destination rules)
 # ---------------------------------------------------------------------------
 
@@ -267,10 +246,9 @@ def _build_plan(session: ScanSession, mode: SortMode = "blocking") -> Plan:
                 )
             )
         ):
-            # Prefer the canonical `amount` field (set by the scan worker and by
-            # human corrections). Fall back to re-parsing `amount_text` only when
-            # no canonical amount exists, so corrected amounts are never ignored.
-            amount = c.get("amount") or _parse_amount(c.get("amount_text"))
+            # Only the scan worker or a source-validated correction may set
+            # the canonical amount. Never revive a rejected raw amount_text.
+            amount = c.get("amount")
             duplicate = doc.duplicate_of is not None
             accepted = (
                 c.get("date") is not None
@@ -278,17 +256,7 @@ def _build_plan(session: ScanSession, mode: SortMode = "blocking") -> Plan:
                 and c.get("currency") is not None
                 and doc.status == "ok"
                 and not duplicate
-                and not any(
-                    flag.get("code") in {
-                        "amount_conflict",
-                        "amount_unparseable",
-                        "invalid_currency",
-                        "currency_mismatch",
-                        "missing_amount",
-                        "missing_currency",
-                    }
-                    for flag in doc.review_flags
-                )
+                and not doc.review_flags
             )
             report_rows.append(ReportRow(
                 file_id=doc.file_id,
