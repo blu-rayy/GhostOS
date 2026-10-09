@@ -1,0 +1,15 @@
+MERALITE POWER CORPORATION (fictional utility)
+STATEMENT OF ACCOUNT / ELECTRIC BILL
+Account No.: 0000-1111-22
+Customer: Mara Villanueva Studio
+Statement date: 15 September 2026
+Billing period: 14 August 2026 to 13 September 2026
+Energy used: 248 kWh
+
+Generation charge ........ PHP 1,780.40
+Transmission charge ...... PHP   312.15
+Distribution charge ...... PHP   690.20
+Taxes and other charges .. PHP   630.00
+
+TOTAL AMOUNT DUE: PHP 3,412.75
+Due date: 25 September 2026
