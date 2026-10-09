@@ -90,8 +90,8 @@ function Step({ label, number, state, onOpen }: { label: string; number: number;
     </>
   )
   const cls = cx(
-    'inline-flex items-center gap-1.5 rounded-full border-[2.5px]',
-    state === 'current' ? 'border-ink bg-hl-check py-px pl-1 pr-3' : 'border-transparent py-px pl-0.5 pr-2',
+    'inline-flex items-center gap-1.5 rounded-full border-[2.5px] transition-[background-color,border-color,color,padding,transform] duration-300 ease-out',
+    state === 'current' ? 'step-current border-ink bg-hl-check py-px pl-1 pr-3' : 'border-transparent py-px pl-0.5 pr-2',
     state === 'later' ? 'text-graphite' : 'text-ink',
   )
   if (onOpen) {

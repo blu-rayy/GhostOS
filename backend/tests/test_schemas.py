@@ -75,6 +75,8 @@ def test_document_kind_derives_field_profile() -> None:
     assert ClassificationRecord(category="other", document_kind="legal").field_profile == "none"
     assert ClassificationRecord(category="other", document_kind="medical").field_profile == "none"
     assert ClassificationRecord(category="other").field_profile == "none"
+    assert ClassificationRecord(category="receipt").field_profile == "transaction"
+    assert ClassificationRecord(category="receipt", document_kind=None).field_profile == "none"
 
 
 @pytest.mark.parametrize(
@@ -201,3 +203,11 @@ def test_contract_examples_endpoint_returns_valid_example_data() -> None:
     assert ClassificationRecord.model_validate(payload["classification_record"])
     assert ProposedOperation.model_validate(payload["proposed_operation"])
     assert not payload["proposed_operation"]["destination_relative_path"].startswith(("/", "C:"))
+    examples = payload["document_aware_examples"]
+    assert examples["receipt"]["field_profile"] == "transaction"
+    assert examples["bank_statement"]["classification"]["document_kind"] == "statement"
+    assert examples["bank_statement"]["field_profile"] == "reference"
+    assert examples["bank_statement"]["expense_by_default"] is False
+    assert examples["birth_certificate"]["classification"]["document_kind"] == "identity_or_civil"
+    assert examples["birth_certificate"]["field_profile"] == "none"
+    assert examples["birth_certificate"]["transaction_correction_fields"] == []

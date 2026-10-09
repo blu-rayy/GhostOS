@@ -76,7 +76,8 @@ describe('document-aware review', () => {
     const dest = new Map(plan.operations.map((o) => [o.file_id, o.destination_relative_path]))
     expect(dest.get(BIRTH_CERT)).toBe('Other/birth_certificate_scan.pdf')
     expect(dest.get(STATEMENT)).toBe('Other/statement_0921.pdf')
-    expect(dest.get(UNCERTAIN)).toBe('Needs Review/scan_untitled_04.pdf')
+    // Merged backend (0dfdb65): a reviewed document-aware non-transaction paper goes to Other/, even when left for review.
+    expect(dest.get(UNCERTAIN)).toBe('Other/scan_untitled_04.pdf')
     // Deciding unblocks Move, and none of them adds money to the totals.
     expect(plan.blocking_review_count).toBe(before.blocking_review_count - 3)
     for (const id of [STATEMENT, BIRTH_CERT, UNCERTAIN]) expect(plan.report_rows.find((r) => r.file_id === id)).toBeUndefined()
@@ -88,11 +89,11 @@ describe('document-aware review', () => {
 
   it('never counts a non-transaction paper, even when its category says invoice', async () => {
     const scan = await startScan()
-    // A statement relabelled as an invoice outside the Check panel. The backend (bc6a5d6) still files
-    // by category, but the profile keeps it out of the totals.
+    // A statement relabelled as an invoice outside the Check panel: the backend files it by its
+    // profile (Other/) and keeps it out of the totals.
     await settle(mockApi.correctDocument(STATEMENT, { category: 'invoice', accept: true }), 150)
     const plan = await settle(mockApi.getPlan(scan.scan_id), 200)
-    expect(plan.operations.find((o) => o.file_id === STATEMENT)?.destination_relative_path).toBe('Invoices/2026-09/statement_0921.pdf')
+    expect(plan.operations.find((o) => o.file_id === STATEMENT)?.destination_relative_path).toBe('Other/statement_0921.pdf')
     expect(plan.report_rows.find((r) => r.file_id === STATEMENT)).toBeUndefined()
   })
 

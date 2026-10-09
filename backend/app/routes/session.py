@@ -25,6 +25,7 @@ from app.services.document_awareness import (
     document_kind_for_classification,
     field_profile_for_classification,
 )
+from app.schemas import ApprovalRequest, SortMode, normalize_document_kind
 
 
 def _classification_response(classification: dict | None) -> dict | None:
@@ -280,7 +281,15 @@ def correct_document(file_id: str, body: dict) -> dict:
             detail=f"Unsupported backend-controlled fields: {', '.join(supplied_forbidden)}",
         )
 
-    allowed_fields = {"category", "merchant", "date", "amount", "currency", "accept"}
+    allowed_fields = {
+        "category",
+        "document_kind",
+        "merchant",
+        "date",
+        "amount",
+        "currency",
+        "accept",
+    }
     unknown_fields = sorted(set(body) - allowed_fields)
     if unknown_fields:
         raise HTTPException(
@@ -288,8 +297,43 @@ def correct_document(file_id: str, body: dict) -> dict:
             detail=f"Unsupported correction fields: {', '.join(unknown_fields)}",
         )
 
-    current_classification = doc.classification or {"category": "uncertain"}
-    profile = field_profile_for_classification(current_classification)
+    current_classification = doc.classification or {
+        "category": "uncertain",
+        "document_kind": None,
+        "field_profile": "none",
+    }
+    proposed_classification = dict(current_classification)
+    if "category" in body:
+        if body["category"] not in {"invoice", "receipt", "other", "uncertain"}:
+            raise HTTPException(status_code=422, detail="category must be a supported value")
+        proposed_classification["category"] = body["category"]
+    if "document_kind" in body:
+        raw_kind = body["document_kind"]
+        if raw_kind is not None and not isinstance(raw_kind, str):
+            raise HTTPException(status_code=422, detail="document_kind must be a supported string or null")
+        proposed_classification["document_kind"] = normalize_document_kind(raw_kind)
+
+    proposed_kind = proposed_classification.get("document_kind")
+    proposed_category = proposed_classification.get("category")
+    if (
+        proposed_kind in {
+            "statement",
+            "identity_or_civil",
+            "legal",
+            "medical",
+            "other",
+            "uncertain",
+        }
+        and proposed_category in {"invoice", "receipt"}
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"document_kind '{proposed_kind}' cannot use transaction "
+                f"category '{proposed_category}'"
+            ),
+        )
+    profile = field_profile_for_classification(proposed_classification)
     transaction_fields = {"merchant", "date", "amount", "currency"}
     supplied_transaction_fields = sorted(transaction_fields.intersection(body))
     if supplied_transaction_fields and profile != "transaction":
@@ -305,6 +349,8 @@ def correct_document(file_id: str, body: dict) -> dict:
     if doc.classification is None:
         doc.classification = {
             "category": "uncertain",
+            "document_kind": None,
+            "field_profile": "none",
             "merchant": None,
             "date": None,
             "amount_text": None,
@@ -318,6 +364,9 @@ def correct_document(file_id: str, body: dict) -> dict:
     for field in ("category", "merchant", "date", "amount", "currency"):
         if field in body:
             doc.classification[field] = body[field]
+    if "document_kind" in body:
+        doc.classification["document_kind"] = proposed_classification["document_kind"]
+    doc.classification["field_profile"] = field_profile_for_classification(doc.classification)
 
     # Any correction invalidates the previously displayed organization plan.
     store.bump_revision_for_document(file_id)
@@ -347,15 +396,16 @@ def correct_document(file_id: str, body: dict) -> dict:
 # ---------------------------------------------------------------------------
 
 @router.get("/scans/{scan_id}/plan")
-def get_scan_plan(scan_id: str) -> dict:
+def get_scan_plan(scan_id: str, mode: SortMode = "blocking") -> dict:
     try:
-        plan = get_plan(scan_id)
+        plan = get_plan(scan_id, mode)
     except KeyError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
     return {
         "plan_id": plan.plan_id,
         "scan_id": plan.scan_id,
+        "mode": plan.mode,
         "operations": [
             {
                 "file_id": op.file_id,
@@ -392,7 +442,7 @@ def get_scan_plan(scan_id: str) -> dict:
 # ---------------------------------------------------------------------------
 
 @router.post("/plans/{plan_id}/approve")
-def approve_plan(plan_id: str) -> dict:
+def approve_plan(plan_id: str, body: ApprovalRequest | None = None) -> dict:
     # plan_id is deterministic: "plan_<scan_id>" (see orchestrator._build_plan).
     prefix = "plan_"
     if not plan_id.startswith(prefix):
@@ -409,10 +459,22 @@ def approve_plan(plan_id: str) -> dict:
     if snapshot.session_revision != session.plan_revision:
         raise HTTPException(status_code=409, detail="Plan is stale; refresh the preview before approval")
 
+    requested_mode = body.mode if body is not None else "blocking"
+    if requested_mode != snapshot.mode:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                f"Plan mode is '{snapshot.mode}' but approval requested "
+                f"'{requested_mode}'; refresh the preview before approval"
+            ),
+        )
+
     # Approval is idempotent for a published or partial batch. A pending report
     # is retried without moving any already-committed files.
     existing_batch = store.get_batch_for_plan(plan_id)
     if existing_batch is not None:
+        if existing_batch.mode != snapshot.mode:
+            raise HTTPException(status_code=409, detail="Plan is stale; refresh the preview before approval")
         if existing_batch.report_state == "published":
             return _batch_response(existing_batch)
         if existing_batch.state == "report_pending":
@@ -436,7 +498,7 @@ def approve_plan(plan_id: str) -> dict:
 
     plan = snapshot.plan
 
-    if plan.blocking_review_count > 0:
+    if plan.mode == "blocking" and plan.blocking_review_count > 0:
         raise HTTPException(
             status_code=409,
             detail=f"Plan has {plan.blocking_review_count} unresolved review items",
@@ -474,6 +536,7 @@ def approve_plan(plan_id: str) -> dict:
         root_path=str(root),
         report_temp_relative_path=temp_report_path,
         state="preparing",
+        mode=plan.mode,
     )
     # Persist the recovery manifest before any move or report publication.
     store.put_batch(batch)

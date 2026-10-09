@@ -43,6 +43,18 @@ def contract_examples() -> dict[str, object]:
         evidence_quote="Total: PHP 185.00",
         explanation="The document contains a merchant receipt total.",
     )
+    statement = ClassificationRecord(
+        category="other",
+        document_kind="statement",
+        evidence_quote="Account statement for September 2026",
+        explanation="The document contains multiple account transactions, not one expense.",
+    )
+    birth_certificate = ClassificationRecord(
+        category="other",
+        document_kind="identity_or_civil",
+        evidence_quote="Certificate of Live Birth",
+        explanation="Civil record with no transaction fields.",
+    )
     operation = ProposedOperation(
         file_id=file_record.file_id,
         original_relative_path=file_record.relative_path,
@@ -53,5 +65,21 @@ def contract_examples() -> dict[str, object]:
         "scan_request": scan_request.model_dump(),
         "scan_response": scan_response.model_dump(),
         "classification_record": classification.model_dump(),
+        "document_aware_examples": {
+            "receipt": {
+                "classification": classification.model_dump(),
+                "field_profile": classification.field_profile,
+            },
+            "bank_statement": {
+                "classification": statement.model_dump(),
+                "field_profile": statement.field_profile,
+                "expense_by_default": False,
+            },
+            "birth_certificate": {
+                "classification": birth_certificate.model_dump(),
+                "field_profile": birth_certificate.field_profile,
+                "transaction_correction_fields": [],
+            },
+        },
         "proposed_operation": operation.model_dump(),
     }

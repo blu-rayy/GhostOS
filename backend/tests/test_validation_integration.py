@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 
 import app.services.local_ai as local_ai
 from app.main import app
+from app.services.orchestrator import _map_validation_flags
 
 client = TestClient(app)
 
@@ -53,6 +54,16 @@ def _flag_codes(doc: dict) -> list[str]:
     return [f["code"] for f in doc["review_flags"]]
 
 
+def test_quotation_flag_uses_explicit_plain_language_message() -> None:
+    flags = _map_validation_flags(("quotation_document",))
+
+    assert flags == [{
+        "code": "quotation_document",
+        "message": "This document appears to be a quotation rather than a completed transaction.",
+    }]
+    assert "Validation check reported" not in flags[0]["message"]
+
+
 def test_missing_amount_flags_needs_review(tmp_path, monkeypatch):
     """A receipt with no amount_text gets missing_amount and blocks approval."""
     _mock_classifier(
@@ -74,6 +85,23 @@ def test_missing_amount_flags_needs_review(tmp_path, monkeypatch):
 
     plan = client.get(f"/api/scans/{scan_id}/plan").json()
     assert plan["blocking_review_count"] == 1
+
+
+def test_explicit_null_document_kind_is_preserved_by_scan_worker(tmp_path, monkeypatch):
+    _mock_classifier(monkeypatch, document_kind=None)
+    (tmp_path / "receipt.txt").write_text(
+        "Test Shop\nDate: 2026-10-09\nTotal: PHP 100.00"
+    )
+
+    scan_id, result = _scan_until_done(str(tmp_path))
+    classification = result["documents"][0]["classification"]
+
+    assert "document_kind" in classification
+    assert classification["document_kind"] is None
+    assert classification["field_profile"] == "none"
+    plan = client.get(f"/api/scans/{scan_id}/plan").json()
+    assert plan["operations"][0]["destination_relative_path"].startswith("Other/")
+    assert plan["report_rows"] == []
 
 
 def test_conflicting_totals_yield_amount_conflict(tmp_path, monkeypatch):

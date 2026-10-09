@@ -247,7 +247,7 @@
       "review_flags": [
         {
           "code": "model_error",
-          "message": "Local model timed out twice (30s limit). The file was not classified and goes to Needs Review."
+          "message": "Local model timed out twice (30s limit). The file was not classified and goes to Uncategorized."
         }
       ],
       "duplicate_of": null,

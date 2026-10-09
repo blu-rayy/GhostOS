@@ -61,7 +61,7 @@ function basename(path: string): string {
 }
 
 function needsReview(doc: DocumentRecord): boolean {
-  return doc.status !== 'ok' && !doc.user_corrected
+  return doc.status === 'needs_review' && !doc.user_corrected
 }
 
 const DOCUMENT_KINDS: DocumentKind[] = ['receipt', 'invoice', 'statement', 'identity_or_civil', 'legal', 'medical', 'other', 'uncertain']
@@ -92,16 +92,18 @@ const unprocessable = (detail: string) => new Error(`422 ${detail}`)
 
 function destinationFolder(doc: DocumentRecord): { folder: string; reason: string } {
   const c = doc.classification
-  if (!c || doc.status === 'failed') return { folder: 'Needs Review', reason: 'Could not be classified' }
-  if (needsReview(doc)) return { folder: 'Needs Review', reason: 'Waiting for human review' }
-  // Like the backend (bc6a5d6), folders still follow the category; the profile only gates the totals.
+  if (!c || doc.status === 'failed') return { folder: 'Uncategorized', reason: 'Could not be classified' }
+  if (needsReview(doc)) return { folder: 'Uncategorized', reason: 'Waiting for human review' }
+  // Like the backend: a document-aware non-transaction paper goes to Other/ once reviewed,
+  // whatever its category (orchestrator._build_plan, document_aware branch).
+  if ('document_kind' in c && profileOf(c) !== 'transaction') return { folder: 'Other', reason: 'Non-transactional document' }
   if (c.category === 'invoice' || c.category === 'receipt') {
-    if (!c.date) return { folder: 'Needs Review', reason: `${c.category} without a date` }
+    if (!c.date) return { folder: 'Uncategorized', reason: `${c.category} without a date` }
     const top = c.category === 'invoice' ? 'Invoices' : 'Receipts'
     return { folder: `${top}/${c.date.slice(0, 7)}`, reason: `${c.category} dated ${c.date}` }
   }
   if (c.category === 'other') return { folder: 'Other', reason: 'Not an invoice or receipt' }
-  return { folder: 'Needs Review', reason: 'Category uncertain' }
+  return { folder: 'Uncategorized', reason: 'Category uncertain' }
 }
 
 function withSuffix(name: string, n: number): string {

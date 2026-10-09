@@ -33,7 +33,7 @@ export function fieldProfile(d: DocumentRecord): FieldProfile {
  * The two explicit decisions for a document that isn't a single payment. Each sends only a
  * safe filing category and accept: never shop, date, amount, document_kind or field_profile.
  * The backend's fixed folder rules then decide the path (other -> Other/, uncertain ->
- * Needs Review/), and neither category is ever counted in the totals.
+ * Uncategorized/), and neither category is ever counted in the totals.
  */
 export const NON_TRANSACTION_DECISIONS = {
   file: { category: 'other', accept: true },
@@ -201,7 +201,7 @@ export interface PlanRow {
   blocking: boolean
 }
 
-const REVIEW_FOLDER = 'Needs Review/'
+const REVIEW_FOLDER = 'Uncategorized/'
 
 /** One row per scanned document (moves and non-moves) plus skipped files, for the plan screen. */
 export function buildPlanRows(scan: ScanResult | null, plan: PlanPreview | null): PlanRow[] {

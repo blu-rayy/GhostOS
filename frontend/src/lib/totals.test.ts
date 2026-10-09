@@ -38,16 +38,16 @@ describe('totals display helpers', () => {
     expect(monthRange([row('a', null)])).toBeNull()
   })
 
-  it('groups destinations with Other/ and Needs Review/ last', () => {
-    const groups = groupByDestination([op('1', 'Other/a.txt'), op('2', 'Receipts/2026-09/b.pdf'), op('3', 'Needs Review/c.pdf'), op('4', 'Invoices/2026-09/d.pdf'), op('5', 'Receipts/2026-09/e.pdf')])
+  it('groups destinations with Other/ and Uncategorized/ last', () => {
+    const groups = groupByDestination([op('1', 'Other/a.txt'), op('2', 'Receipts/2026-09/b.pdf'), op('3', 'Uncategorized/c.pdf'), op('4', 'Invoices/2026-09/d.pdf'), op('5', 'Receipts/2026-09/e.pdf')])
     expect(groups).toEqual([
       { folder: 'Invoices/2026-09/', count: 1 },
       { folder: 'Receipts/2026-09/', count: 2 },
       { folder: 'Other/', count: 1 },
-      { folder: 'Needs Review/', count: 1 },
+      { folder: 'Uncategorized/', count: 1 },
     ])
     expect(folderNote('Other/')).toBe('not counted')
-    expect(folderNote('Needs Review/')).toBe("couldn't read")
+    expect(folderNote('Uncategorized/')).toBe("couldn't read")
   })
 
   it('counts files that stay, including unsupported ones', () => {

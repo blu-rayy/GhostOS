@@ -14,11 +14,15 @@ from app.schemas import (
 
 def document_kind_for_classification(
     classification: Mapping[str, object],
-) -> DocumentKind:
-    """Return a safe kind, including a compatibility fallback for old records."""
-    explicit = normalize_document_kind(classification.get("document_kind"))
-    if explicit is not None:
-        return explicit
+) -> DocumentKind | None:
+    """Return a stored kind, with a fallback only for legacy records.
+
+    A present-but-null ``document_kind`` is an explicit document-aware value
+    and therefore derives the conservative ``none`` profile. Only records
+    that predate this field receive category-based compatibility behavior.
+    """
+    if "document_kind" in classification:
+        return normalize_document_kind(classification.get("document_kind"))
 
     category = classification.get("category")
     if category in {"receipt", "invoice", "other", "uncertain"}:
@@ -46,4 +50,5 @@ def field_profile_for_classification(
 ) -> FieldProfile:
     """Resolve legacy records and derive their backend-owned field profile."""
     kind = document_kind_for_classification(classification)
-    return derive_field_profile(kind, legacy_category=classification.get("category"))  # type: ignore[arg-type]
+    legacy_category = None if "document_kind" in classification else classification.get("category")
+    return derive_field_profile(kind, legacy_category=legacy_category)  # type: ignore[arg-type]

@@ -210,6 +210,21 @@
 }
 
 @layer components {
+  .step-current {
+    animation: step-current-in 260ms ease-out both;
+  }
+
+  @keyframes step-current-in {
+    from {
+      opacity: 0.72;
+      transform: translateY(1px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
   /* Pip floats (components/pip/Pip.tsx). In SVG user units; the hem wiggle is SMIL on the body path. */
   .pip-float {
     animation: pip-float 3.2s ease-in-out infinite;

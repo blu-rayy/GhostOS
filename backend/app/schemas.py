@@ -18,6 +18,7 @@ DocumentKind = Literal[
     "uncertain",
 ]
 FieldProfile = Literal["transaction", "reference", "none"]
+SortMode = Literal["blocking", "partial"]
 
 _DOCUMENT_KIND_VALUES = frozenset(
     {
@@ -200,7 +201,10 @@ class ClassificationRecord(BaseModel):
         """Backend-derived editable-field profile (never supplied by the model)."""
         from app.services.document_awareness import derive_field_profile
 
-        return derive_field_profile(self.document_kind, legacy_category=self.category)
+        legacy_category = (
+            self.category if "document_kind" not in self.model_fields_set else None
+        )
+        return derive_field_profile(self.document_kind, legacy_category=legacy_category)
 
 
 class ProposedOperation(BaseModel):
@@ -283,3 +287,9 @@ class ClassifyResponse(BaseModel):
     needs_review: bool = False
     review_reason: str | None = None
     elapsed_seconds: float = Field(..., ge=0)
+
+
+class ApprovalRequest(BaseModel):
+    """Explicit approval mode; omitted mode preserves blocking behavior."""
+
+    mode: SortMode = "blocking"

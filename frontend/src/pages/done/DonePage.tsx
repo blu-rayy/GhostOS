@@ -4,7 +4,7 @@ import type { BatchResult, PlanPreview, UndoResult } from '../../types/api'
 import { PIP_LINES } from '../../lib/copy'
 import { money } from '../../lib/format'
 import { downloadText, toCsv } from '../../lib/report'
-import { NEEDS_REVIEW_FOLDER, OTHER_FOLDER, currencyName, files, folderOf, groupByDestination, stayCount } from '../../lib/totals'
+import { UNCATEGORIZED_FOLDER, OTHER_FOLDER, currencyName, files, folderOf, groupByDestination, stayCount } from '../../lib/totals'
 import { basename } from '../../lib/viewModel'
 import { PaperButton } from '../../components/paper/Button'
 import { FolderRow } from '../../components/paper/CheckComponents'
@@ -85,7 +85,7 @@ function Title({ folderName, children }: { folderName: string; children: ReactNo
 }
 
 function doneNote(folder: string): string {
-  if (folder === NEEDS_REVIEW_FOLDER) return 'look later'
+  if (folder === UNCATEGORIZED_FOLDER) return 'look later'
   if (folder === OTHER_FOLDER) return 'not counted'
   return ''
 }
