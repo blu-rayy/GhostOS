@@ -1,6 +1,6 @@
 """Generate the GhostOS synthetic QA sample folder and its ground truth.
 
-This file is the single source of truth for both the 20 sample documents in
+This file is the single source of truth for both the 28 sample documents in
 ``tests/fixtures/sample_folder/`` and ``tests/fixtures/expected_results/ground_truth.json``.
 Edit the DOCUMENTS list below, never the generated files by hand.
 
@@ -31,7 +31,7 @@ FIXTURES_DIR = Path(__file__).resolve().parent
 SAMPLE_DIR = FIXTURES_DIR / "sample_folder"
 GROUND_TRUTH_PATH = FIXTURES_DIR / "expected_results" / "ground_truth.json"
 
-DATASET_VERSION = 1
+DATASET_VERSION = 2
 
 
 # ---------------------------------------------------------------------------
@@ -700,6 +700,81 @@ Prescriber: Dr. A. Santos
         "expected_review_required": True,
         "expected_evidence_quote": "MEDICAL PRESCRIPTION",
         "special_notes": "Medical record. No transaction fields; must be reviewed and filed without an amount.",
+    },
+    # -------------------- important papers (2, non-transactional) -----------
+    {
+        "path": "important/passport-details.txt",
+        "content": text_file("""
+PASSPORT - DATA PAGE DETAILS (fictional specimen)
+Passport No: P0000000X
+Surname: VILLANUEVA
+Given names: MARA ISABEL
+Nationality: FILIPINO
+Date of birth: 02 APR 1995
+Date of issue: 12 MAR 2023
+Date of expiry: 11 MAR 2033
+Note: original kept in the fire safe, top shelf.
+"""),
+        "expected_category": "other",
+        "expected_document_kind": "identity_or_civil",
+        "expected_field_profile": "none",
+        "expected_merchant": None,
+        "expected_date": None,
+        "expected_amount": None,
+        "expected_currency": None,
+        "expected_review_required": True,
+        "expected_evidence_quote": "PASSPORT - DATA PAGE DETAILS",
+        "special_notes": "Identity record with several dates (birth, issue, expiry), none of them a transaction "
+        "date. No transaction fields; must be reviewed and filed without a date or amount.",
+    },
+    {
+        "path": "downloads/scan_0042.pdf",
+        "content": build_pdf([
+            "PASSPORT (fictional specimen)",
+            "Type: P   Country code: PHL",
+            "Passport No: P1111111Y",
+            "Surname: VILLANUEVA",
+            "Given names: ELENA ROSARIO",
+            "Date of birth: 17 JUL 1968",
+            "Date of issue: 03 JAN 2022",
+            "Date of expiry: 02 JAN 2032",
+        ]),
+        "expected_category": "other",
+        "expected_document_kind": "identity_or_civil",
+        "expected_field_profile": "none",
+        "expected_merchant": None,
+        "expected_date": None,
+        "expected_amount": None,
+        "expected_currency": None,
+        "expected_review_required": True,
+        "expected_evidence_quote": "PASSPORT",
+        "special_notes": "Passport saved under a meaningless scanner filename in downloads/. The kind must come from "
+        "the content, not the name. No transaction fields.",
+    },
+    {
+        "path": "important/IMPORTANT - land title TCT-T-458812.pdf",
+        "content": build_pdf([
+            "TRANSFER CERTIFICATE OF TITLE No. T-458812 (fictional)",
+            "Registry of Deeds - Sample Province",
+            "Registered owner: Mara Isabel Villanueva",
+            "Lot 12, Block 4, Sample Subdivision (fictional)",
+            "Area: 240 square meters",
+            "Assessed value: PHP 1,850,000.00",
+            "Entry date: 14 Feb 2024",
+            "ORIGINAL - KEEP IN SAFE. DO NOT DISCARD.",
+        ]),
+        "expected_category": "other",
+        "expected_document_kind": "legal",
+        "expected_field_profile": "none",
+        "expected_merchant": None,
+        "expected_date": None,
+        "expected_amount": None,
+        "expected_currency": None,
+        "expected_review_required": True,
+        "expected_evidence_quote": "TRANSFER CERTIFICATE OF TITLE",
+        "special_notes": "High-value legal record with 'IMPORTANT' in the filename and a large assessed value. "
+        "The assessed value is not an expense and must never reach the totals; spaces in the filename "
+        "must survive planning, move and undo unchanged.",
     },
 ]
 

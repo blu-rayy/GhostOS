@@ -1,12 +1,12 @@
 {
   "dataset": "sample_folder",
-  "version": 1,
+  "version": 2,
   "generated_by": "tests/fixtures/generate_sample_folder.py",
   "synthetic": true,
   "notes": "All content is fictional. 'filename' is the path relative to tests/fixtures/sample_folder using forward slashes. Amounts are exact decimal strings (never floats); null means unknown or deliberately ambiguous. Dates are ISO yyyy-mm-dd. 'expected_evidence_quote' is an exact substring of the backend-extracted text. Do not edit by hand; edit the generator.",
   "category_counts": {
     "invoice": 7,
-    "other": 8,
+    "other": 11,
     "receipt": 7,
     "uncertain": 3
   },
@@ -447,6 +447,63 @@
       "collision_group": null,
       "special_notes": "Medical record. No transaction fields; must be reviewed and filed without an amount.",
       "expected_document_kind": "medical",
+      "expected_field_profile": "none"
+    },
+    {
+      "filename": "important/passport-details.txt",
+      "file_type": "txt",
+      "expected_category": "other",
+      "acceptable_categories": [
+        "other"
+      ],
+      "expected_merchant": null,
+      "expected_date": null,
+      "expected_amount": null,
+      "expected_currency": null,
+      "expected_review_required": true,
+      "expected_evidence_quote": "PASSPORT - DATA PAGE DETAILS",
+      "duplicate_group": null,
+      "collision_group": null,
+      "special_notes": "Identity record with several dates (birth, issue, expiry), none of them a transaction date. No transaction fields; must be reviewed and filed without a date or amount.",
+      "expected_document_kind": "identity_or_civil",
+      "expected_field_profile": "none"
+    },
+    {
+      "filename": "downloads/scan_0042.pdf",
+      "file_type": "pdf",
+      "expected_category": "other",
+      "acceptable_categories": [
+        "other"
+      ],
+      "expected_merchant": null,
+      "expected_date": null,
+      "expected_amount": null,
+      "expected_currency": null,
+      "expected_review_required": true,
+      "expected_evidence_quote": "PASSPORT",
+      "duplicate_group": null,
+      "collision_group": null,
+      "special_notes": "Passport saved under a meaningless scanner filename in downloads/. The kind must come from the content, not the name. No transaction fields.",
+      "expected_document_kind": "identity_or_civil",
+      "expected_field_profile": "none"
+    },
+    {
+      "filename": "important/IMPORTANT - land title TCT-T-458812.pdf",
+      "file_type": "pdf",
+      "expected_category": "other",
+      "acceptable_categories": [
+        "other"
+      ],
+      "expected_merchant": null,
+      "expected_date": null,
+      "expected_amount": null,
+      "expected_currency": null,
+      "expected_review_required": true,
+      "expected_evidence_quote": "TRANSFER CERTIFICATE OF TITLE",
+      "duplicate_group": null,
+      "collision_group": null,
+      "special_notes": "High-value legal record with 'IMPORTANT' in the filename and a large assessed value. The assessed value is not an expense and must never reach the totals; spaces in the filename must survive planning, move and undo unchanged.",
+      "expected_document_kind": "legal",
       "expected_field_profile": "none"
     }
   ]

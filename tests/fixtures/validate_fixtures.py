@@ -4,10 +4,10 @@ Checks tests/fixtures/sample_folder/ against
 tests/fixtures/expected_results/ground_truth.json:
 
   1. ground-truth schema (types, enums, decimal-string amounts, ISO dates)
-  2. exactly 25 files in the sample folder
+  2. exactly 28 files in the sample folder
   3. only supported extensions (.pdf, .txt, .csv)
   4. manifest and folder list the same files
-  5. category counts are 7 invoice / 7 receipt / 8 other / 3 uncertain
+  5. category counts are 7 invoice / 7 receipt / 11 other / 3 uncertain
   6. every file extracts successfully; PDFs have a real, image-free text layer
   7. every expected_evidence_quote is an exact substring of the extracted text
   8. every non-null expected_amount is traceable in the extracted text
@@ -46,8 +46,8 @@ SAMPLE_DIR = FIXTURES_DIR / "sample_folder"
 GROUND_TRUTH_PATH = FIXTURES_DIR / "expected_results" / "ground_truth.json"
 BACKEND_DIR = REPO_ROOT / "backend"
 
-EXPECTED_FILE_COUNT = 25
-EXPECTED_COUNTS = {"invoice": 7, "receipt": 7, "other": 8, "uncertain": 3}
+EXPECTED_FILE_COUNT = 28
+EXPECTED_COUNTS = {"invoice": 7, "receipt": 7, "other": 11, "uncertain": 3}
 SUPPORTED_EXTENSIONS = {".pdf", ".txt", ".csv"}
 CATEGORIES = set(EXPECTED_COUNTS)
 DOCUMENT_KINDS = {
@@ -232,7 +232,7 @@ def main() -> int:
     ]
     if manifest.get("category_counts") and manifest["category_counts"] != dict(sorted(counts.items())):
         problems.append(f"category_counts summary {manifest['category_counts']} disagrees with entries")
-    report.add("Category counts are 7 invoice / 7 receipt / 8 other / 3 uncertain", problems)
+    report.add("Category counts are 7 invoice / 7 receipt / 11 other / 3 uncertain", problems)
 
     # 6. extraction ----------------------------------------------------------
     process_file_content, fitz, blocker = load_extractor()
