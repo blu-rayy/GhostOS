@@ -21,6 +21,20 @@ from app.services.report import (
     write_report_temp,
 )
 from app.services.path_safety import conflicts_with_source_directory
+from app.services.document_awareness import (
+    document_kind_for_classification,
+    field_profile_for_classification,
+)
+
+
+def _classification_response(classification: dict | None) -> dict | None:
+    """Add backend-derived awareness fields without trusting client input."""
+    if classification is None:
+        return None
+    result = dict(classification)
+    result["document_kind"] = document_kind_for_classification(result)
+    result["field_profile"] = field_profile_for_classification(result)
+    return result
 
 
 def _sha256(path: Path) -> str:
@@ -223,7 +237,7 @@ def get_scan(scan_id: str) -> dict:
                 "sha256": d.sha256,
                 "excerpt": d.excerpt,
                 "status": d.status,
-                "classification": d.classification,
+                "classification": _classification_response(d.classification),
                 "review_flags": d.review_flags,
                 "duplicate_of": d.duplicate_of,
                 "user_corrected": d.user_corrected,
@@ -251,6 +265,41 @@ def correct_document(file_id: str, body: dict) -> dict:
     doc = store.find_document(file_id)
     if doc is None:
         raise HTTPException(status_code=404, detail=f"Document {file_id!r} not found")
+
+    forbidden_fields = {
+        "field_profile",
+        "editable_fields",
+        "allowed_fields",
+        "destination_relative_path",
+        "operations",
+    }
+    supplied_forbidden = sorted(forbidden_fields.intersection(body))
+    if supplied_forbidden:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Unsupported backend-controlled fields: {', '.join(supplied_forbidden)}",
+        )
+
+    allowed_fields = {"category", "merchant", "date", "amount", "currency", "accept"}
+    unknown_fields = sorted(set(body) - allowed_fields)
+    if unknown_fields:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Unsupported correction fields: {', '.join(unknown_fields)}",
+        )
+
+    current_classification = doc.classification or {"category": "uncertain"}
+    profile = field_profile_for_classification(current_classification)
+    transaction_fields = {"merchant", "date", "amount", "currency"}
+    supplied_transaction_fields = sorted(transaction_fields.intersection(body))
+    if supplied_transaction_fields and profile != "transaction":
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                f"Document field profile '{profile}' does not allow transaction "
+                f"corrections: {', '.join(supplied_transaction_fields)}"
+            ),
+        )
 
     # Apply the correction fields
     if doc.classification is None:
@@ -286,7 +335,7 @@ def correct_document(file_id: str, body: dict) -> dict:
         "sha256": doc.sha256,
         "excerpt": doc.excerpt,
         "status": doc.status,
-        "classification": doc.classification,
+        "classification": _classification_response(doc.classification),
         "review_flags": doc.review_flags,
         "duplicate_of": doc.duplicate_of,
         "user_corrected": doc.user_corrected,

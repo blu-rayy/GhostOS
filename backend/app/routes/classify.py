@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from app.schemas import ClassifyRequest, ClassifyResponse
 from app.services import local_ai
+from app.services.document_awareness import document_kind_for_classification
 from app.services.operations import build_proposed_operation
 
 router = APIRouter(prefix="/api/classify", tags=["classify"])
@@ -51,6 +52,8 @@ def classify_file(request: ClassifyRequest) -> ClassifyResponse:
         raise HTTPException(status_code=502, detail=f"Unexpected response from Ollama: {exc}")
 
     classification = result.classification
+    effective_kind = document_kind_for_classification(classification.model_dump())
+    response_classification = classification.model_copy(update={"document_kind": effective_kind})
 
     # Backend generates the ProposedOperation — never Ollama.
     proposed_operation, needs_review, review_reason = build_proposed_operation(
@@ -61,7 +64,8 @@ def classify_file(request: ClassifyRequest) -> ClassifyResponse:
 
     return ClassifyResponse(
         file_id=request.file_id,
-        classification=classification,
+        classification=response_classification,
+        field_profile=response_classification.field_profile,
         proposed_operation=proposed_operation,
         needs_review=needs_review,
         review_reason=review_reason,
