@@ -4,7 +4,7 @@
  */
 import type { ProposedOperation, ReportRow } from '../types/api'
 
-const CURRENCY_NAMES: Record<string, string> = { PHP: 'pesos', USD: 'US dollars', EUR: 'euros' }
+const CURRENCY_NAMES: Record<string, string> = { PHP: 'pesos', USD: 'US dollars', EUR: 'euros', GBP: 'pounds', SGD: 'Singapore dollars', JPY: 'yen' }
 
 /** "pesos", "US dollars"; unknown currencies show their ISO code. */
 export function currencyName(code: string): string {

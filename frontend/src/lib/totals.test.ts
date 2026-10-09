@@ -53,6 +53,7 @@ describe('totals display helpers', () => {
   it('counts files that stay, including unsupported ones', () => {
     expect(stayCount(18, 5, 17)).toBe(6)
     expect(currencyName('PHP')).toBe('pesos')
-    expect(currencyName('JPY')).toBe('JPY')
+    expect(currencyName('JPY')).toBe('yen')
+    expect(currencyName('CHF')).toBe('CHF')
   })
 })
