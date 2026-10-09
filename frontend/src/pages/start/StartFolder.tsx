@@ -5,7 +5,7 @@ import { NumberedSteps } from '../../components/paper/NumberedSteps'
 import { PageFooter } from '../../components/paper/PageFooter'
 import { CardTitle, PaperCard } from '../../components/paper/PaperCard'
 import { StickyNote } from '../../components/paper/StickyNote'
-import { INK_FILTER_ID } from '../../components/pip/Pip'
+import { ICON_INK_FILTER_ID } from '../../components/pip/Pip'
 import { DEMO_FOLDER_NAME } from '../../lib/copy'
 import { errorText } from '../../lib/format'
 import { useApp } from '../../state/AppState'
@@ -48,7 +48,7 @@ export function StartFolder() {
             <PaperCard as="section" variant="a" aria-label="Your folder" className="flex flex-col gap-[18px] px-7 py-6">
               <div className="flex items-center gap-4">
                 <svg width="64" height="54" viewBox="0 0 64 54" aria-hidden focusable="false" className="shrink-0">
-                  <g filter={`url(#${INK_FILTER_ID})`}>
+                  <g filter={`url(#${ICON_INK_FILTER_ID})`}>
                     <path d="M3 8h22l6 6h30v36H3Z" fill="#ffe066" stroke="#1a1a1a" strokeWidth="3" strokeLinejoin="round" />
                     <path d="M3 20h58" stroke="#1a1a1a" strokeWidth="3" />
                   </g>

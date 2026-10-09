@@ -16,7 +16,8 @@ import statusFixture from '../fixtures/status.json'
 // The plan-building rules below mirror the build plan's backend contract so
 // that the UI behaves the same once the real endpoints land.
 
-const SCAN_DURATION_MS = 4000
+/** Demo scan pacing. Slowed down while desktop Pip runs so the animation has time to play. */
+export const mockTiming = { scanDurationMs: 4000 }
 
 const delay = (ms = 250) => new Promise((r) => setTimeout(r, ms))
 const clone = <T>(v: T): T => structuredClone(v)
@@ -157,7 +158,7 @@ export const mockApi: GhostApi = {
   async getScanProgress(scanId) {
     const s = requireScan(scanId)
     const total = s.documents.length
-    const fraction = Math.min(1, (Date.now() - scanStartedAt) / SCAN_DURATION_MS)
+    const fraction = Math.min(1, (Date.now() - scanStartedAt) / mockTiming.scanDurationMs)
     const processed = Math.floor(fraction * total)
     if (mockScenario.scanError && processed >= Math.floor(total / 2)) {
       return {

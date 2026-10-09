@@ -1,0 +1,51 @@
+[
+  {
+    "test": "A1 Scan does not modify root A",
+    "status": "PASS",
+    "expected": "identical file set and SHA-256",
+    "actual": "identical",
+    "evidence": ""
+  },
+  {
+    "test": "A2 Preview does not modify root A",
+    "status": "PASS",
+    "expected": "identical file set and SHA-256",
+    "actual": "identical",
+    "evidence": ""
+  },
+  {
+    "test": "A3 Approval rejected while review is unresolved",
+    "status": "PASS",
+    "expected": "HTTP 409 'unresolved review items', no file moved or changed",
+    "actual": "HTTP 409 {\"detail\": \"Plan has 1 unresolved review items\"}; files unchanged",
+    "evidence": ""
+  },
+  {
+    "test": "A4 No-op correction keeps the document in review",
+    "status": "PASS",
+    "expected": "HTTP 200, status needs_review, user_corrected false",
+    "actual": "HTTP 200, status needs_review, user_corrected False",
+    "evidence": ""
+  },
+  {
+    "test": "A5 Stale snapshot rejected after a correction",
+    "status": "PASS",
+    "expected": "HTTP 409 'Plan is stale; refresh the preview', no file moved or changed",
+    "actual": "HTTP 409 {\"detail\": \"Plan is stale; refresh the preview before approval\"}; files unchanged",
+    "evidence": ""
+  },
+  {
+    "test": "A6 Fresh preview still blocked after a non-accepting correction",
+    "status": "PASS",
+    "expected": "blocking_review_count > 0 (nothing was accepted)",
+    "actual": "blocking_review_count=1 (not approved)",
+    "evidence": ""
+  },
+  {
+    "test": "A7 Root A and outside canary unchanged at end of Stage 3",
+    "status": "PASS",
+    "expected": "identical to setup",
+    "actual": "identical",
+    "evidence": ""
+  }
+]

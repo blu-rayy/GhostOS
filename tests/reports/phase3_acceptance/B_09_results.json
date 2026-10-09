@@ -1,0 +1,183 @@
+[
+  {
+    "test": "P1 Plan ID unchanged",
+    "status": "PASS",
+    "expected": "plan_scan_bf77c62ddde8",
+    "actual": "HTTP 200 plan_scan_bf77c62ddde8"
+  },
+  {
+    "test": "P2 Plan identical to the approved snapshot (operations, rows, totals)",
+    "status": "PASS",
+    "expected": "byte-identical JSON to B_03_plan_snapshot_for_approval.json",
+    "actual": "identical"
+  },
+  {
+    "test": "P3 Exactly five operations",
+    "status": "PASS",
+    "expected": 5,
+    "actual": 5
+  },
+  {
+    "test": "P4 Zero blocking reviews",
+    "status": "PASS",
+    "expected": 0,
+    "actual": 0
+  },
+  {
+    "test": "P5 Five originals present with recorded SHA-256",
+    "status": "PASS",
+    "expected": "matches 00_setup_manifest.json",
+    "actual": "matches"
+  },
+  {
+    "test": "P6 Every destination is inside root B and still free",
+    "status": "PASS",
+    "expected": "no problems",
+    "actual": "none"
+  },
+  {
+    "test": "P7 Outside canary unchanged",
+    "status": "PASS",
+    "expected": "5a7980030b5198c0",
+    "actual": "5a7980030b5198c0"
+  },
+  {
+    "test": "S1 Approval succeeds",
+    "status": "PASS",
+    "expected": "HTTP 200 with batch_id",
+    "actual": "HTTP 200 batch_id=batch_5744f571110c moved=5 failed=[]"
+  },
+  {
+    "test": "S2 All five files committed, none failed",
+    "status": "PASS",
+    "expected": "moved=5, failed=[]",
+    "actual": "moved=5, failed=[]"
+  },
+  {
+    "test": "S3 Each file is at its planned destination with unchanged SHA-256",
+    "status": "FAIL",
+    "expected": "5/5 match",
+    "actual": [
+      "Receipts/2026-09/greenleaf-grocer-2026-09-14 (1).txt hash MISSING != 165d4ac5289f",
+      "Receipts/2026-09/greenleaf-grocer-2026-09-14.txt hash MISSING != 165d4ac5289f",
+      "Receipts/2026-09/sunbeam-cafe-receipt.pdf hash MISSING != aab1c6fe32a7"
+    ]
+  },
+  {
+    "test": "S4 Collision: both invoice.pdf files kept under distinct names, nothing overwritten",
+    "status": "PASS",
+    "expected": "invoice.pdf = archive/2026 bytes; invoice (2).pdf = inbox bytes",
+    "actual": "invoice.pdf=0bec9fe8f966, invoice (2).pdf=d34d23a31374"
+  },
+  {
+    "test": "S5 Duplicate pair: both copies moved, neither deleted",
+    "status": "FAIL",
+    "expected": "both Greenleaf copies present in Receipts/2026-09/",
+    "actual": "MISSING"
+  },
+  {
+    "test": "S6 No unexpected files in root B (only planned moves + the report)",
+    "status": "FAIL",
+    "expected": "none",
+    "actual": [
+      "receipts/2026-09/greenleaf-grocer-2026-09-14 (1).txt",
+      "receipts/2026-09/greenleaf-grocer-2026-09-14.txt",
+      "receipts/2026-09/sunbeam-cafe-receipt.pdf"
+    ]
+  },
+  {
+    "test": "S7 No temporary report file left behind",
+    "status": "PASS",
+    "expected": "none",
+    "actual": "none"
+  },
+  {
+    "test": "S8 Nothing created outside root B; root A and canary unchanged",
+    "status": "PASS",
+    "expected": "base children [A-blocker, B-acceptance, outside-canary]; A and canary hashes unchanged",
+    "actual": "base children ['A-blocker', 'B-acceptance', 'outside-canary']; A unchanged; canary unchanged"
+  },
+  {
+    "test": "S9 Report written inside root B at the returned path",
+    "status": "PASS",
+    "expected": "GhostOS Reports/expenses-<stamp>.csv inside root B",
+    "actual": "GhostOS Reports/expenses-202610091720.csv"
+  },
+  {
+    "test": "S10 CSV format: UTF-8 BOM, CRLF, expected header",
+    "status": "PASS",
+    "expected": "BOM + CRLF + source_file,merchant,date,category,amount,currency",
+    "actual": "BOM=True header=['source_file', 'merchant', 'date', 'category', 'amount', 'currency']"
+  },
+  {
+    "test": "S11 CSV rows = committed, accepted rows only (4)",
+    "status": "PASS",
+    "expected": "4 rows: ['archive/2026/invoice.pdf', 'downloads/greenleaf-grocer-2026-09-14 (1).txt', 'inbox/invoice.pdf', 'receipts/sunbeam-cafe-receipt.pdf']",
+    "actual": "4 rows: ['archive/2026/invoice.pdf', 'downloads/greenleaf-grocer-2026-09-14 (1).txt', 'inbox/invoice.pdf', 'receipts/sunbeam-cafe-receipt.pdf']"
+  },
+  {
+    "test": "S12 Each CSV row's date, category, amount and currency match the ground truth",
+    "status": "PASS",
+    "expected": "all match",
+    "actual": "all match"
+  },
+  {
+    "test": "S13 CSV totals equal independent ground-truth totals and plan totals",
+    "status": "PASS",
+    "expected": {
+      "PHP": "5439.70",
+      "USD": "59.88"
+    },
+    "actual": {
+      "csv": {
+        "PHP": "5439.70",
+        "USD": "59.88"
+      },
+      "plan": {
+        "PHP": "5439.70",
+        "USD": "59.88"
+      }
+    }
+  },
+  {
+    "test": "S14 Duplicate copy excluded from CSV (single Greenleaf row)",
+    "status": "PASS",
+    "expected": "receipts/greenleaf-grocer-2026-09-14.txt absent (duplicate_of downloads copy); exactly one Greenleaf row",
+    "actual": "greenleaf rows: ['downloads/greenleaf-grocer-2026-09-14 (1).txt']"
+  },
+  {
+    "test": "U1 Undo succeeds with no conflicts",
+    "status": "PASS",
+    "expected": "HTTP 200, restored=5, conflicts=[]",
+    "actual": "HTTP 200, restored=5, conflicts=[]"
+  },
+  {
+    "test": "U2 All five original relative paths restored with original SHA-256",
+    "status": "PASS",
+    "expected": "5/5 identical",
+    "actual": "5/5 identical"
+  },
+  {
+    "test": "U3 (observed) Files remaining after undo",
+    "status": "PASS",
+    "expected": "record actual",
+    "actual": [
+      "GhostOS Reports/expenses-202610091720.csv"
+    ]
+  },
+  {
+    "test": "U4 (observed) Empty directories remaining after undo",
+    "status": "PASS",
+    "expected": "record actual",
+    "actual": [
+      "Invoices/2026-09",
+      "receipts/2026-09"
+    ]
+  },
+  {
+    "test": "U5 Root A and outside canary unchanged after undo",
+    "status": "PASS",
+    "expected": "unchanged",
+    "actual": "unchanged"
+  }
+]

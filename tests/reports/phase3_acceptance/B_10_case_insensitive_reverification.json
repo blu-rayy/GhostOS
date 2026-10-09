@@ -1,0 +1,67 @@
+{
+  "method": "case-insensitive comparison of B_05b_tree_after_approve.json against the approved plan (Windows path semantics)",
+  "per_operation": [
+    {
+      "planned_destination": "Invoices/2026-09/invoice.pdf",
+      "actual_path_on_disk": "Invoices/2026-09/invoice.pdf",
+      "case_matches_plan": true,
+      "sha256_matches_original": true,
+      "source_removed": true
+    },
+    {
+      "planned_destination": "Receipts/2026-09/greenleaf-grocer-2026-09-14 (1).txt",
+      "actual_path_on_disk": "receipts/2026-09/greenleaf-grocer-2026-09-14 (1).txt",
+      "case_matches_plan": false,
+      "sha256_matches_original": true,
+      "source_removed": true
+    },
+    {
+      "planned_destination": "Invoices/2026-09/invoice (2).pdf",
+      "actual_path_on_disk": "Invoices/2026-09/invoice (2).pdf",
+      "case_matches_plan": true,
+      "sha256_matches_original": true,
+      "source_removed": true
+    },
+    {
+      "planned_destination": "Receipts/2026-09/greenleaf-grocer-2026-09-14.txt",
+      "actual_path_on_disk": "receipts/2026-09/greenleaf-grocer-2026-09-14.txt",
+      "case_matches_plan": false,
+      "sha256_matches_original": true,
+      "source_removed": true
+    },
+    {
+      "planned_destination": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "actual_path_on_disk": "receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "case_matches_plan": false,
+      "sha256_matches_original": true,
+      "source_removed": true
+    }
+  ],
+  "S3_ci": "PASS",
+  "S5_ci": "PASS",
+  "S6_ci": "PASS",
+  "unexpected_files_ci": [],
+  "case_mismatches": [
+    {
+      "planned_destination": "Receipts/2026-09/greenleaf-grocer-2026-09-14 (1).txt",
+      "actual_path_on_disk": "receipts/2026-09/greenleaf-grocer-2026-09-14 (1).txt",
+      "case_matches_plan": false,
+      "sha256_matches_original": true,
+      "source_removed": true
+    },
+    {
+      "planned_destination": "Receipts/2026-09/greenleaf-grocer-2026-09-14.txt",
+      "actual_path_on_disk": "receipts/2026-09/greenleaf-grocer-2026-09-14.txt",
+      "case_matches_plan": false,
+      "sha256_matches_original": true,
+      "source_removed": true
+    },
+    {
+      "planned_destination": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "actual_path_on_disk": "receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "case_matches_plan": false,
+      "sha256_matches_original": true,
+      "source_removed": true
+    }
+  ]
+}

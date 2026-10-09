@@ -1,0 +1,50 @@
+{
+  "plan_id": "plan_scan_7dbfcd940270",
+  "scan_id": "scan_7dbfcd940270",
+  "operations": [
+    {
+      "file_id": "6d8f9e2c",
+      "original_relative_path": "receipts/bayside-office-mart.pdf",
+      "destination_relative_path": "Needs Review/bayside-office-mart.pdf",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "3df89117",
+      "original_relative_path": "receipts/tibay-hardware-receipt.csv",
+      "destination_relative_path": "Receipts/2026-09/tibay-hardware-receipt.csv",
+      "reason": "receipt dated 2026-09-27",
+      "collision_suffixed": false
+    }
+  ],
+  "report_rows": [
+    {
+      "file_id": "6d8f9e2c",
+      "source_filename": "receipts/bayside-office-mart.pdf",
+      "category": "receipt",
+      "date": "2026-09-05",
+      "merchant": "BAYSIDE OFFICE MART",
+      "amount": "1520.00",
+      "currency": "PHP",
+      "status": "needs_review"
+    },
+    {
+      "file_id": "3df89117",
+      "source_filename": "receipts/tibay-hardware-receipt.csv",
+      "category": "receipt",
+      "date": "2026-09-27",
+      "merchant": "Tibay Hardware",
+      "amount": "2145.00",
+      "currency": "PHP",
+      "status": "accepted"
+    }
+  ],
+  "totals": [
+    {
+      "currency": "PHP",
+      "amount": "2145.00",
+      "row_count": 1
+    }
+  ],
+  "blocking_review_count": 1
+}

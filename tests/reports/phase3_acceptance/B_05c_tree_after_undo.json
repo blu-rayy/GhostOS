@@ -1,0 +1,25 @@
+{
+  "files": {
+    "archive/2026/invoice.pdf": "0bec9fe8f96693999451669e264d62772ffe2de3ea48548fec5d6c4957ac8024",
+    "downloads/greenleaf-grocer-2026-09-14 (1).txt": "165d4ac5289f2d4c5296221a1cb4cdca11de33c4cb1ada1bd309571fa3a7fdc4",
+    "GhostOS Reports/expenses-202610091720.csv": "c9ee1308e594ae62e52b0d11f294af2a658f292131741340a27e3f8e311e9402",
+    "inbox/invoice.pdf": "d34d23a313745851815763807d69b5369f5a9ed3028b07c2b21401139afe3ae5",
+    "receipts/greenleaf-grocer-2026-09-14.txt": "165d4ac5289f2d4c5296221a1cb4cdca11de33c4cb1ada1bd309571fa3a7fdc4",
+    "receipts/sunbeam-cafe-receipt.pdf": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9"
+  },
+  "dirs": [
+    "GhostOS Reports",
+    "Invoices",
+    "Invoices/2026-09",
+    "archive",
+    "archive/2026",
+    "downloads",
+    "inbox",
+    "receipts",
+    "receipts/2026-09"
+  ],
+  "empty_dirs": [
+    "Invoices/2026-09",
+    "receipts/2026-09"
+  ]
+}

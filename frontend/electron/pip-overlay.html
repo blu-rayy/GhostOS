@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<!-- Desktop Pip overlay (Settings toggle, see electron/main.cjs). Transparent, click-through,
+     no network, no bridge. Two modes:
+     - session: main calls window.pipSession.init / target / stop while a folder is read.
+       Pip possesses each file's icon (a snapshot copy that floats and wobbles over a patch
+       hiding the real icon) and wanders around carrying a box in between.
+     - dive (query sx, sy, tx, ty, tw, th): one flight into a folder icon, then close.
+     The three Pip drawings are copies of docs/brand/svg/pip-{carrying,reading,hello}.svg. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; script-src 'unsafe-inline'; style-src 'unsafe-inline'" />
+<title>Pip</title>
+<style>
+  html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
+  #pip { position: absolute; left: 0; top: 0; width: 150px; height: 163px; opacity: 0; will-change: transform, opacity; z-index: 3; }
+  #pip svg { position: absolute; inset: 0; display: none; }
+  #pip[data-pose='carrying'] .carrying, #pip[data-pose='reading'] .reading, #pip[data-pose='hello'] .hello { display: block; }
+  #poof { position: absolute; left: 0; top: 0; width: 90px; height: 90px; border: 3px dashed #1a1a1a; border-radius: 50%; opacity: 0; z-index: 4; }
+  .mask { position: absolute; display: none; z-index: 1; }
+  .copy { position: absolute; display: none; z-index: 2; transform-origin: 50% 70%; transition: transform 0.25s ease-out, filter 0.25s ease-out; }
+  .copy.on, .mask.on { display: block; }
+  .copy.possessed { animation: haunt 0.9s ease-in-out infinite; filter: drop-shadow(0 0 6px #9fb6ff) drop-shadow(0 0 2px #c9d7ff); }
+  .aura { position: absolute; display: none; z-index: 2; border: 2.5px dashed #1a1a1a; border-radius: 14px; animation: jitter 0.35s steps(2) infinite; }
+  .aura.on { display: block; }
+  @keyframes haunt {
+    0% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-9px) rotate(-5deg); }
+    50% { transform: translateY(-4px) rotate(4deg); }
+    75% { transform: translateY(-11px) rotate(-3deg); }
+    100% { transform: translateY(0) rotate(0deg); }
+  }
+  @keyframes jitter {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(1px, -1px) rotate(0.6deg); }
+    100% { transform: translate(-1px, 1px) rotate(-0.6deg); }
+  }
+</style>
+</head>
+<body>
+<div id="pip" data-pose="carrying"><svg xmlns="http://www.w3.org/2000/svg" width="150" height="163" viewBox="0 0 120 130" class="carrying" aria-hidden="true" focusable="false"><defs><filter id="ghostos-ink" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="2.3"/></filter></defs><g filter="url(#ghostos-ink)"><g><path d="M20 60a40 40 0 0 1 80 0v50q-6.67 10 -13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0Z" fill="#fff" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"></path><path d="M60 21q5-9-2-13" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.4"></path><circle cx="47" cy="58" r="10" fill="#fff" stroke="#1a1a1a" stroke-width="2.6"></circle><circle cx="73" cy="58" r="10" fill="#fff" stroke="#1a1a1a" stroke-width="2.6"></circle><path d="M57 57q3-2 6 0M37 56l-9-3M83 56l9-3" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.6"></path><path d="M40 57h14M66 57h14" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.6"></path><path d="M44 57.5a3 3 0 0 0 6 0ZM70 57.5a3 3 0 0 0 6 0Z" fill="#1a1a1a"></path><path d="M54 76q6-3 12 0" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.4"></path><path d="M101 40q3 5 0 7q-3-2 0-7Z" fill="#c9d7ff" stroke="#1a1a1a" stroke-width="1.6"></path><path d="M30 84h60v30H30Z" fill="#ffe066" stroke="#1a1a1a" stroke-width="2.6" stroke-linejoin="round"></path><path d="M30 92h60M54 84v8M66 84v8" stroke="#1a1a1a" stroke-width="2.2"></path><path d="M22 92q4 6 8 8M98 92q-4 6-8 8" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.6"></path></g></g></svg><svg xmlns="http://www.w3.org/2000/svg" width="150" height="163" viewBox="0 0 120 130" class="reading" aria-hidden="true" focusable="false"><defs><filter id="ghostos-ink" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="2.3"/></filter></defs><g filter="url(#ghostos-ink)"><g><path d="M20 60a40 40 0 0 1 80 0v50q-6.67 10 -13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0Z" fill="#fff" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"></path><path d="M60 21q5-9-2-13" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.4"></path><circle cx="47" cy="66" r="10" fill="#fff" stroke="#1a1a1a" stroke-width="2.6"></circle><circle cx="73" cy="66" r="10" fill="#fff" stroke="#1a1a1a" stroke-width="2.6"></circle><path d="M57 65q3-2 6 0M37 64l-9-3M83 64l9-3" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.6"></path><path d="M40 66h14M66 66h14" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.6"></path><path d="M44 66.5a3 3 0 0 0 6 0ZM70 66.5a3 3 0 0 0 6 0Z" fill="#1a1a1a"></path><path d="M38 50l14 2M68 52l14-2" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.3"></path><path d="M30 86h60v30H30Z" fill="#fff" stroke="#1a1a1a" stroke-width="2.6" stroke-linejoin="round"></path><path d="M37 95h44M37 103h34M37 110h22" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.2"></path></g></g></svg><svg xmlns="http://www.w3.org/2000/svg" width="150" height="163" viewBox="0 0 120 130" class="hello" aria-hidden="true" focusable="false"><defs><filter id="ghostos-ink" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="2.3"/></filter></defs><g filter="url(#ghostos-ink)"><g><path d="M20 60a40 40 0 0 1 80 0v50q-6.67 10 -13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0Z" fill="#fff" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"></path><path d="M60 21q5-9-2-13" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.5"></path><path d="M99 80c6-1 9-5 9-10" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="3"></path><path d="M104 64l2 3M110 64l-1 3" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="1.8"></path><path d="M21 80c-5 2-8 6-7 11" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="3"></path><circle cx="47" cy="62" r="10" fill="#fff" stroke="#1a1a1a" stroke-width="3"></circle><circle cx="73" cy="62" r="10" fill="#fff" stroke="#1a1a1a" stroke-width="3"></circle><path d="M57 61q3-2 6 0M37 60l-9-3M83 60l9-3" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="3"></path><path d="M40 60h14M66 60h14" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.6"></path><path d="M43 60.5a4 4 0 0 0 8 0ZM69 60.5a4 4 0 0 0 8 0Z" fill="#1a1a1a"></path><path d="M53 88q7-5 14 0" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="3"></path></g></g></svg></div>
+<div id="poof"></div>
+<script>
+  const W = 150, H = 163
+  const pipEl = document.getElementById('pip')
+  const poofEl = document.getElementById('poof')
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  function poof(cx, cy) {
+    poofEl.animate(
+      [
+        { transform: `translate(${cx - 45}px, ${cy - 45}px) scale(0.3)`, opacity: 1 },
+        { transform: `translate(${cx - 45}px, ${cy - 45}px) scale(1.3)`, opacity: 0 },
+      ],
+      { duration: 450, easing: 'ease-out', fill: 'forwards' },
+    )
+  }
+
+  // ---------- session mode ----------
+  const S = { on: false, items: [], win: null, pos: { x: 0, y: 0 }, goal: null, scale: 0.4, scaleGoal: 1, alpha: 0, alphaGoal: 1, flip: 1, mode: 'wander', current: null, lastMove: 0, last: 0, randomFiles: false, turn: 0 }
+
+  function el(cls, box, item) {
+    const d = document.createElement(cls === 'copy' ? 'img' : 'div')
+    d.className = cls
+    Object.assign(d.style, { left: box.x + 'px', top: box.y + 'px', width: box.width + 'px', height: box.height + 'px' })
+    if (cls === 'mask') d.style.background = item.bg
+    if (cls === 'copy') d.src = item.img
+    if (cls === 'aura') d.style.borderColor = inkFor(item.bg)
+    document.body.appendChild(d)
+    return d
+  }
+
+  /** Explorer shows the top-level name; files deeper down are reached through their subfolder. */
+  function findItem(rel) {
+    const parts = String(rel).split(/[\\/]/).filter(Boolean)
+    if (!parts.length) return null
+    const names = parts.length > 1 ? [parts[0]] : [parts[0], parts[0].replace(/\.[^.]+$/, '')]
+    for (const n of names) {
+      const hit = S.items.find((it) => it.name.toLowerCase() === n.toLowerCase())
+      if (hit) return hit
+    }
+    return null
+  }
+
+  function release() {
+    const it = S.current
+    if (!it) return
+    S.current = null
+    if (it.copyEl) it.copyEl.classList.remove('possessed')
+    it.auraEl.classList.remove('on')
+    setTimeout(() => {
+      if (S.current === it) return
+      if (it.copyEl) it.copyEl.classList.remove('on')
+      if (it.maskEl) it.maskEl.classList.remove('on')
+    }, 300)
+  }
+
+  function carry() {
+    pipEl.dataset.pose = 'carrying'
+    S.scaleGoal = 1
+    S.alphaGoal = 1
+  }
+
+  function possess(it) {
+    if (S.current === it) return
+    release()
+    S.current = it
+    S.mode = 'toItem'
+    S.goal = { x: it.x + it.width / 2, y: it.y + it.height * 0.42 }
+    carry()
+  }
+
+  /** Where Pip may roam: around the visible files (not the navigation pane), inside the window. */
+  function roamArea() {
+    const w = S.win
+    if (!S.items.length) return { x: w.x + 90, y: w.y + 150, width: Math.max(10, w.width - 180), height: Math.max(10, w.height - 230) }
+    const left = Math.max(w.x + 60, Math.min(...S.items.map((it) => it.x)) + 40)
+    const right = Math.min(w.x + w.width - 70, Math.max(...S.items.map((it) => it.x + it.width)))
+    const top = Math.max(w.y + 120, Math.min(...S.items.map((it) => it.y)))
+    const bottom = Math.min(w.y + w.height - 80, Math.max(...S.items.map((it) => it.y + it.height)) + 140)
+    return { x: left, y: top, width: Math.max(10, right - left), height: Math.max(10, bottom - top) }
+  }
+
+  function wanderGoal() {
+    const a = roamArea()
+    return { x: a.x + Math.random() * a.width, y: a.y + Math.random() * a.height }
+  }
+
+  /** Light ink on dark Explorer themes, dark ink on light ones. */
+  function inkFor(bg) {
+    const m = /rgb\((\d+),(\d+),(\d+)\)/.exec(bg || '')
+    if (!m) return '#1a1a1a'
+    const [r, g, b] = m.slice(1).map(Number)
+    return 0.299 * r + 0.587 * g + 0.114 * b < 128 ? '#f1f1ef' : '#1a1a1a'
+  }
+
+  function arrive(now) {
+    if (S.mode === 'toItem' && S.current) {
+      // Slip into the file: it lifts and wobbles with Pip half inside it.
+      const it = S.current
+      S.mode = 'possess'
+      pipEl.dataset.pose = 'reading'
+      S.flip = 1
+      S.scaleGoal = 0.6
+      S.alphaGoal = 0.82
+      if (it.maskEl) it.maskEl.classList.add('on')
+      if (it.copyEl) it.copyEl.classList.add('on', 'possessed')
+      it.auraEl.classList.add('on')
+    } else if (S.mode === 'wander' && now - S.lastMove > 1400) {
+      S.goal = wanderGoal()
+      S.lastMove = now
+    }
+  }
+
+  function tick(now) {
+    if (!S.on) return
+    const dt = Math.min(0.05, (now - (S.last || now)) / 1000)
+    S.last = now
+    if (S.goal) {
+      const dx = S.goal.x - S.pos.x, dy = S.goal.y - S.pos.y
+      const dist = Math.hypot(dx, dy)
+      // Steady pace (px/s), slowing down near the goal.
+      const step = Math.min(dist, Math.max(60, Math.min(560, dist * 3)) * dt)
+      if (dist > 0.5) {
+        S.pos.x += (dx / dist) * step
+        S.pos.y += (dy / dist) * step
+        if (Math.abs(dx) > 3 && pipEl.dataset.pose === 'carrying') S.flip = dx < 0 ? -1 : 1
+      }
+      if (dist < 4) arrive(now)
+    }
+    S.scale += (S.scaleGoal - S.scale) * Math.min(1, dt * 6)
+    S.alpha += (S.alphaGoal - S.alpha) * Math.min(1, dt * 5)
+    const bob = Math.sin(now / 260) * (S.mode === 'possess' ? 3 : 6)
+    pipEl.style.opacity = S.alpha.toFixed(3)
+    pipEl.style.transform = `translate(${S.pos.x - W / 2}px, ${S.pos.y - H / 2 + bob}px) scale(${(S.scale * S.flip).toFixed(3)}, ${S.scale.toFixed(3)})`
+    requestAnimationFrame(tick)
+  }
+
+  window.pipSession = {
+    init({ items, win, randomFiles }) {
+      if (reduced || S.on) return
+      S.win = win
+      S.randomFiles = Boolean(randomFiles)
+      S.items = items.map((it) => ({
+        ...it,
+        maskEl: it.img && it.bg ? el('mask', it, it) : null,
+        copyEl: it.img ? el('copy', it, it) : null,
+        auraEl: el('aura', { x: it.x - 6, y: it.y - 6, width: it.width + 12, height: it.height + 12 }, it),
+      }))
+      // Appear near the top right of the files, then start wandering.
+      const a = roamArea()
+      S.pos = { x: a.x + a.width - 60, y: a.y + 40 }
+      S.goal = wanderGoal()
+      S.mode = 'wander'
+      S.on = true
+      poof(S.pos.x, S.pos.y)
+      requestAnimationFrame(tick)
+    },
+    target(rel) {
+      if (!S.on || S.mode === 'bye') return
+      const it = findItem(rel)
+      if (it) return possess(it)
+      // Demo data: the names being "read" aren't in this folder, so haunt a random visible
+      // file instead, with every fourth turn spent carrying a box around.
+      S.turn += 1
+      if (S.randomFiles && S.items.length && S.turn % 4 !== 0) {
+        const others = S.items.filter((x) => x !== S.current)
+        return possess(others[Math.floor(Math.random() * others.length)] || S.items[0])
+      }
+      // A file we can't see: carry the box around instead.
+      release()
+      S.mode = 'wander'
+      carry()
+      S.goal = wanderGoal()
+    },
+    stop() {
+      if (!S.on) return
+      release()
+      S.mode = 'bye'
+      S.goal = null
+      pipEl.dataset.pose = 'hello'
+      S.flip = 1
+      S.scaleGoal = 1
+      S.alphaGoal = 1
+      setTimeout(() => {
+        S.alphaGoal = 0
+        S.scaleGoal = 0.4
+        poof(S.pos.x, S.pos.y)
+      }, 800)
+    },
+  }
+
+  // ---------- dive mode ----------
+  const q = new URLSearchParams(location.search)
+  if (q.has('sx')) {
+    const [sx, sy, tx, ty, tw, th] = ['sx', 'sy', 'tx', 'ty', 'tw', 'th'].map((k) => Number(q.get(k)))
+    if (reduced || ![sx, sy, tx, ty, tw, th].every(Number.isFinite)) {
+      window.close()
+    } else {
+      pipEl.dataset.pose = 'carrying'
+      const at = (x, y, s, o) => ({ transform: `translate(${x - W / 2}px, ${y - H / 2}px) scale(${s})`, opacity: o })
+      const cx = tx + tw / 2, cy = ty + th / 2
+      const hoverY = ty - 60
+      const midX = (sx + cx) / 2, midY = Math.min(sy, hoverY) - 140
+      const flight = pipEl.animate(
+        [
+          { ...at(sx, sy, 0.6, 0), offset: 0 },
+          { ...at(sx, sy - 24, 1, 1), offset: 0.12 },
+          { ...at(midX, midY, 1, 1), offset: 0.45 },
+          { ...at(cx, hoverY, 0.9, 1), offset: 0.72 },
+          { ...at(cx, hoverY - 16, 0.9, 1), offset: 0.8 },
+          { ...at(cx, cy + th * 0.1, 0.16, 0), offset: 1 },
+        ],
+        { duration: 2600, easing: 'ease-in-out', fill: 'forwards' },
+      )
+      flight.finished.then(() => {
+        poof(cx, cy)
+        setTimeout(() => window.close(), 450)
+      })
+    }
+  }
+</script>
+</body>
+</html>

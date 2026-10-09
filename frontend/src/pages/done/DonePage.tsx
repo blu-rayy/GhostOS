@@ -65,6 +65,16 @@ function DoneLayout({ mood, line, children, footer }: { mood: PipMood; line: str
   )
 }
 
+/** Back to Step 3 · Totals, which shows the moved (or put back) state read-only. */
+function BackToTotals({ disabled }: { disabled?: boolean }) {
+  const { navigate } = useApp()
+  return (
+    <PaperButton variant="link" onClick={() => navigate('report')} disabled={disabled}>
+      ← back to totals
+    </PaperButton>
+  )
+}
+
 function Title({ folderName, children }: { folderName: string; children: ReactNode }) {
   return (
     <>
@@ -111,10 +121,13 @@ function AllTidy({ batch, plan, folderName, savedCsv, onDone }: { batch: BatchRe
         <PageFooter
           className="!h-[72px]"
           left={
-            <span className="flex items-center gap-2 text-[17px]">
-              <HistoryIcon size={22} />
-              Saved in History · {savedAt(batch.committed_at)}
-            </span>
+            <>
+              <BackToTotals disabled={undoing} />
+              <span className="ml-3 flex items-center gap-2 text-[17px]">
+                <HistoryIcon size={22} />
+                Saved in History · {savedAt(batch.committed_at)}
+              </span>
+            </>
           }
           right={
             <PaperButton variant="primary" onClick={onDone} disabled={undoing}>
@@ -227,7 +240,7 @@ export function PutBackConfirm({ open, n, savedCsv, onCancel, onConfirm }: { ope
 function PutBack({ undo, folderName, savedCsv, onDone }: { undo: UndoResult; folderName: string; savedCsv: boolean; onDone: () => void }) {
   const n = undo.restored
   return (
-    <DoneLayout mood="shrug" line={PIP_LINES.undone} footer={<PageFooter className="!h-[72px]" right={<PaperButton variant="primary" onClick={onDone}>Tidy a folder</PaperButton>} />}>
+    <DoneLayout mood="shrug" line={PIP_LINES.undone} footer={<PageFooter className="!h-[72px]" left={<BackToTotals />} right={<PaperButton variant="primary" onClick={onDone}>Tidy a folder</PaperButton>} />}>
       <Title folderName={folderName}>Back how it was.</Title>
       <p className="m-0 mt-2 text-[20px]">{n === 1 ? 'The file is in its original place.' : `All ${n} files are in their original places.`}</p>
       <ul className="m-0 mt-5 list-none space-y-2 p-0 text-[20px]">
@@ -257,7 +270,7 @@ function SomeStayed({ undo, plan, folderName, onDone }: { undo: UndoResult; plan
   const stuck = undo.conflicts.length
   const destination = new Map(plan.operations.map((op) => [op.file_id, op]))
   return (
-    <DoneLayout mood="sigh" line={PIP_LINES.comfy(stuck)} footer={<PageFooter className="!h-[72px]" right={<PaperButton variant="primary" onClick={onDone}>OK, leave them</PaperButton>} />}>
+    <DoneLayout mood="sigh" line={PIP_LINES.comfy(stuck)} footer={<PageFooter className="!h-[72px]" left={<BackToTotals />} right={<PaperButton variant="primary" onClick={onDone}>OK, leave them</PaperButton>} />}>
       <Title folderName={folderName}>
         {undo.restored} back, {stuck} stayed.
       </Title>
