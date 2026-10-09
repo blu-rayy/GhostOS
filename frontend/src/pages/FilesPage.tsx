@@ -57,6 +57,17 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
   // shows. Block the transactional action instead of sending a doomed payload.
   // (Failed-file manual entry starts from empty, so it can never "clear".)
   const saveBlocked = !isInjection && !isFailedDoc && clearedStoredAmount
+  // DA-7: an empty amount on a transaction whose source has an amount finding
+  // cannot be accepted (the backend refuses to revive an unverified amount).
+  // Disable the action and tell the person the two ways forward, instead of
+  // letting them click into a raw 422.
+  const AMOUNT_FLAGS = ['amount_conflict', 'amount_unparseable', 'missing_amount', 'missing_currency', 'invalid_currency', 'currency_mismatch', 'evidence_not_found']
+  const needsAmountEntry =
+    !isInjection &&
+    !isFailedDoc &&
+    amount.trim() === '' &&
+    !doc.user_corrected &&
+    doc.review_flags.some((f) => AMOUNT_FLAGS.includes(f.code))
   /**
    * Unreadable file. Its record has an explicit null kind (profile 'none'), so the backend only
    * takes a shop/date/amount together with what the paper is: one call with category and
@@ -86,7 +97,7 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
       {!isInjection && <><p className="m-0 text-[16px] text-graphite">what Pip read in the file:</p><EvidenceExcerpt text={doc.excerpt} quote={doc.classification?.evidence_quote} /></>}
       <p className="m-0 text-[16px] text-graphite">goes to <span className="font-mono">{row.destination ?? (isInjection ? 'Other/' : 'Uncategorized/')}</span> once checked</p>
     </div>
-    <div className="border-t-[2.5px] border-ink p-4">{state.actionError && <p className="mb-2 text-center text-[16px] text-danger">{state.actionError}</p>}{saveBlocked && <p className="mb-2 text-center text-[16px] text-graphite" role="alert">You cleared the amount. Enter the amount shown in the file — an empty amount can't be saved.</p>}<PanelAction disabled={saving || saveBlocked} onClick={() => isInjection ? save() : isFailedDoc ? saveFailed() : save(details)}>{isFailedDoc && !manual ? 'Leave it for later · mark checked' : isInjection ? 'Got it · file under Other' : isMissingDate ? 'Save date · mark checked' : 'Looks right · mark checked'}</PanelAction></div>
+    <div className="border-t-[2.5px] border-ink p-4">{state.actionError && <p className="mb-2 text-center text-[16px] text-danger">{state.actionError}</p>}{saveBlocked && <p className="mb-2 text-center text-[16px] text-graphite" role="alert">You cleared the amount. Enter the amount shown in the file — an empty amount can't be saved.</p>}{needsAmountEntry && !saveBlocked && <p className="mb-2 text-center text-[16px] text-graphite" role="alert">Type the amount you actually paid to confirm it — or leave this file for review.</p>}<PanelAction disabled={saving || saveBlocked || needsAmountEntry} onClick={() => isInjection ? save() : isFailedDoc ? saveFailed() : save(details)}>{isFailedDoc && !manual ? 'Leave it for later · mark checked' : isInjection ? 'Got it · file under Other' : isMissingDate ? 'Save date · mark checked' : 'Looks right · mark checked'}</PanelAction></div>
   </aside>
 }
 
