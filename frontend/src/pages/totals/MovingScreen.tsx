@@ -12,19 +12,23 @@ import { PipWithBubble } from '../../components/pip/Pip'
  * The counted version and "stop after this file" wait for the batch-progress and cancel
  * endpoints (R1, R4 in docs/frontend-api-handoff.md).
  */
-export function MovingScreen({ total, folderName }: { total: number; folderName: string }) {
+export function MovingScreen({ total, moved, folderName, onDone }: { total: number; moved?: number; folderName: string; onDone?: () => void }) {
+  // `moved` set: the move has finished; a short "All moved." beat before Done (scene change 3 -> 4).
+  const finished = moved !== undefined
   return (
     <>
       <div className="mx-auto grid min-h-0 w-full max-w-[1366px] flex-1 grid-cols-[360px_minmax(0,1fr)] items-center gap-10 px-16 pb-5 pt-[26px]">
-        <PipWithBubble mood="carrying" line={PIP_LINES.carrying(total)} size={260} tailOffset={110} />
+        <PipWithBubble mood="carrying" line={finished ? PIP_LINES.setDown : PIP_LINES.carrying(total)} size={260} tailOffset={110} />
         <div className="min-w-0">
           <p className="m-0 text-[20px] text-graphite">{folderName}</p>
-          <h1 className="m-0 font-display text-[52px] font-normal leading-tight">Moving your files…</h1>
+          <h1 key={finished ? 'done' : 'moving'} className={`m-0 font-display text-[52px] font-normal leading-tight ${finished ? 'animate-rise-in' : ''}`}>
+            {finished ? 'All moved.' : 'Moving your files…'}
+          </h1>
           <PaperCard className="mt-6 max-w-[620px] px-6 py-5">
             <p className="m-0 text-[20px]" role="status">
-              moving {files(total)}…
+              {finished ? `✓ moved ${files(moved)}` : `moving ${files(total)}…`}
             </p>
-            <HatchProgress value={null} label="Moving files" className="mt-3" />
+            <HatchProgress value={finished ? 1 : null} label="Moving files" className="mt-3" />
           </PaperCard>
         </div>
       </div>
@@ -33,13 +37,19 @@ export function MovingScreen({ total, folderName }: { total: number; folderName:
         left={
           <span className="flex items-center gap-2 text-[17px]">
             <InfoGlyph />
-            Keep GhostOS open until this finishes.
+            {finished ? 'Everything is in its new folder.' : 'Keep GhostOS open until this finishes.'}
           </span>
         }
         right={
-          <PaperButton variant="primary" disabled disabledReason="opens when moving is done" reasonId="moving-done-reason">
-            Done →
-          </PaperButton>
+          finished ? (
+            <PaperButton variant="primary" onClick={onDone}>
+              Done →
+            </PaperButton>
+          ) : (
+            <PaperButton variant="primary" disabled disabledReason="opens when moving is done" reasonId="moving-done-reason">
+              Done →
+            </PaperButton>
+          )
         }
       />
     </>

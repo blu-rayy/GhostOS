@@ -56,11 +56,14 @@ export function DonePage() {
 function DoneLayout({ mood, line, children, footer }: { mood: PipMood; line: string; children: ReactNode; footer: ReactNode }) {
   return (
     <>
+      {/* Scene change into Done: Pip rises in first, then the result, then the footer. */}
       <div className="mx-auto grid min-h-0 w-full max-w-[1366px] flex-1 grid-cols-[340px_minmax(0,1fr)] items-center gap-10 px-16 pb-[18px] pt-6">
-        <PipWithBubble mood={mood} line={line} size={240} tailOffset={100} />
-        <div className="flex max-h-full min-h-0 min-w-0 flex-col overflow-y-auto py-1 pr-2">{children}</div>
+        <div className="animate-rise-in">
+          <PipWithBubble mood={mood} line={line} size={240} tailOffset={100} />
+        </div>
+        <div className="flex max-h-full min-h-0 min-w-0 animate-rise-in flex-col overflow-y-auto py-1 pr-2 [animation-delay:180ms]">{children}</div>
       </div>
-      {footer}
+      <div className="shrink-0 animate-rise-in [animation-delay:360ms]">{footer}</div>
     </>
   )
 }

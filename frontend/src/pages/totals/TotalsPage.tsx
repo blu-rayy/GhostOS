@@ -10,13 +10,17 @@ import { TotalsSummary } from './TotalsSummary'
  * A move without failures goes straight to Done (handled in AppState.approve).
  */
 export function TotalsPage() {
-  const { state, navigate, reloadPlan } = useApp()
+  const { state, navigate, reloadPlan, dispatch } = useApp()
   // After approval, show exactly what was approved.
   const plan = state.approvedPlan ?? state.plan
   const folderName = state.folder?.name ?? 'your folder'
 
   if (state.busy === 'approve' && state.approvedPlan) {
     return <MovingScreen total={state.approvedPlan.operations.length} folderName={folderName} />
+  }
+  // The beat between a successful move and Done ("All moved."), with a way to skip it.
+  if (state.moveFinished && state.batch && state.approvedPlan) {
+    return <MovingScreen total={state.approvedPlan.operations.length} moved={state.batch.moved} folderName={folderName} onDone={() => dispatch({ type: 'patch', patch: { view: 'completion', moveFinished: false } })} />
   }
   if (state.batch && state.batch.failed.length > 0 && state.approvedPlan && state.phase === 'organized') {
     return <MoveProblems batch={state.batch} plan={state.approvedPlan} folderName={folderName} />

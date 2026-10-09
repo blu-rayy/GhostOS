@@ -269,11 +269,23 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       const s = stateRef.current
       if (!s.plan) return
       // Totals shows "moving" (3c) while this runs; failures stay on Totals (3d), success opens Done.
-      patch({ busy: 'approve', actionError: null, phase: 'organizing', view: 'report', approvedPlan: s.plan })
+      patch({ busy: 'approve', actionError: null, phase: 'organizing', view: 'report', approvedPlan: s.plan, moveFinished: false })
+      const startedAt = Date.now()
+      const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true
       try {
         const batch = await api.approvePlan(s.plan.plan_id, s.sortMode)
-        const onTotals = stateRef.current.view === 'report'
-        patch({ batch, busy: null, phase: 'organized', ...(onTotals && batch.failed.length === 0 ? { view: 'completion' as const } : {}) })
+        // Scene change 3 -> 4: keep "Moving your files…" up long enough to read (only the screen;
+        // the move itself is already done), then a short "All moved." beat, then Done.
+        const minMoving = reduced ? 300 : 900
+        const elapsed = Date.now() - startedAt
+        if (elapsed < minMoving) await new Promise((r) => window.setTimeout(r, minMoving - elapsed))
+        const clean = stateRef.current.view === 'report' && batch.failed.length === 0
+        patch({ batch, busy: null, phase: 'organized', moveFinished: clean })
+        if (clean) {
+          window.setTimeout(() => {
+            if (stateRef.current.moveFinished && stateRef.current.view === 'report') patch({ view: 'completion', moveFinished: false })
+          }, reduced ? 400 : 1400)
+        }
         log({ type: 'plan_approved', level: 'info', title: `Move approved (${s.plan.operations.length} files)`, detail: `Batch ${batch.batch_id}` })
         for (const op of s.plan.operations) {
           const failed = batch.failed.find((f) => f.file_id === op.file_id)

@@ -50,6 +50,8 @@ export interface AppState {
   sortMode: SortMode
   /** True right after reading when files are blocking and the user hasn't chosen yet. */
   reviewChoicePending: boolean
+  /** The short "All moved." beat on Totals between a successful move and the Done screen. */
+  moveFinished: boolean
 }
 
 const DESKTOP_PIP_KEY = 'ghostos.desktopPip'
@@ -94,6 +96,7 @@ export const initialState: AppState = {
   desktopPip: false,
   sortMode: 'blocking',
   reviewChoicePending: false,
+  moveFinished: false,
 }
 
 export type Action =

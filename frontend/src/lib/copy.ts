@@ -40,6 +40,8 @@ export const PIP_LINES = {
   scanStopped: "*sigh*. that didn't work.",
   /** Totals screen (step 3) versions, per docs/design/step3-totals.md. */
   carrying: (n: number) => `carrying ${n} ${n === 1 ? 'file' : 'files'}. my back.`,
+  /** Totals 3c, the beat after the last file lands. */
+  setDown: '…and that was the last one.',
   /** Done screen (step 4) versions, per docs/design/step4-done.md. */
   sorted: (n: number) => `${n} ${n === 1 ? 'file' : 'files'}. sorted. you're welcome.`,
   undone: 'fine. undone. as if i never tried.',
