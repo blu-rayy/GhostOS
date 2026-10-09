@@ -1,6 +1,7 @@
 """Minimal FastAPI entry point for GhostOS Phase 1."""
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.routes import scan
 from app.routes import classify
 from app.routes import session
@@ -9,6 +10,18 @@ from app.routes.contracts import router as contracts_router
 
 
 app = FastAPI(title="GhostOS")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+    ],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
+    allow_headers=["Accept", "Content-Type"],
+)
+
 app.include_router(contracts_router)
 
 app.include_router(scan.router)

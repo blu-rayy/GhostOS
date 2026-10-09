@@ -43,6 +43,69 @@ def test_valid_invoice_with_exact_evidence_and_decimal_amount() -> None:
     assert isinstance(result.parsed_amount, Decimal)
 
 
+@pytest.mark.parametrize(
+    ("currency", "amount_text", "expected_amount"),
+    [
+        ("SGD", "SGD 380.00", Decimal("380.00")),
+        ("JPY", "JPY 48,000", Decimal("48000")),
+    ],
+)
+def test_valid_ground_truth_currencies_use_decimal(
+    currency: str, amount_text: str, expected_amount: Decimal
+) -> None:
+    source = f"INVOICE\nTotal payable: {amount_text}"
+    result = validate_classification(
+        source,
+        make_classification(
+            category="invoice",
+            amount_text=amount_text,
+            currency=currency,
+            evidence_quote=f"Total payable: {amount_text}",
+        ),
+    )
+
+    assert result.is_valid is True
+    assert result.needs_review is False
+    assert result.flags == ()
+    assert result.parsed_amount == expected_amount
+    assert isinstance(result.parsed_amount, Decimal)
+
+
+@pytest.mark.parametrize("currency", ["PHP", "USD", "EUR", "GBP"])
+def test_existing_supported_currency_codes_remain_valid(currency: str) -> None:
+    source = f"INVOICE\nTotal: {currency} 42.50"
+    result = validate_classification(
+        source,
+        make_classification(
+            category="invoice",
+            amount_text=f"{currency} 42.50",
+            currency=currency,
+            evidence_quote=f"Total: {currency} 42.50",
+        ),
+    )
+
+    assert result.is_valid is True
+    assert result.needs_review is False
+    assert result.flags == ()
+    assert result.parsed_amount == Decimal("42.50")
+
+
+def test_missing_sgd_currency_is_flagged_when_source_has_currency_evidence() -> None:
+    result = validate_classification(
+        "Receipt\nTotal paid: SGD 380.00",
+        make_classification(
+            amount_text="380.00",
+            currency=None,
+            evidence_quote="Total paid: SGD 380.00",
+        ),
+    )
+
+    assert result.is_valid is True
+    assert result.needs_review is True
+    assert result.flags == ("missing_currency",)
+    assert result.parsed_amount == Decimal("380.00")
+
+
 def test_valid_receipt_with_currency_symbol() -> None:
     source = "COFFEE SHOP RECEIPT\nTotal: ₱1,250.00"
     classification = make_classification(
