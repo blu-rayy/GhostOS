@@ -62,3 +62,23 @@ The response should contain:
 
 FastAPI's interactive documentation is available at
 <http://127.0.0.1:8000/docs>.
+
+## API Endpoints
+
+### `POST /api/scan`
+
+Scans a selected local folder and returns a structured metadata inventory for supported files (PDF, TXT, CSV).
+
+**Request Body:**
+
+```json
+{
+  "root_path": "C:\\Users\\YourName\\Documents\\GhostOSTest"
+}
+```
+
+**Features & Safety:**
+- Recursively discovers supported files inside the folder.
+- Rejects invalid or symlinked roots.
+- Limits scanning to 100 files and skips files larger than 10 MB.
+- Does not modify, move, or rename source files.
