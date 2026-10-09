@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react'
 import { api, USING_FIXTURES } from '../api'
+import { mockTiming } from '../api/mock'
 import { DEMO_FOLDER_NAME } from '../lib/copy'
 import { errorText } from '../lib/format'
 import { basename, buildFileRows, buildPlanRows, docStatus, type FileRow, type PlanRow } from '../lib/viewModel'
@@ -230,9 +231,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         }
       }
       try {
+        // Demo data with desktop Pip: slow the fake scan down so the animation can play, and let
+        // Pip haunt random files in the picked folder (the demo file names aren't in it).
+        mockTiming.scanDurationMs = USING_FIXTURES && pip ? 32_000 : 4000
         const first = await api.startScan(root)
         patch({ progress: first })
-        if (pip && s.folder.path) pip.start(s.folder.path)
+        if (pip && s.folder.path) pip.start(s.folder.path, { randomFiles: USING_FIXTURES })
         poll(first.scan_id)
       } catch (e) {
         fail(errorText(e))

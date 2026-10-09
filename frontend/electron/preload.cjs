@@ -10,7 +10,7 @@ contextBridge.exposeInMainWorld('ghostos', {
   selectFolder: () => ipcRenderer.invoke('ghostos:select-folder'),
   /** Desktop Pip (Settings toggle, Windows only). Cosmetic; each resolves to { ok, reason? }. */
   pipToFolder: (root, folder) => ipcRenderer.invoke('ghostos:pip-to-folder', root, folder),
-  desktopPipStart: (root) => ipcRenderer.invoke('ghostos:desktop-pip-start', root),
+  desktopPipStart: (root, options) => ipcRenderer.invoke('ghostos:desktop-pip-start', root, options),
   desktopPipTarget: (relPath) => ipcRenderer.send('ghostos:desktop-pip-target', relPath),
   desktopPipStop: () => ipcRenderer.invoke('ghostos:desktop-pip-stop'),
 });

@@ -178,7 +178,7 @@ async function stopSession(bringBack) {
   if (bringBack) setTimeout(() => bringToFront(s.appWin), 1300);
 }
 
-ipcMain.handle('ghostos:desktop-pip-start', async (event, root) => {
+ipcMain.handle('ghostos:desktop-pip-start', async (event, root, options) => {
   if (!DESKTOP_PIP_OK) return { ok: false, reason: 'Windows only' };
   if (!validRoot(root)) return { ok: false, reason: 'bad input' };
   await stopSession(false);
@@ -212,7 +212,8 @@ ipcMain.handle('ghostos:desktop-pip-start', async (event, root) => {
     return { ok: false, reason: 'stopped' };
   }
   s.overlay.showInactive();
-  overlayCall(s, `window.pipSession.init(${JSON.stringify({ items, win: local(win, display.bounds) })})`);
+  const randomFiles = Boolean(options && options.randomFiles);
+  overlayCall(s, `window.pipSession.init(${JSON.stringify({ items, win: local(win, display.bounds), randomFiles })})`);
   if (s.pending) overlayCall(s, `window.pipSession.target(${JSON.stringify(s.pending)})`);
   return { ok: true, items: items.length };
 });

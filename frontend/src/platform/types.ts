@@ -26,8 +26,11 @@ export type GhostOSPlatform = {
    * best-effort: none of these affect the session, and failures are ignored.
    */
   desktopPip?: {
-    /** Open `root` in File Explorer and put Pip on screen over it. */
-    start: (root: string) => void
+    /**
+     * Open `root` in File Explorer and put Pip on screen over it. `randomFiles` (demo data only):
+     * when the file being read isn't visible, Pip haunts a random visible file instead.
+     */
+    start: (root: string, options?: { randomFiles?: boolean }) => void
     /** The file the backend is reading now (relative path); Pip possesses its icon. */
     target: (relativePath: string) => void
     /** Pip waves and leaves; GhostOS comes back to the front. */
@@ -44,7 +47,7 @@ export type ElectronBridge = {
   capabilities: { canSelectFolder: boolean; hasNativeFilesystem: boolean }
   selectFolder: () => Promise<{ name: string; path: string; documentCount: number | null } | null>
   pipToFolder?: (root: string, folder: string) => Promise<{ ok: boolean; reason?: string }>
-  desktopPipStart?: (root: string) => Promise<{ ok: boolean; reason?: string }>
+  desktopPipStart?: (root: string, options?: { randomFiles?: boolean }) => Promise<{ ok: boolean; reason?: string }>
   desktopPipTarget?: (relativePath: string) => void
   desktopPipStop?: () => Promise<{ ok: boolean }>
 }

@@ -57,7 +57,7 @@
   }
 
   // ---------- session mode ----------
-  const S = { on: false, items: [], win: null, pos: { x: 0, y: 0 }, goal: null, scale: 0.4, scaleGoal: 1, alpha: 0, alphaGoal: 1, flip: 1, mode: 'wander', current: null, lastMove: 0, last: 0 }
+  const S = { on: false, items: [], win: null, pos: { x: 0, y: 0 }, goal: null, scale: 0.4, scaleGoal: 1, alpha: 0, alphaGoal: 1, flip: 1, mode: 'wander', current: null, lastMove: 0, last: 0, randomFiles: false, turn: 0 }
 
   function el(cls, box, item) {
     const d = document.createElement(cls === 'copy' ? 'img' : 'div')
@@ -177,9 +177,10 @@
   }
 
   window.pipSession = {
-    init({ items, win }) {
+    init({ items, win, randomFiles }) {
       if (reduced || S.on) return
       S.win = win
+      S.randomFiles = Boolean(randomFiles)
       S.items = items.map((it) => ({
         ...it,
         maskEl: it.img && it.bg ? el('mask', it, it) : null,
@@ -199,6 +200,13 @@
       if (!S.on || S.mode === 'bye') return
       const it = findItem(rel)
       if (it) return possess(it)
+      // Demo data: the names being "read" aren't in this folder, so haunt a random visible
+      // file instead, with every fourth turn spent carrying a box around.
+      S.turn += 1
+      if (S.randomFiles && S.items.length && S.turn % 4 !== 0) {
+        const others = S.items.filter((x) => x !== S.current)
+        return possess(others[Math.floor(Math.random() * others.length)] || S.items[0])
+      }
       // A file we can't see: carry the box around instead.
       release()
       S.mode = 'wander'
