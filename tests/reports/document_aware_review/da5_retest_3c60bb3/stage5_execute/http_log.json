@@ -1,0 +1,212 @@
+[
+  {
+    "at": "2026-10-09T20:15:20.195420+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_8394fbe2c049/plan?mode=partial",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_8394fbe2c049",
+        "scan_id": "scan_8394fbe2c049",
+        "mode": "partial",
+        "operations": [
+          {
+            "file_id": "52bf80a5",
+            "original_relative_path": "r2/misc/bank-statement-oct2026.txt",
+            "destination_relative_path": "Uncategorized/bank-statement-oct2026.txt",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "2d512db2",
+            "original_relative_path": "r2/receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "6d40a903",
+            "original_relative_path": "r2/receipts/tibay-hardware-receipt.csv",
+            "destination_relative_path": "Receipts/2026-09/tibay-hardware-receipt.csv",
+            "reason": "receipt dated 2026-09-27",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "2d512db2",
+            "source_filename": "r2/receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          },
+          {
+            "file_id": "6d40a903",
+            "source_filename": "r2/receipts/tibay-hardware-receipt.csv",
+            "category": "receipt",
+            "date": "2026-09-27",
+            "merchant": "Tibay Hardware",
+            "amount": "2145.00",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "2828.20",
+            "row_count": 2
+          }
+        ],
+        "blocking_review_count": 1
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:15:20.207099+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_8394fbe2c049",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_8394fbe2c049",
+        "root": "<TEST_BASE>\\DA5-R2",
+        "scanned_at": "2026-10-09T20:11:51.553366+00:00",
+        "files_seen": 3,
+        "max_files": 100,
+        "documents": [
+          {
+            "file_id": "52bf80a5",
+            "relative_path": "r2/misc/bank-statement-oct2026.txt",
+            "file_type": "txt",
+            "size_bytes": 211,
+            "sha256": "b3fe6daa6638a8d26466aa54b270e6fe513acf55aa5c00e02741fa985c5ffcb2",
+            "excerpt": "SAMPLE NATIONAL BANK (fictional)\nSavings Account Statement\nAccount: XXXX-1234\nStatement period: 01 Sep 2026 to 30 Sep 2026\nOpening balance: PHP 12,450.00\nInterest earned: PHP 12.50\nClosing balance: PHP 9,120.50",
+            "status": "needs_review",
+            "classification": {
+              "category": "invoice",
+              "merchant": "SAMPLE NATIONAL BANK",
+              "date": "2026-09-30",
+              "amount_text": "PHP 9,120.50",
+              "amount": null,
+              "currency": "PHP",
+              "evidence_quote": "Closing balance: PHP 9,120.50",
+              "evidence_verified": true,
+              "explanation": "MOCK: explicit null kind",
+              "document_kind": null,
+              "field_profile": "none"
+            },
+            "review_flags": [
+              {
+                "code": "amount_conflict",
+                "message": "Multiple conflicting amounts found; none was selected"
+              },
+              {
+                "code": "uncertain_document_kind",
+                "message": "The document kind could not be determined"
+              }
+            ],
+            "duplicate_of": null,
+            "user_corrected": false
+          },
+          {
+            "file_id": "2d512db2",
+            "relative_path": "r2/receipts/sunbeam-cafe-receipt.pdf",
+            "file_type": "pdf",
+            "size_bytes": 1217,
+            "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+            "excerpt": "SUNBEAM CAFE (fictional)\nSample Street, Quezon City\nOR No. 2026-118204\nDate: 09/21/2026 10:15 AM\n1 x Flat white: PHP 180.00\n1 x Spanish latte: PHP 190.00\n2 x Butter croissant @ 120.00: PHP 240.00\nSubtotal: PHP 610.00\nVAT 12%: PHP 73.20\nFINAL TOTAL: PHP 683.20\nPaid by card ending 0000",
+            "status": "ok",
+            "classification": {
+              "category": "receipt",
+              "merchant": "SUNBEAM CAFE",
+              "date": "2026-09-21",
+              "amount_text": "PHP 683.20",
+              "amount": "683.20",
+              "currency": "PHP",
+              "evidence_quote": "FINAL TOTAL: PHP 683.20",
+              "evidence_verified": true,
+              "explanation": "MOCK: valid receipt",
+              "document_kind": "receipt",
+              "field_profile": "transaction"
+            },
+            "review_flags": [],
+            "duplicate_of": null,
+            "user_corrected": false
+          },
+          {
+            "file_id": "6d40a903",
+            "relative_path": "r2/receipts/tibay-hardware-receipt.csv",
+            "file_type": "csv",
+            "size_bytes": 293,
+            "sha256": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9",
+            "excerpt": "store,Tibay Hardware (fictional)\nreceipt_no,TH-000912\ndate,27-09-2026\ncurrency,PHP\nitem,qty,unit_price,line_total\nWall plug set,2,85.00,170.00\nExtension cord 5m,1,525.00,525.00\nLED bulb 9W,6,95.00,570.00\nPaint roller kit,1,880.00,880.00\ngrand_total,,,2145.00\npaid,cash,,2200.00\nchange,,,55.00",
+            "status": "ok",
+            "classification": {
+              "category": "receipt",
+              "merchant": "Tibay Hardware",
+              "date": "2026-09-27",
+              "amount_text": "2145.00",
+              "amount": "2145.00",
+              "currency": "PHP",
+              "evidence_quote": "grand_total,,,2145.00",
+              "evidence_verified": true,
+              "explanation": "MOCK: valid receipt",
+              "document_kind": "receipt",
+              "field_profile": "transaction"
+            },
+            "review_flags": [],
+            "duplicate_of": null,
+            "user_corrected": false
+          }
+        ],
+        "skipped": []
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:15:20.235070+00:00",
+    "request": {
+      "method": "POST",
+      "path": "/api/plans/plan_scan_8394fbe2c049/approve",
+      "body": {
+        "mode": "partial"
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "batch_id": "batch_34249d9117e5",
+        "moved": 3,
+        "failed": [],
+        "report_relative_path": "GhostOS Reports/expenses-202610092015.csv",
+        "committed_at": "2026-10-09T20:15:20.214601+00:00"
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:15:20.255527+00:00",
+    "request": {
+      "method": "POST",
+      "path": "/api/batches/batch_34249d9117e5/undo",
+      "body": {}
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "batch_id": "batch_34249d9117e5",
+        "restored": 3,
+        "conflicts": []
+      }
+    }
+  }
+]

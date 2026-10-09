@@ -1,0 +1,40 @@
+{
+  "scan_id": "scan_7b5f72014017",
+  "root": "<TEST_BASE>\\DA5-R3",
+  "scanned_at": "2026-10-09T20:11:51.193598+00:00",
+  "files_seen": 1,
+  "max_files": 100,
+  "documents": [
+    {
+      "file_id": "26079eb5",
+      "relative_path": "r3/misc/card-statement-sep2026.pdf",
+      "file_type": "pdf",
+      "size_bytes": 1296,
+      "sha256": "af2bda441bd6a6c020cf481ddcb7b95713d533616b71f1175da380f7e0b2cac5",
+      "excerpt": "HARBOR FEDERAL BANK (fictional)\nCredit Card Statement\nCard number: XXXX-XXXX-XXXX-0000\nStatement date: 2026-09-25\n2026-09-03 BRIGHTLINE WEB HOSTING: PHP 3,421.36\n2026-09-14 GREENLEAF GROCER: PHP 1,286.50\n2026-09-21 SUNBEAM CAFE: PHP 683.20\nTotal new charges: PHP 5,391.06\nStatement balance: PHP 5,391.06\nMinimum amount due: PHP 850.00\nPayment due date: 2026-10-15",
+      "status": "needs_review",
+      "classification": {
+        "category": "invoice",
+        "merchant": "HARBOR FEDERAL BANK",
+        "date": "2026-09-25",
+        "amount_text": "PHP 5,391.06",
+        "amount": null,
+        "currency": "PHP",
+        "evidence_quote": "Statement balance: PHP 5,391.06",
+        "evidence_verified": true,
+        "explanation": "MOCK: kind omitted",
+        "document_kind": "invoice",
+        "field_profile": "transaction"
+      },
+      "review_flags": [
+        {
+          "code": "amount_conflict",
+          "message": "Multiple conflicting amounts found; none was selected"
+        }
+      ],
+      "duplicate_of": null,
+      "user_corrected": false
+    }
+  ],
+  "skipped": []
+}

@@ -583,6 +583,64 @@ def test_invoice_category_statement_kind_routes_other_and_has_no_report_row(tmp_
     assert payload["totals"] == []
 
 
+def test_explicit_leave_for_review_routes_uncategorized_through_commit(tmp_path):
+    import hashlib
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    content = b"Account statement with several transactions"
+    source = tmp_path / "statement.txt"
+    source.write_bytes(content)
+    sess = ScanSession(
+        scan_id="test_leave_statement_review",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    sess.documents.append(DocumentRecord(
+        file_id="leave-statement-review",
+        relative_path="statement.txt",
+        file_type="txt",
+        size_bytes=len(content),
+        sha256=hashlib.sha256(content).hexdigest(),
+        excerpt=content.decode(),
+        status="needs_review",
+        classification={
+            "category": "other",
+            "document_kind": "statement",
+            "field_profile": "reference",
+            "merchant": None,
+            "date": None,
+            "amount_text": None,
+            "amount": None,
+            "currency": None,
+            "evidence_quote": "Account statement with several transactions",
+            "evidence_verified": True,
+            "explanation": "Multiple transactions.",
+        },
+        review_flags=[{"code": "non_transactional_document", "message": "review"}],
+    ))
+    ss.put_scan(sess)
+
+    correction = client.patch(
+        "/api/documents/leave-statement-review",
+        json={"category": "uncertain", "accept": True},
+    )
+    assert correction.status_code == 200, correction.text
+    assert correction.json()["classification"]["field_profile"] == "reference"
+
+    preview = client.get(f"/api/scans/{sess.scan_id}/plan")
+    assert preview.status_code == 200, preview.text
+    payload = preview.json()
+    destination = payload["operations"][0]["destination_relative_path"]
+    assert destination.startswith("Uncategorized/")
+    assert payload["report_rows"] == []
+
+    approval = client.post(f"/api/plans/{payload['plan_id']}/approve", json={})
+    assert approval.status_code == 200, approval.text
+    assert (tmp_path / destination).is_file()
+    assert not source.exists()
+
+
 def test_session_response_exposes_derived_document_profile(tmp_path):
     from app.services.session_store import DocumentRecord, ScanSession, store as ss
 

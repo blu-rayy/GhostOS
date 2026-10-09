@@ -1,0 +1,48 @@
+{
+  "plan_id": "plan_scan_6bdcb43ff537",
+  "scan_id": "scan_6bdcb43ff537",
+  "mode": "blocking",
+  "operations": [
+    {
+      "file_id": "9ca4732d",
+      "original_relative_path": "lv/identity/birth-certificate.pdf",
+      "destination_relative_path": "Other/birth-certificate.pdf",
+      "reason": "Non-transactional document",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "a8947c58",
+      "original_relative_path": "lv/legal/lease-agreement-summary.pdf",
+      "destination_relative_path": "Uncategorized/lease-agreement-summary.pdf",
+      "reason": "Left for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "68ae7c18",
+      "original_relative_path": "lv/receipts/sunbeam-cafe-receipt.pdf",
+      "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "reason": "receipt dated 2026-09-21",
+      "collision_suffixed": false
+    }
+  ],
+  "report_rows": [
+    {
+      "file_id": "68ae7c18",
+      "source_filename": "lv/receipts/sunbeam-cafe-receipt.pdf",
+      "category": "receipt",
+      "date": "2026-09-21",
+      "merchant": "SUNBEAM CAFE",
+      "amount": "683.20",
+      "currency": "PHP",
+      "status": "accepted"
+    }
+  ],
+  "totals": [
+    {
+      "currency": "PHP",
+      "amount": "683.20",
+      "row_count": 1
+    }
+  ],
+  "blocking_review_count": 0
+}

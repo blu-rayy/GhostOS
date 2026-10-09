@@ -1,0 +1,195 @@
+[
+  {
+    "id": "Q1",
+    "check": "Scan ID, plan ID and mode unchanged",
+    "status": "PASS",
+    "expected": "scan_8394fbe2c049 / plan_scan_8394fbe2c049 / partial",
+    "actual": "HTTP 200 scan_8394fbe2c049 / plan_scan_8394fbe2c049 / partial"
+  },
+  {
+    "id": "Q2",
+    "check": "Plan byte-identical to the reviewed preview (3 operations, exact paths, rows, totals)",
+    "status": "PASS",
+    "expected": "identical to r2_preview_v2/R2_plan_partial_for_review.json",
+    "actual": "identical"
+  },
+  {
+    "id": "Q3",
+    "check": "Explicit-null statement still unresolved and routed to Uncategorized/",
+    "status": "PASS",
+    "expected": "needs_review, not corrected, kind null, profile none, Uncategorized/bank-statement-oct2026.txt",
+    "actual": "needs_review, corrected False, kind None, profile none, Uncategorized/bank-statement-oct2026.txt"
+  },
+  {
+    "id": "Q4",
+    "check": "Both receipt rows accepted; no statement row",
+    "status": "PASS",
+    "expected": "Sunbeam 683.20, Tibay 2145.00",
+    "actual": [
+      [
+        "r2/receipts/sunbeam-cafe-receipt.pdf",
+        "accepted",
+        "683.20",
+        "PHP"
+      ],
+      [
+        "r2/receipts/tibay-hardware-receipt.csv",
+        "accepted",
+        "2145.00",
+        "PHP"
+      ]
+    ]
+  },
+  {
+    "id": "Q5",
+    "check": "Original three files with recorded SHA-256 (and nothing else)",
+    "status": "PASS",
+    "expected": "matches manifest",
+    "actual": "matches"
+  },
+  {
+    "id": "Q6",
+    "check": "Destinations inside root, free and unique",
+    "status": "PASS",
+    "expected": "no problems, 3 unique",
+    "actual": "ok"
+  },
+  {
+    "id": "Q7",
+    "check": "Outside-root canary and other roots unchanged",
+    "status": "PASS",
+    "expected": "unchanged",
+    "actual": "base children ['DA5-R1', 'DA5-R2', 'DA5-R3', 'DA5-canary', 'R1', 'R2', 'R2-mock', 'R2-mock_rerun1', 'R2_rerun1']"
+  },
+  {
+    "id": "S1",
+    "check": "Approval: 3 moved, 0 failed",
+    "status": "PASS",
+    "expected": "HTTP 200, moved=3, failed=[]",
+    "actual": "HTTP 200 {'batch_id': 'batch_34249d9117e5', 'moved': 3, 'failed': [], 'report_relative_path': 'GhostOS Reports/expenses-202610092015.csv', 'committed_at': '2026-10-09T20:15:20.214601+00:00'}"
+  },
+  {
+    "id": "M1",
+    "check": "Exact-case destinations with original SHA-256",
+    "status": "PASS",
+    "expected": [
+      "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "Receipts/2026-09/tibay-hardware-receipt.csv",
+      "Uncategorized/bank-statement-oct2026.txt"
+    ],
+    "actual": [
+      "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "Receipts/2026-09/tibay-hardware-receipt.csv",
+      "Uncategorized/bank-statement-oct2026.txt"
+    ]
+  },
+  {
+    "id": "M2",
+    "check": "No overwrite (3 files, each with its own bytes)",
+    "status": "PASS",
+    "expected": "3 files",
+    "actual": "3 files"
+  },
+  {
+    "id": "M3",
+    "check": "No organized file inside a source folder",
+    "status": "PASS",
+    "expected": "none",
+    "actual": "none"
+  },
+  {
+    "id": "M4",
+    "check": "No temporary report file",
+    "status": "PASS",
+    "expected": "none",
+    "actual": "none"
+  },
+  {
+    "id": "M5",
+    "check": "No out-of-root changes",
+    "status": "PASS",
+    "expected": "unchanged",
+    "actual": "base children ['DA5-R1', 'DA5-R2', 'DA5-R3', 'DA5-canary', 'R1', 'R2', 'R2-mock', 'R2-mock_rerun1', 'R2_rerun1']"
+  },
+  {
+    "id": "R1",
+    "check": "CSV rows: exactly the two receipts",
+    "status": "PASS",
+    "expected": "Sunbeam 683.20 PHP, Tibay 2145.00 PHP",
+    "actual": [
+      [
+        "r2/receipts/sunbeam-cafe-receipt.pdf",
+        "683.20",
+        "PHP"
+      ],
+      [
+        "r2/receipts/tibay-hardware-receipt.csv",
+        "2145.00",
+        "PHP"
+      ]
+    ]
+  },
+  {
+    "id": "R2",
+    "check": "Explicit-null statement not in the CSV",
+    "status": "PASS",
+    "expected": "absent",
+    "actual": "absent"
+  },
+  {
+    "id": "R3",
+    "check": "Total recomputed from the CSV = PHP 2828.20 (683.20 + 2145.00)",
+    "status": "PASS",
+    "expected": "PHP 2828.20",
+    "actual": {
+      "PHP": "2828.20"
+    }
+  },
+  {
+    "id": "U1",
+    "check": "Undo: 3 restored, 0 conflicts",
+    "status": "PASS",
+    "expected": "HTTP 200, restored=3, conflicts=[]",
+    "actual": "HTTP 200, restored=3, conflicts=[]"
+  },
+  {
+    "id": "U2",
+    "check": "All three original paths and SHA-256 restored",
+    "status": "PASS",
+    "expected": "3/3 identical",
+    "actual": "3/3 identical"
+  },
+  {
+    "id": "U3",
+    "check": "No organized files remain (only the report may remain)",
+    "status": "PASS",
+    "expected": "only GhostOS Reports/*",
+    "actual": [
+      "GhostOS Reports/expenses-202610092015.csv"
+    ]
+  },
+  {
+    "id": "U4",
+    "check": "(observed) report files remaining after undo",
+    "status": "RECORDED",
+    "actual": [
+      "GhostOS Reports/expenses-202610092015.csv"
+    ]
+  },
+  {
+    "id": "U5",
+    "check": "(observed) empty folders remaining after undo",
+    "status": "RECORDED",
+    "actual": [
+      "Receipts/2026-09",
+      "Uncategorized"
+    ]
+  },
+  {
+    "id": "U6",
+    "check": "Outside root still unchanged",
+    "status": "PASS",
+    "expected": "unchanged",
+    "actual": "base children ['DA5-R1', 'DA5-R2', 'DA5-R3', 'DA5-canary', 'R1', 'R2', 'R2-mock', 'R2-mock_rerun1', 'R2_rerun1']"
+  }
+]

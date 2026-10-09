@@ -1,0 +1,58 @@
+{
+  "plan_id": "plan_scan_8394fbe2c049",
+  "scan_id": "scan_8394fbe2c049",
+  "mode": "partial",
+  "operations": [
+    {
+      "file_id": "52bf80a5",
+      "original_relative_path": "r2/misc/bank-statement-oct2026.txt",
+      "destination_relative_path": "Uncategorized/bank-statement-oct2026.txt",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "2d512db2",
+      "original_relative_path": "r2/receipts/sunbeam-cafe-receipt.pdf",
+      "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "reason": "receipt dated 2026-09-21",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "6d40a903",
+      "original_relative_path": "r2/receipts/tibay-hardware-receipt.csv",
+      "destination_relative_path": "Receipts/2026-09/tibay-hardware-receipt.csv",
+      "reason": "receipt dated 2026-09-27",
+      "collision_suffixed": false
+    }
+  ],
+  "report_rows": [
+    {
+      "file_id": "2d512db2",
+      "source_filename": "r2/receipts/sunbeam-cafe-receipt.pdf",
+      "category": "receipt",
+      "date": "2026-09-21",
+      "merchant": "SUNBEAM CAFE",
+      "amount": "683.20",
+      "currency": "PHP",
+      "status": "accepted"
+    },
+    {
+      "file_id": "6d40a903",
+      "source_filename": "r2/receipts/tibay-hardware-receipt.csv",
+      "category": "receipt",
+      "date": "2026-09-27",
+      "merchant": "Tibay Hardware",
+      "amount": "2145.00",
+      "currency": "PHP",
+      "status": "accepted"
+    }
+  ],
+  "totals": [
+    {
+      "currency": "PHP",
+      "amount": "2828.20",
+      "row_count": 2
+    }
+  ],
+  "blocking_review_count": 1
+}

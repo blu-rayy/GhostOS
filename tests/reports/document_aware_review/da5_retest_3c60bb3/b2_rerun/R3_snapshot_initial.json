@@ -1,0 +1,12 @@
+{
+  "files": {
+    "r3/misc/card-statement-sep2026.pdf": {
+      "sha256": "af2bda441bd6a6c020cf481ddcb7b95713d533616b71f1175da380f7e0b2cac5",
+      "size": 1296
+    }
+  },
+  "dirs": [
+    "r3",
+    "r3/misc"
+  ]
+}

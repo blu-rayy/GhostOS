@@ -1,0 +1,164 @@
+[
+  {
+    "id": "Q1",
+    "check": "Scan ID, plan ID, blocking mode",
+    "status": "PASS",
+    "expected": "scan_6bdcb43ff537 / plan_scan_6bdcb43ff537 / blocking",
+    "actual": "HTTP 200 scan_6bdcb43ff537 / plan_scan_6bdcb43ff537 / blocking"
+  },
+  {
+    "id": "Q2",
+    "check": "Plan byte-identical to the reviewed preview",
+    "status": "PASS",
+    "expected": "identical to plan_for_review.json",
+    "actual": "identical"
+  },
+  {
+    "id": "Q3",
+    "check": "Three operations, zero blocking reviews",
+    "status": "PASS",
+    "expected": "3 ops, blocking 0",
+    "actual": "3 ops, blocking 0"
+  },
+  {
+    "id": "Q4",
+    "check": "Original three files with recorded SHA-256 (and nothing else)",
+    "status": "PASS",
+    "expected": "matches manifest",
+    "actual": "matches"
+  },
+  {
+    "id": "Q5",
+    "check": "Destinations inside L2, free and unique",
+    "status": "PASS",
+    "expected": "ok",
+    "actual": "ok"
+  },
+  {
+    "id": "Q6",
+    "check": "Outside-root canary and base folder unchanged",
+    "status": "PASS",
+    "expected": "children ['L1', 'L2', 'outside-canary', 'outside-canary-2'], canary unchanged",
+    "actual": "children ['L1', 'L2', 'outside-canary', 'outside-canary-2']"
+  },
+  {
+    "id": "S1",
+    "check": "Approval: 3 moved, 0 failed",
+    "status": "PASS",
+    "expected": "HTTP 200, moved=3, failed=[]",
+    "actual": "HTTP 200 {'batch_id': 'batch_f11c33ea8d18', 'moved': 3, 'failed': [], 'report_relative_path': 'GhostOS Reports/expenses-202610092030.csv', 'committed_at': '2026-10-09T20:30:09.223627+00:00'}"
+  },
+  {
+    "id": "M1",
+    "check": "Exact-case destinations with original SHA-256",
+    "status": "PASS",
+    "expected": [
+      "Other/birth-certificate.pdf",
+      "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "Uncategorized/lease-agreement-summary.pdf"
+    ],
+    "actual": [
+      "Other/birth-certificate.pdf",
+      "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "Uncategorized/lease-agreement-summary.pdf"
+    ]
+  },
+  {
+    "id": "M2",
+    "check": "No overwrite (3 files, each with its own bytes)",
+    "status": "PASS",
+    "expected": "3 files",
+    "actual": "3 files"
+  },
+  {
+    "id": "M3",
+    "check": "No organized file inside a source folder",
+    "status": "PASS",
+    "expected": "none",
+    "actual": "none"
+  },
+  {
+    "id": "M4",
+    "check": "No temporary report file",
+    "status": "PASS",
+    "expected": "none",
+    "actual": "none"
+  },
+  {
+    "id": "M5",
+    "check": "No writes outside L2",
+    "status": "PASS",
+    "expected": "unchanged",
+    "actual": "children ['L1', 'L2', 'outside-canary', 'outside-canary-2']"
+  },
+  {
+    "id": "R1",
+    "check": "CSV: exactly one accepted receipt row, Sunbeam PHP 683.20",
+    "status": "PASS",
+    "expected": "[(lv/receipts/sunbeam-cafe-receipt.pdf, 683.20, PHP)]",
+    "actual": [
+      [
+        "lv/receipts/sunbeam-cafe-receipt.pdf",
+        "683.20",
+        "PHP"
+      ]
+    ]
+  },
+  {
+    "id": "R2",
+    "check": "Total recomputed from the CSV",
+    "status": "PASS",
+    "expected": "PHP 683.20",
+    "actual": {
+      "PHP": "683.20"
+    }
+  },
+  {
+    "id": "U1",
+    "check": "Undo: 3 restored, 0 conflicts",
+    "status": "PASS",
+    "expected": "HTTP 200, restored=3, conflicts=[]",
+    "actual": "HTTP 200, restored=3, conflicts=[]"
+  },
+  {
+    "id": "U2",
+    "check": "All three original paths and SHA-256 restored",
+    "status": "PASS",
+    "expected": "3/3 identical",
+    "actual": "3/3 identical"
+  },
+  {
+    "id": "U3",
+    "check": "No organized files remain (only the report may remain)",
+    "status": "PASS",
+    "expected": "only GhostOS Reports/*",
+    "actual": [
+      "GhostOS Reports/expenses-202610092030.csv"
+    ]
+  },
+  {
+    "id": "U4",
+    "check": "(observed) report files remaining after undo",
+    "status": "RECORDED",
+    "actual": [
+      "GhostOS Reports/expenses-202610092030.csv"
+    ]
+  },
+  {
+    "id": "U5",
+    "check": "(observed) empty folders remaining after undo",
+    "status": "RECORDED",
+    "actual": [
+      "Other",
+      "Receipts/2026-09",
+      "Uncategorized"
+    ]
+  },
+  {
+    "id": "U6",
+    "check": "Outside L2 still unchanged",
+    "status": "PASS",
+    "expected": "unchanged",
+    "actual": "children ['L1', 'L2', 'outside-canary', 'outside-canary-2']"
+  }
+]
