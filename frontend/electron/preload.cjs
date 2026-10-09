@@ -6,6 +6,11 @@ contextBridge.exposeInMainWorld('ghostos', {
   platform: process.platform,
   version: process.versions.electron,
   capabilities: { canSelectFolder: true, hasNativeFilesystem: false },
+  windowControls: {
+    minimize: () => ipcRenderer.send('ghostos:window-minimize'),
+    toggleMaximize: () => ipcRenderer.send('ghostos:window-toggle-maximize'),
+    close: () => ipcRenderer.send('ghostos:window-close'),
+  },
   /** Opens the native folder picker. Resolves to { name, path, documentCount } or null. */
   selectFolder: () => ipcRenderer.invoke('ghostos:select-folder'),
   /** Desktop Pip (Settings toggle, Windows only). Cosmetic; each resolves to { ok, reason? }. */

@@ -17,6 +17,8 @@ function createWindow() {
     minHeight: 640,
     backgroundColor: '#0e1117',
     title: 'GhostOS',
+    frame: false,
+    titleBarStyle: 'hidden',
     // Pip, rendered from public/pip.svg (Windows needs a PNG/ICO, not SVG).
     icon: path.join(__dirname, 'icon.png'),
     show: false,
@@ -50,6 +52,15 @@ function createWindow() {
     win.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
   }
 }
+
+ipcMain.on('ghostos:window-minimize', (event) => BrowserWindow.fromWebContents(event.sender)?.minimize());
+ipcMain.on('ghostos:window-toggle-maximize', (event) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win) return;
+  if (win.isMaximized()) win.unmaximize();
+  else win.maximize();
+});
+ipcMain.on('ghostos:window-close', (event) => BrowserWindow.fromWebContents(event.sender)?.close());
 
 // Native folder picker. Returns { name, path, documentCount } or null — strings only.
 // The renderer cannot list, read or write anything with it; the local FastAPI

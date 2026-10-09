@@ -17,7 +17,7 @@ type StepState = 'done' | 'current' | 'later'
  * chip when fixtures are in use, and History / Settings buttons.
  */
 export function Header() {
-  const { state, navigate, dispatch, usingFixtures } = useApp()
+  const { state, navigate, dispatch, resetSession, usingFixtures } = useApp()
   const ctx: StepContext = { phase: state.phase, hasScan: state.scan !== null, hasApprovedPlan: state.approvedPlan !== null }
   const current = stepForView(state.view)
   const togglePanel = (panel: Panel) => dispatch({ type: 'patch', patch: { panel: state.panel === panel ? null : panel } })
@@ -25,13 +25,19 @@ export function Header() {
 
   return (
     <header className="relative z-10 flex h-16 shrink-0 items-center gap-5 border-b-[2.5px] border-ink bg-paper px-7">
-      <div className="flex items-center gap-2">
+      <button
+        type="button"
+        aria-label="Go to GhostOS start"
+        title="Go to start"
+        onClick={resetSession}
+        className="flex items-center gap-2 rounded-[10px] outline-none transition-transform duration-150 hover:-translate-y-px focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2"
+      >
         <PipMark size={32} />
         {/* Gochi Hand's capitals barely differ from lowercase, so "OS" is set larger. */}
         <span className="font-display text-[28px] leading-none">
           ghost<span className="text-[37px] tracking-[0.03em]">OS</span>
         </span>
-      </div>
+      </button>
 
       <nav aria-label="Steps" className="ml-4">
         <ol className="m-0 flex list-none items-center gap-1.5 p-0 text-[18px]">
@@ -151,7 +157,8 @@ function StatusPill() {
     >
       <LockIcon size={16} crisp />
       <span>{WORDS.offline.toLowerCase().split(' · ')[0]}</span>
-      <span aria-hidden className="text-[13px] leading-none">•</span>
+      {/* Drawn separator dot: a text bullet at this size renders as a speck. */}
+      <span aria-hidden className="mx-1 inline-block h-[5px] w-[5px] shrink-0 rounded-full bg-ink" />
       <ComputerIcon size={16} crisp />
       <span className="sr-only">on this computer</span>
     </span>

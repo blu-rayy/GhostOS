@@ -47,6 +47,11 @@ export type ElectronBridge = {
   platform: string
   version: string
   capabilities: { canSelectFolder: boolean; hasNativeFilesystem: boolean }
+  windowControls?: {
+    minimize: () => void
+    toggleMaximize: () => void
+    close: () => void
+  }
   selectFolder: () => Promise<{ name: string; path: string; documentCount: number | null } | null>
   pipToFolder?: (root: string, folder: string) => Promise<{ ok: boolean; reason?: string }>
   desktopPipStart?: (root: string, options?: { randomFiles?: boolean }) => Promise<{ ok: boolean; reason?: string }>
