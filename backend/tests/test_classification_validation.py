@@ -559,6 +559,82 @@ def test_uncertain_always_requires_review() -> None:
     assert result.flags == ("missing_evidence_quote", "uncertain_classification")
 
 
+@pytest.mark.parametrize("document_kind", ["statement", "identity_or_civil", "legal", "medical"])
+def test_non_transactional_document_kind_always_requires_review(document_kind: str) -> None:
+    result = validate_classification(
+        "CERTIFICATE OF LIVE BIRTH\nName: MARA VILLANUEVA\nDate of birth: 1995-04-02",
+        make_classification(
+            category="other",
+            document_kind=document_kind,
+            merchant=None,
+            date=None,
+            amount_text=None,
+            currency=None,
+            evidence_quote="CERTIFICATE OF LIVE BIRTH",
+        ),
+    )
+
+    assert result.needs_review is True
+    assert "non_transactional_document" in result.flags
+    # No transaction fields were supplied, so no fabricated-value flag.
+    assert "transaction_fields_on_non_transactional" not in result.flags
+
+
+def test_non_transactional_document_with_invented_transaction_fields_is_untrusted() -> None:
+    result = validate_classification(
+        "CERTIFICATE OF LIVE BIRTH\nName: MARA VILLANUEVA",
+        make_classification(
+            category="other",
+            document_kind="identity_or_civil",
+            merchant="Civil Registry",
+            date="2026-10-09",
+            amount_text="PHP 1.00",
+            currency="PHP",
+            evidence_quote="CERTIFICATE OF LIVE BIRTH",
+        ),
+    )
+
+    assert result.is_valid is False
+    assert result.needs_review is True
+    assert "non_transactional_document" in result.flags
+    assert "transaction_fields_on_non_transactional" in result.flags
+    assert result.parsed_amount is None
+
+
+def test_statement_without_invented_fields_requires_review_but_keeps_no_amount() -> None:
+    result = validate_classification(
+        "HARBOR FEDERAL BANK\nCredit Card Statement\nStatement balance: PHP 5,391.06",
+        make_classification(
+            category="other",
+            document_kind="statement",
+            merchant=None,
+            date=None,
+            amount_text=None,
+            currency=None,
+            evidence_quote="Statement balance: PHP 5,391.06",
+        ),
+    )
+
+    assert result.needs_review is True
+    assert "non_transactional_document" in result.flags
+    assert result.parsed_amount is None
+
+
+def test_uncertain_document_kind_requires_review() -> None:
+    result = validate_classification(
+        "Unclear document",
+        make_classification(
+            category="other",
+            document_kind="uncertain",
+            evidence_quote=None,
+            amount_text=None,
+        ),
+    )
+
+    assert result.needs_review is True
+    assert "uncertain_document_kind" in result.flags
+
+
 def test_multiple_flags_have_stable_order_and_no_duplicates() -> None:
     result = validate_classification(
         "INVOICE",

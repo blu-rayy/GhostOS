@@ -83,6 +83,9 @@ _VALIDATOR_FLAG_MAP: dict[str, tuple[str, str]] = {
     "missing_merchant": ("missing_merchant", "No merchant found in the document"),
     "missing_date": ("missing_date", "No date found in the document"),
     "uncertain_classification": ("uncertain_classification", "The classification is uncertain and needs human review"),
+    "non_transactional_document": ("non_transactional_document", "This is not a transaction document and has no expense fields"),
+    "transaction_fields_on_non_transactional": ("transaction_fields_on_non_transactional", "Transaction fields were reported for a non-transactional document"),
+    "uncertain_document_kind": ("uncertain_document_kind", "The document kind could not be determined"),
 }
 
 
@@ -440,6 +443,8 @@ def _run_scan(session: ScanSession) -> None:
                 status=classify_status,
                 classification={
                     "category": classification.category,
+                    "document_kind": classification.document_kind,
+                    "field_profile": classification.field_profile,
                     "merchant": classification.merchant,
                     "date": classification.date,
                     "amount_text": classification.amount_text,

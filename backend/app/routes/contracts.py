@@ -35,6 +35,7 @@ def contract_examples() -> dict[str, object]:
     )
     classification = ClassificationRecord(
         category="receipt",
+        document_kind="receipt",
         merchant="Coffee Shop",
         date="2026-10-08",
         amount_text="PHP 185.00",

@@ -56,6 +56,32 @@ def test_invalid_category_is_rejected() -> None:
         ClassificationRecord(category="spam")
 
 
+def test_unknown_document_kind_is_normalized_not_rejected() -> None:
+    # The local model may emit near-miss kinds; they normalize to the bounded
+    # enum rather than failing the whole classification.
+    assert ClassificationRecord(category="other", document_kind="quotation").document_kind == "other"
+    assert ClassificationRecord(category="other", document_kind="bank_statement").document_kind == "statement"
+    assert ClassificationRecord(category="other", document_kind="birth_certificate").document_kind == "identity_or_civil"
+    # Totally unknown strings degrade to the safe non-transactional catch-all.
+    assert ClassificationRecord(category="other", document_kind="definitely_not_a_kind").document_kind == "other"
+
+
+def test_document_kind_derives_field_profile() -> None:
+    assert ClassificationRecord(category="receipt", document_kind="receipt").field_profile == "transaction"
+    assert ClassificationRecord(category="invoice", document_kind="invoice").field_profile == "transaction"
+    assert ClassificationRecord(category="other", document_kind="statement").field_profile == "reference"
+    assert ClassificationRecord(category="other", document_kind="identity_or_civil").field_profile == "none"
+    assert ClassificationRecord(category="other", document_kind="legal").field_profile == "none"
+    assert ClassificationRecord(category="other", document_kind="medical").field_profile == "none"
+    assert ClassificationRecord(category="other").field_profile == "none"
+
+
+def test_field_profile_is_not_a_model_supplied_field() -> None:
+    # field_profile is derived backend-side; the model cannot set it.
+    with pytest.raises(ValidationError):
+        ClassificationRecord(category="receipt", field_profile="transaction")
+
+
 def test_extraction_status_is_restricted() -> None:
     with pytest.raises(ValidationError):
         make_file_record(extraction_status="unknown")
@@ -110,6 +136,7 @@ def test_classification_json_schema_contains_only_approved_properties() -> None:
     properties = set(schema["properties"])
     approved = {
         "category",
+        "document_kind",
         "merchant",
         "date",
         "amount_text",

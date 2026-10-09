@@ -302,16 +302,17 @@ python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 Tests (from `backend/`, venv active): `python -m pytest`
-(124 passed, including the real-Ollama integration test when
+(153 passed, including the real-Ollama integration test when
 `qwen3:4b-instruct` is installed locally.)
 
 Accuracy harness (from `backend/`, model required):
-`python scripts/evaluate_sample_folder.py` — runs the live pipeline on all 20
+`python scripts/evaluate_sample_folder.py` — runs the live pipeline on all 25
 files in `tests/fixtures/sample_folder/` and grades against
 `tests/fixtures/expected_results/ground_truth.json` (per-field accuracy,
 review precision/recall, duplicate/collision integrity, injection-safety
-checks, JSON report). Last measured: category 17/20, amount 20/20,
-evidence 15/20, precision 0.57 / recall 1.0, ~2.1s/file, 0 errors.
+checks, JSON report). Last measured (2026-10-10, incl. 5 new
+`document_kind` fixtures): category 21/25, amount 24/25, document_kind 5/5,
+field_profile 5/5, review precision 0.69 / recall 1.0, ~2.1s/file, 0 errors.
 Reports are written to `backend/evaluation_output/` (gitignored by design).
 
 Routers (all mounted in `backend/app/main.py`):
@@ -332,11 +333,14 @@ Services in `backend/app/services/`:
   controlled error types (unavailable/timeout/validation/response).
   Field-enumerating system prompt, `temperature: 0`, no Ollama `format:` schema
   (it suppressed optional fields on `qwen3:4b-instruct`); JSON fences tolerated.
+  Classifies `document_kind` separately from the filing `category`.
 - `classification_validation.py` — source-aware validator: exact evidence
   check, authoritative-final-total vs reconciliation-component resolution with
   arithmetic cross-check, `ambiguous_amount` / currency / missing-field /
-  `quotation_document` flags, `uncertain` always reviewed. Knows PHP, USD, EUR,
-  GBP, SGD (+S$), JPY (+¥).
+  `quotation_document` flags, `uncertain` always reviewed. Non-transactional
+  `document_kind` values (`statement`, `identity_or_civil`, `legal`,
+  `medical`) always require review and reject invented transaction fields.
+  Knows PHP, USD, EUR, GBP, SGD (+S$), JPY (+¥).
 - `orchestrator.py` — async scan worker (scan → extract → classify →
   **validate**), plan builder. `plan_id` deterministic (`plan_{scan_id}`).
 - `operations.py` — backend-owned destination rules (model never picks paths).
@@ -346,7 +350,11 @@ Services in `backend/app/services/`:
 
 Canonical schemas: `backend/app/schemas.py` (`ScanRequest`, `FileRecord`,
 `ScanResponse`, `ClassificationRecord`, `ClassifyRequest/Response`,
-`ProposedOperation`).
+`ProposedOperation`). `ClassificationRecord` now carries a `document_kind`
+enum (`receipt|invoice|statement|identity_or_civil|legal|medical|other|
+uncertain`) plus a backend-derived `field_profile` property
+(`transaction|reference|none`); the model can never supply paths or a field
+list. See `docs/design/document-aware-review.md` for the full contract.
 
 ### Invariants / gotchas (do not break)
 
