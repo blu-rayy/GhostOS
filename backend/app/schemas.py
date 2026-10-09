@@ -89,6 +89,7 @@ class ClassificationRecord(BaseModel):
     """Structured, non-operational classification output from a local model."""
 
     model_config = ConfigDict(
+        extra="forbid",
         json_schema_extra={
             "examples": [
                 {
