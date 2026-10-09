@@ -61,19 +61,65 @@ def test_extraction_status_is_restricted() -> None:
         make_file_record(extraction_status="unknown")
 
 
-def test_nullable_classification_fields_are_accepted() -> None:
+def test_invoice_classification_is_accepted() -> None:
     classification = ClassificationRecord(
-        category="uncertain",
-        merchant=None,
-        date=None,
-        amount_text=None,
-        currency=None,
-        evidence_quote=None,
-        explanation=None,
+        category="invoice",
+        merchant="Acme Supplies",
+        date="2026-10-09",
+        amount_text="PHP 1,250.00",
+        currency="PHP",
+        evidence_quote="Invoice total PHP 1,250.00",
+        explanation="The document is an invoice from a supplier.",
     )
 
+    assert classification.category == "invoice"
+    assert classification.merchant == "Acme Supplies"
+
+
+def test_receipt_with_omitted_optional_fields_is_accepted() -> None:
+    classification = ClassificationRecord(category="receipt")
+
+    assert classification.category == "receipt"
     assert classification.merchant is None
     assert classification.explanation is None
+
+
+def test_other_classification_is_accepted() -> None:
+    classification = ClassificationRecord(category="other")
+
+    assert classification.category == "other"
+
+
+def test_uncertain_classification_is_accepted() -> None:
+    classification = ClassificationRecord(
+        category="uncertain",
+        explanation="The document does not contain enough evidence.",
+    )
+
+    assert classification.category == "uncertain"
+
+
+@pytest.mark.parametrize("unexpected_field", ["source_id", "file_id", "destination_relative_path"])
+def test_unexpected_classification_fields_are_rejected(unexpected_field: str) -> None:
+    with pytest.raises(ValidationError):
+        ClassificationRecord(category="receipt", **{unexpected_field: "not-model-output"})
+
+
+def test_classification_json_schema_contains_only_approved_properties() -> None:
+    schema = ClassificationRecord.model_json_schema()
+    properties = set(schema["properties"])
+    approved = {
+        "category",
+        "merchant",
+        "date",
+        "amount_text",
+        "currency",
+        "evidence_quote",
+        "explanation",
+    }
+
+    assert properties == approved
+    assert schema["additionalProperties"] is False
 
 
 def test_proposed_operation_contains_expected_fields() -> None:
