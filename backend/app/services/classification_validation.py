@@ -97,6 +97,11 @@ def _canonical_currency(value: str | None) -> str | None:
     return _SUPPORTED_CURRENCIES.get(normalized)
 
 
+def canonical_currency(value: str | None) -> str | None:
+    """Return the supported currency code for a correction value."""
+    return _canonical_currency(value)
+
+
 def _parse_single_amount(value: str) -> tuple[Decimal, str | None] | None:
     """Parse one supported amount without converting through float."""
     match = _MONEY_TOKEN_RE.fullmatch(value.strip())
@@ -110,6 +115,11 @@ def _parse_single_amount(value: str) -> tuple[Decimal, str | None] | None:
     except InvalidOperation:
         return None
     return amount, _canonical_currency(match.group("currency"))
+
+
+def parse_amount(value: str) -> tuple[Decimal, str | None] | None:
+    """Parse one correction amount without converting through float."""
+    return _parse_single_amount(value)
 
 
 def _source_currencies(source_text: str) -> set[str]:

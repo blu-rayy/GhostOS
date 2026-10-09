@@ -9,7 +9,7 @@ from __future__ import annotations
 import threading
 import uuid
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Literal, Optional
 
 from app.schemas import SortMode
 
@@ -44,6 +44,7 @@ class DocumentRecord:
     review_flags: list = field(default_factory=list)
     duplicate_of: Optional[str] = None
     user_corrected: bool = False
+    review_disposition: Literal["none", "filed", "leave_for_review"] = "none"
 
 
 @dataclass
