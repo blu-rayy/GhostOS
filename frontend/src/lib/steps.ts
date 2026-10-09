@@ -19,8 +19,8 @@ export const STEPS: StepInfo[] = [
   { index: 3, view: 'completion' },
 ]
 
-/** Which step a view belongs to; null for side panels (History, Settings). */
-export function stepForView(view: View): StepIndex | null {
+/** Which step a view belongs to. (History and Settings are side panels, not views.) */
+export function stepForView(view: View): StepIndex {
   switch (view) {
     case 'dashboard':
     case 'folder':
@@ -33,9 +33,6 @@ export function stepForView(view: View): StepIndex | null {
       return 2
     case 'completion':
       return 3
-    case 'activity':
-    case 'settings':
-      return null
   }
 }
 
@@ -64,7 +61,7 @@ export function canOpenStep(i: StepIndex, current: StepIndex | null, ctx: StepCo
   if (i === current) return false
   if (ctx.phase === 'organizing' || ctx.phase === 'undoing') return false
   if (ctx.hasApprovedPlan) return i === 2 || i === 3
-  if (ctx.hasScan && ctx.phase === 'reviewing') return i === 1 || (i === 2 && current === null)
-  // Before a scan exists, Start is the only place to be (e.g. coming back from History).
+  if (ctx.hasScan && ctx.phase === 'reviewing') return i === 1
+  // Before a scan exists, Start is the only place to be.
   return i === 0
 }

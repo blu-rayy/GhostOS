@@ -132,7 +132,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     planRows,
     selectedDoc,
     counts,
-    navigate: (view) => patch({ view }),
+    // Opening a step closes any History/Settings panel.
+    navigate: (view) => patch({ view, panel: null }),
     selectDoc: (id) => patch({ selectedDocId: id }),
 
     async chooseFolder() {
@@ -194,7 +195,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           if (progress.state === 'error') return fail(progress.error ?? 'The scan failed.')
           if (progress.state === 'done') {
             const scan = await api.getScan(scanId)
-            // Go straight to Check, unless the user has History or Settings open.
+            // Go straight to Check. An open History/Settings panel stays on top.
             patch({ scan, phase: 'reviewing', ...(stateRef.current.view === 'scanning' ? { view: 'files' as const } : {}) })
             log({
               type: 'scan_completed',

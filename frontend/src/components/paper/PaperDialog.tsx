@@ -1,7 +1,6 @@
-import { useEffect, useRef, type ReactNode, type RefObject } from 'react'
+import { useRef, type ReactNode, type RefObject } from 'react'
 import { cx } from '../ui/cx'
-
-const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+import { useFocusTrap } from './useFocusTrap'
 
 /**
  * Paper modal: the page stays visible underneath, dimmed with white (rgba 255,255,255,.72).
@@ -32,44 +31,7 @@ export function PaperDialog({
   children: ReactNode
 }) {
   const ref = useRef<HTMLDivElement>(null)
-  const cancelRef = useRef(onCancel)
-  useEffect(() => {
-    cancelRef.current = onCancel
-  })
-
-  useEffect(() => {
-    if (!open) return
-    const prev = document.activeElement as HTMLElement | null
-    ;(initialFocus?.current ?? ref.current)?.focus()
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        cancelRef.current()
-        return
-      }
-      if (e.key !== 'Tab' || !ref.current) return
-      const items = [...ref.current.querySelectorAll<HTMLElement>(FOCUSABLE)]
-      if (items.length === 0) {
-        e.preventDefault()
-        return
-      }
-      const first = items[0]
-      const last = items[items.length - 1]
-      const active = document.activeElement
-      if (e.shiftKey && (active === first || !ref.current.contains(active))) {
-        e.preventDefault()
-        last.focus()
-      } else if (!e.shiftKey && (active === last || !ref.current.contains(active))) {
-        e.preventDefault()
-        first.focus()
-      }
-    }
-    document.addEventListener('keydown', onKey)
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      prev?.focus()
-    }
-  }, [open, initialFocus])
+  useFocusTrap(open, ref, onCancel, initialFocus)
 
   if (!open) return null
   return (

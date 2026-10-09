@@ -1,11 +1,13 @@
 import { formatAmount, normalizeAmountInput } from './money'
 
-const SYMBOL: Record<string, string> = { USD: '$', PHP: '₱', EUR: '€' }
+const SYMBOL: Record<string, string> = { USD: '$', PHP: '₱', EUR: '€', GBP: '£', SGD: 'S$', JPY: '¥' }
+/** Currencies with no minor unit: shown without ".00". Amounts stay 2-decimal strings internally. */
+const NO_DECIMALS = new Set(['JPY'])
 
 /** Display a decimal-string amount (never a float). Unknown currencies show their ISO code. */
 export function money(amount: string | null, currency: string | null): string {
   if (amount === null) return '—'
-  const n = formatAmount(amount)
+  const n = currency && NO_DECIMALS.has(currency) ? formatAmount(amount).replace(/\.00$/, '') : formatAmount(amount)
   if (!currency) return n
   return SYMBOL[currency] ? `${SYMBOL[currency]}${n}` : `${currency} ${n}`
 }

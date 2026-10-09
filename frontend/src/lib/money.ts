@@ -31,7 +31,7 @@ export function sumAmounts(amounts: string[]): string {
  * into a canonical decimal string, or null if it isn't a plain amount.
  */
 export function normalizeAmountInput(input: string): string | null {
-  const stripped = input.replace(/[₱$€£,\s]|PHP|USD|EUR/gi, '')
+  const stripped = input.replace(/S\$|[₱$€£¥,\s]|PHP|USD|EUR|GBP|SGD|JPY/gi, '')
   if (stripped === '') return null
   const cents = toCents(stripped)
   return cents === null ? null : fromCents(cents)

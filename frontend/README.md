@@ -44,7 +44,7 @@ Both are off by default.
 | `src/state/` | Session state and actions; every backend call goes through `api` |
 | `src/lib/viewModel.ts` | Maps contract types to table rows and plan rows (pure functions) |
 | `src/lib/money.ts` | Decimal-string arithmetic (BigInt cents, so no float rounding) |
-| `src/components/`, `src/pages/` | Design-system components and the ten screens |
+| `src/components/`, `src/pages/` | Paper components (`paper/`, `pip/`, `shell/`, `panels/`) and the four steps: `start/`, `FilesPage` (Check), `totals/`, `done/`. History and Settings are side panels |
 | `src/index.css` | Design tokens (Tailwind v4 `@theme`) |
 | `electron/` | Main process and preload. `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true` |
 

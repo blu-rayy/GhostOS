@@ -210,6 +210,42 @@
 }
 
 @layer components {
+  /* Pip floats (components/pip/Pip.tsx). In SVG user units; the hem wiggle is SMIL on the body path. */
+  .pip-float {
+    animation: pip-float 3.2s ease-in-out infinite;
+  }
+  .pip-shadow {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pip-shadow 3.2s ease-in-out infinite;
+  }
+  @keyframes pip-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+  @keyframes pip-shadow {
+    0%,
+    100% {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scaleX(0.82);
+      opacity: 0.6;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pip-float,
+    .pip-shadow {
+      animation: none !important;
+    }
+  }
+
   /* The sketchbook page: white paper with a dotted grid. */
   .paper-grid {
     background-color: rgb(var(--paper));
