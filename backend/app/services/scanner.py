@@ -3,6 +3,7 @@ import hashlib
 from pathlib import Path
 from typing import List
 from app.schemas import FileRecord
+from app.services.extractor import process_file_content
 
 SUPPORTED_EXTENSIONS = {".pdf", ".txt", ".csv"}
 MAX_FILES = 100
@@ -55,14 +56,19 @@ def scan_folder(root_path_str: str) -> List[FileRecord]:
                      
                 rel_path = file_path.relative_to(resolved_root).as_posix()
                 
+                # Perform text extraction and hashing
+                sha256_hash, status, excerpt, reason = process_file_content(resolved_file, ext)
+                
                 records.append(FileRecord(
                     file_id=generate_file_id(rel_path),
                     relative_path=rel_path,
                     filename=file,
                     extension=ext,
                     size_bytes=stat.st_size,
-                    extraction_status="skipped",
-                    reason="Pending text extraction and hashing",
+                    sha256=sha256_hash,
+                    extraction_status=status,
+                    text_excerpt=excerpt,
+                    reason=reason,
                 ))
             except Exception:
                 # Handle inaccessible files gracefully
