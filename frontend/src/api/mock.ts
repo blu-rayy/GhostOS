@@ -108,6 +108,8 @@ function destinationFolder(doc: DocumentRecord): { folder: string; reason: strin
   if (needsReview(doc)) return { folder: 'Uncategorized', reason: 'Waiting for human review' }
   // Like the backend: a document-aware non-transaction paper goes to Other/ once reviewed,
   // whatever its category (orchestrator._build_plan, document_aware branch).
+  // "Leave for review" (b584d92): a decided document with category uncertain stays in Uncategorized/.
+  if (doc.user_corrected && c.category === 'uncertain') return { folder: 'Uncategorized', reason: 'Left for human review' }
   if ('document_kind' in c && profileOf(c) !== 'transaction') return { folder: 'Other', reason: 'Non-transactional document' }
   if (c.category === 'invoice' || c.category === 'receipt') {
     if (!c.date) return { folder: 'Uncategorized', reason: `${c.category} without a date` }

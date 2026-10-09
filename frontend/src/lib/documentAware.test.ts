@@ -76,8 +76,8 @@ describe('document-aware review', () => {
     const dest = new Map(plan.operations.map((o) => [o.file_id, o.destination_relative_path]))
     expect(dest.get(BIRTH_CERT)).toBe('Other/birth_certificate_scan.pdf')
     expect(dest.get(STATEMENT)).toBe('Other/statement_0921.pdf')
-    // Merged backend (0dfdb65): a reviewed document-aware non-transaction paper goes to Other/, even when left for review.
-    expect(dest.get(UNCERTAIN)).toBe('Other/scan_untitled_04.pdf')
+    // Leave for review stays in Uncategorized/ (backend b584d92), unlike File it (Other/).
+    expect(dest.get(UNCERTAIN)).toBe('Uncategorized/scan_untitled_04.pdf')
     // Deciding unblocks Move, and none of them adds money to the totals.
     expect(plan.blocking_review_count).toBe(before.blocking_review_count - 3)
     for (const id of [STATEMENT, BIRTH_CERT, UNCERTAIN]) expect(plan.report_rows.find((r) => r.file_id === id)).toBeUndefined()

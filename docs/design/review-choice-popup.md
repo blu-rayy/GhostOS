@@ -115,7 +115,11 @@ Code changes this implies:
   later"**, as Done already does (`doneNote()` in `DonePage.tsx`), and update
   `totals.test.ts`.
 
-## Open decision for Dev 1: "Leave for review" now files to Other/
+## Resolved: "Leave for review" files to Uncategorized/ again
+
+**Fixed in `b584d92`** (option A): a decided document with `category: "uncertain"`
+goes to `Uncategorized/` ("Left for human review") before the document-aware
+`Other/` branch. The frontend mock and tests follow it. Background below.
 
 Separate from the pop-up, but found while checking it. Since `9a909c7`,
 `_build_plan` sends every **reviewed** document-aware non-transaction paper to
@@ -136,8 +140,7 @@ lands in `Other/`, not `Uncategorized/`. The Check panel still promises
 - **B (frontend):** in the panel, "Leave for review" stops sending a correction
   and just leaves the file unchecked. It then only works in `partial` mode.
 
-Until one is chosen, the frontend tests assert today's backend behaviour
-(`Other/`).
+Option A was chosen (`b584d92`).
 
 ## Corrections to rev 1 (from review)
 
@@ -157,7 +160,7 @@ Until one is chosen, the frontend tests assert today's backend behaviour
 ### Developer 1 — API owner
 
 - Nothing required for the pop-up: `mode=partial` is already on `main`.
-- Decide the "Leave for review" routing (option A above).
+- ~~Decide the "Leave for review" routing~~: done, option A (`b584d92`).
 - Confirm `blocking_review_count` in a `partial` plan still reports the
   unresolved total (the pop-up and Check footer use it).
 
