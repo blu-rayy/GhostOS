@@ -3,9 +3,8 @@ import { ChevronDown } from 'lucide-react'
 import { useApp } from '../state/AppState'
 import { ReviewChoiceDialog } from './ReviewChoiceDialog'
 import type { DocumentCorrection } from '../types/api'
-import { basename, documentKindLabel, fieldProfile, NON_TRANSACTION_DECISIONS, type FileRow } from '../lib/viewModel'
+import { basename, buildTransactionCorrection, documentKindLabel, fieldProfile, NON_TRANSACTION_DECISIONS, type FileRow } from '../lib/viewModel'
 import { formatBytes } from '../lib/format'
-import { buildTransactionCorrection } from '../lib/correction'
 import { Chip } from '../components/paper/Chip'
 import { PageFooter } from '../components/paper/PageFooter'
 import { PaperButton } from '../components/paper/Button'
@@ -30,7 +29,6 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
   // Typing in an unreadable file: the person says what it is, so the backend can derive the profile.
   const [manualKind, setManualKind] = useState<'receipt' | 'invoice'>('receipt')
   const [saving, setSaving] = useState(false)
-  const [fieldError, setFieldError] = useState<string | null>(null)
   if (!doc) return null
   const flag = doc.review_flags[0]?.code
   const isInjection = flag === 'possible_injection'
@@ -46,15 +44,19 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
     await correct(doc.file_id, { ...correction, accept: true }, 'review')
     setSaving(false)
   }
-  // Only what the person changed is sent (lib/correction.ts): an untouched empty box is omitted,
-  // never sent as null, and clearing an amount the backend can't accept is caught here.
-  const initialFields = { merchant: doc.classification?.merchant ?? '', date: doc.classification?.date ?? '', amount: doc.classification?.amount ?? '' }
-  const withDetails = (extra: Omit<DocumentCorrection, 'accept'> = {}) => {
-    const built = buildTransactionCorrection(initialFields, { merchant, date, amount })
-    if (!built.ok) return setFieldError(built.error)
-    setFieldError(null)
-    return save({ ...extra, ...built.correction })
-  }
+  const { details, clearedStoredAmount } = buildTransactionCorrection({
+    initial: {
+      merchant: doc.classification?.merchant ?? null,
+      date: doc.classification?.date ?? null,
+      amount: doc.classification?.amount ?? null,
+    },
+    current: { merchant, date, amount },
+  })
+  // UI1: clearing a stored amount is not supported — the API 422s null/empty
+  // amounts, and omitting the field would keep a value the screen no longer
+  // shows. Block the transactional action instead of sending a doomed payload.
+  // (Failed-file manual entry starts from empty, so it can never "clear".)
+  const saveBlocked = !isInjection && !isFailedDoc && clearedStoredAmount
   /**
    * Unreadable file. Its record has an explicit null kind (profile 'none'), so the backend only
    * takes a shop/date/amount together with what the paper is: one call with category and
@@ -63,7 +65,7 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
    */
   const saveFailed = async () => {
     if (!manual) return save({ category: 'uncertain' })
-    return withDetails({ category: manualKind, document_kind: manualKind })
+    return save({ category: manualKind, document_kind: manualKind, ...details })
   }
   const sticky = isInjection ? '⚠ This file has text that tries to give Pip orders… Pip ignored it — files are only ever moved by you.' : isFailedDoc ? `${doc.review_flags[0]?.message ?? 'The local AI took too long on this file and gave up.'} Pip didn't guess anything, so there are no numbers to trust here.` : isMissingDate ? 'Pip found a shop and a total, but no date anywhere on the receipt. When did you buy this?' : isConflict ? "The subtotal and the amount due don't match, and there's no tax line explaining it. Which one did you pay?" : (doc.review_flags[0]?.message ?? 'Check the extracted details before this file is filed.')
   const failedLeft = isFailedDoc && doc.user_corrected && !doc.classification?.merchant && !doc.classification?.date && !doc.classification?.amount
@@ -83,7 +85,7 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
       {!isInjection && <><p className="m-0 text-[16px] text-graphite">what Pip read in the file:</p><EvidenceExcerpt text={doc.excerpt} quote={doc.classification?.evidence_quote} /></>}
       <p className="m-0 text-[16px] text-graphite">goes to <span className="font-mono">{row.destination ?? (isInjection ? 'Other/' : 'Uncategorized/')}</span> once checked</p>
     </div>
-    <div className="border-t-[2.5px] border-ink p-4">{fieldError && <p role="alert" className="mb-2 text-center text-[16px] text-danger">{fieldError}</p>}{state.actionError && <p className="mb-2 text-center text-[16px] text-danger">{state.actionError}</p>}<PanelAction disabled={saving} onClick={() => isInjection ? save() : isFailedDoc ? saveFailed() : withDetails()}>{isFailedDoc && !manual ? 'Leave it for later · mark checked' : isInjection ? 'Got it · file under Other' : isMissingDate ? 'Save date · mark checked' : 'Looks right · mark checked'}</PanelAction></div>
+    <div className="border-t-[2.5px] border-ink p-4">{state.actionError && <p className="mb-2 text-center text-[16px] text-danger">{state.actionError}</p>}{saveBlocked && <p className="mb-2 text-center text-[16px] text-graphite" role="alert">You cleared the amount. Enter the amount shown in the file — an empty amount can't be saved.</p>}<PanelAction disabled={saving || saveBlocked} onClick={() => isInjection ? save() : isFailedDoc ? saveFailed() : save(details)}>{isFailedDoc && !manual ? 'Leave it for later · mark checked' : isInjection ? 'Got it · file under Other' : isMissingDate ? 'Save date · mark checked' : 'Looks right · mark checked'}</PanelAction></div>
   </aside>
 }
 

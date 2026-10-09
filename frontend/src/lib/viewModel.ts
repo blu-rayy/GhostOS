@@ -41,6 +41,35 @@ export const NON_TRANSACTION_DECISIONS = {
 } as const satisfies Record<'file' | 'leave', DocumentCorrection>
 
 /**
+ * UI1: builds the transaction correction for the Check panel's primary action.
+ *
+ * The API 422s `amount: null` (and empty/unparseable strings) — null carries
+ * no "clear the amount" semantics — so an untouched empty amount is omitted
+ * instead of sent as an explicit null. Accepting without an amount files the
+ * document without counting it. Clearing a stored amount is not supported:
+ * omitting it would keep a value the screen no longer shows, so the caller
+ * must block the action (`clearedStoredAmount`) instead of sending a payload
+ * the API has to reject. Merchant/date keep their backend null semantics and
+ * are sent only when changed.
+ */
+export function buildTransactionCorrection(input: {
+  initial: { merchant: string | null; date: string | null; amount: string | null }
+  current: { merchant: string; date: string; amount: string }
+}): { details: Omit<DocumentCorrection, 'accept'>; clearedStoredAmount: boolean } {
+  const details: Omit<DocumentCorrection, 'accept'> = {}
+  if (input.current.merchant !== (input.initial.merchant ?? '')) {
+    details.merchant = input.current.merchant || null
+  }
+  if (input.current.date !== (input.initial.date ?? '')) {
+    details.date = input.current.date || null
+  }
+  const amount = input.current.amount.trim()
+  const initialAmount = input.initial.amount ?? ''
+  if (amount !== '' && amount !== initialAmount) details.amount = amount
+  return { details, clearedStoredAmount: initialAmount !== '' && amount === '' }
+}
+
+/**
  * Counts for the review-choice pop-up, from the scan's documents (the plan has no per-file
  * flags). Only files still blocking Move: status needs_review and not yet decided.
  */

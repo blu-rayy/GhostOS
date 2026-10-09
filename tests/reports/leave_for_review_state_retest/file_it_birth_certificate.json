@@ -1,0 +1,33 @@
+{
+  "request": {
+    "category": "other",
+    "accept": true
+  },
+  "status": 200,
+  "response": {
+    "file_id": "322dc54e",
+    "relative_path": "ls/identity/birth-certificate.pdf",
+    "file_type": "pdf",
+    "size_bytes": 1095,
+    "sha256": "df083a5d7500220e94e943891489ab6dc100a88a783426a351e864ef6c4edd1b",
+    "excerpt": "CERTIFICATE OF LIVE BIRTH (fictional)\nPhilippine Statistics Authority\nName: MARA ISABEL VILLANUEVA\nDate of birth: 02 April 1995\nPlace of birth: Makati City\nSex: Female\nMother: Elena Villanueva\nFather: Ramon Villanueva",
+    "status": "ok",
+    "classification": {
+      "category": "other",
+      "merchant": null,
+      "date": null,
+      "amount_text": null,
+      "amount": null,
+      "currency": null,
+      "evidence_quote": null,
+      "evidence_verified": false,
+      "explanation": "This is a birth certificate, which falls under identity_or_civil document kind and is not a transactional document.",
+      "document_kind": "identity_or_civil",
+      "field_profile": "none"
+    },
+    "review_flags": [],
+    "duplicate_of": null,
+    "user_corrected": true,
+    "review_disposition": "filed"
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "body": {
+    "date": "2026-13-45"
+  },
+  "status": 422,
+  "response": {
+    "detail": "date must be an ISO date (YYYY-MM-DD)"
+  },
+  "doc_before": {
+    "file_id": "dc9d2726",
+    "relative_path": "d67/receipts/tibay-hardware-receipt.csv",
+    "file_type": "csv",
+    "size_bytes": 293,
+    "sha256": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9",
+    "excerpt": "store,Tibay Hardware (fictional)\nreceipt_no,TH-000912\ndate,27-09-2026\ncurrency,PHP\nitem,qty,unit_price,line_total\nWall plug set,2,85.00,170.00\nExtension cord 5m,1,525.00,525.00\nLED bulb 9W,6,95.00,570.00\nPaint roller kit,1,880.00,880.00\ngrand_total,,,2145.00\npaid,cash,,2200.00\nchange,,,55.00",
+    "status": "ok",
+    "classification": {
+      "category": "receipt",
+      "merchant": "Tibay Hardware (fictional)",
+      "date": "2026-09-27",
+      "amount_text": "2145.00",
+      "amount": "2145.00",
+      "currency": "PHP",
+      "evidence_quote": "grand_total,,,2145.0",
+      "evidence_verified": true,
+      "explanation": "The document lists items purchased and shows a final total amount, which matches the definition of a receipt.",
+      "document_kind": "receipt",
+      "field_profile": "transaction"
+    },
+    "review_flags": [],
+    "duplicate_of": null,
+    "user_corrected": false
+  },
+  "doc_after": {
+    "file_id": "dc9d2726",
+    "relative_path": "d67/receipts/tibay-hardware-receipt.csv",
+    "file_type": "csv",
+    "size_bytes": 293,
+    "sha256": "5cc008a23a59b8b2abd0075f10cb564a97abbb7f0acc55d5657293af6fa48be9",
+    "excerpt": "store,Tibay Hardware (fictional)\nreceipt_no,TH-000912\ndate,27-09-2026\ncurrency,PHP\nitem,qty,unit_price,line_total\nWall plug set,2,85.00,170.00\nExtension cord 5m,1,525.00,525.00\nLED bulb 9W,6,95.00,570.00\nPaint roller kit,1,880.00,880.00\ngrand_total,,,2145.00\npaid,cash,,2200.00\nchange,,,55.00",
+    "status": "ok",
+    "classification": {
+      "category": "receipt",
+      "merchant": "Tibay Hardware (fictional)",
+      "date": "2026-09-27",
+      "amount_text": "2145.00",
+      "amount": "2145.00",
+      "currency": "PHP",
+      "evidence_quote": "grand_total,,,2145.0",
+      "evidence_verified": true,
+      "explanation": "The document lists items purchased and shows a final total amount, which matches the definition of a receipt.",
+      "document_kind": "receipt",
+      "field_profile": "transaction"
+    },
+    "review_flags": [],
+    "duplicate_of": null,
+    "user_corrected": false
+  },
+  "plan_before_id": "plan_scan_01f5e1f4a0d0",
+  "plan_unchanged": true
+}

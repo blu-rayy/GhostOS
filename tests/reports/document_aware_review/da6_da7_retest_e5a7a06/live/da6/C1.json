@@ -1,0 +1,95 @@
+{
+  "body": {
+    "amount": "5391.06"
+  },
+  "status": 422,
+  "response": {
+    "detail": "document_kind 'statement' cannot use transaction category 'invoice'"
+  },
+  "doc_before": {
+    "file_id": "3d62afcd",
+    "relative_path": "d67/misc/card-statement-sep2026.pdf",
+    "file_type": "pdf",
+    "size_bytes": 1296,
+    "sha256": "af2bda441bd6a6c020cf481ddcb7b95713d533616b71f1175da380f7e0b2cac5",
+    "excerpt": "HARBOR FEDERAL BANK (fictional)\nCredit Card Statement\nCard number: XXXX-XXXX-XXXX-0000\nStatement date: 2026-09-25\n2026-09-03 BRIGHTLINE WEB HOSTING: PHP 3,421.36\n2026-09-14 GREENLEAF GROCER: PHP 1,286.50\n2026-09-21 SUNBEAM CAFE: PHP 683.20\nTotal new charges: PHP 5,391.06\nStatement balance: PHP 5,391.06\nMinimum amount due: PHP 850.00\nPayment due date: 2026-10-15",
+    "status": "needs_review",
+    "classification": {
+      "category": "invoice",
+      "merchant": null,
+      "date": "2026-09-25",
+      "amount_text": "PHP 5,391.06",
+      "amount": null,
+      "currency": "PHP",
+      "evidence_quote": "Total new charges: PHP 5,391.06",
+      "evidence_verified": true,
+      "explanation": "This is a bank credit card statement, which is categorized as a statement document, not a transaction receipt or invoice. The total amount is clearly stated and matches the final charge amount.",
+      "document_kind": "statement",
+      "field_profile": "reference"
+    },
+    "review_flags": [
+      {
+        "code": "amount_conflict",
+        "message": "Multiple conflicting amounts found; none was selected"
+      },
+      {
+        "code": "missing_merchant",
+        "message": "No merchant found in the document"
+      },
+      {
+        "code": "non_transactional_document",
+        "message": "This is not a transaction document and has no expense fields"
+      },
+      {
+        "code": "transaction_fields_on_non_transactional",
+        "message": "Transaction fields were reported for a non-transactional document"
+      }
+    ],
+    "duplicate_of": null,
+    "user_corrected": false
+  },
+  "doc_after": {
+    "file_id": "3d62afcd",
+    "relative_path": "d67/misc/card-statement-sep2026.pdf",
+    "file_type": "pdf",
+    "size_bytes": 1296,
+    "sha256": "af2bda441bd6a6c020cf481ddcb7b95713d533616b71f1175da380f7e0b2cac5",
+    "excerpt": "HARBOR FEDERAL BANK (fictional)\nCredit Card Statement\nCard number: XXXX-XXXX-XXXX-0000\nStatement date: 2026-09-25\n2026-09-03 BRIGHTLINE WEB HOSTING: PHP 3,421.36\n2026-09-14 GREENLEAF GROCER: PHP 1,286.50\n2026-09-21 SUNBEAM CAFE: PHP 683.20\nTotal new charges: PHP 5,391.06\nStatement balance: PHP 5,391.06\nMinimum amount due: PHP 850.00\nPayment due date: 2026-10-15",
+    "status": "needs_review",
+    "classification": {
+      "category": "invoice",
+      "merchant": null,
+      "date": "2026-09-25",
+      "amount_text": "PHP 5,391.06",
+      "amount": null,
+      "currency": "PHP",
+      "evidence_quote": "Total new charges: PHP 5,391.06",
+      "evidence_verified": true,
+      "explanation": "This is a bank credit card statement, which is categorized as a statement document, not a transaction receipt or invoice. The total amount is clearly stated and matches the final charge amount.",
+      "document_kind": "statement",
+      "field_profile": "reference"
+    },
+    "review_flags": [
+      {
+        "code": "amount_conflict",
+        "message": "Multiple conflicting amounts found; none was selected"
+      },
+      {
+        "code": "missing_merchant",
+        "message": "No merchant found in the document"
+      },
+      {
+        "code": "non_transactional_document",
+        "message": "This is not a transaction document and has no expense fields"
+      },
+      {
+        "code": "transaction_fields_on_non_transactional",
+        "message": "Transaction fields were reported for a non-transactional document"
+      }
+    ],
+    "duplicate_of": null,
+    "user_corrected": false
+  },
+  "plan_before_id": "plan_scan_01f5e1f4a0d0",
+  "plan_unchanged": true
+}

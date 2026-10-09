@@ -128,6 +128,45 @@ def test_conflicting_totals_yield_amount_conflict(tmp_path, monkeypatch):
     assert doc["classification"]["amount_text"] == "PHP 100.00"
 
 
+def test_bayside_ambiguous_amount_survives_acceptance_and_stays_out_of_plan(tmp_path, monkeypatch):
+    """An accept action cannot revive a raw amount rejected by validation."""
+    _mock_classifier(
+        monkeypatch,
+        amount_text="PHP 1,520.00",
+        evidence_quote="TOTAL AMOUNT DUE: PHP 1,520.00",
+    )
+    source = tmp_path / "bayside-office-mart.txt"
+    source.write_text(
+        "BAYSIDE OFFICE MART\n"
+        "SUBTOTAL: PHP 1,500.00\n"
+        "AMOUNT DUE: PHP 1,520.00\n"
+        "TOTAL AMOUNT DUE: PHP 1,800.00\n"
+        "Date: 2026-10-09"
+    )
+
+    scan_id, result = _scan_until_done(str(tmp_path))
+    doc_before = result["documents"][0]
+    assert doc_before["classification"]["amount"] is None
+    assert "amount_conflict" in _flag_codes(doc_before)
+    preview = client.get(f"/api/scans/{scan_id}/plan").json()
+
+    correction = client.patch(
+        f"/api/documents/{doc_before['file_id']}",
+        json={"accept": True},
+    )
+    assert correction.status_code == 422
+
+    after = client.get(f"/api/scans/{scan_id}").json()["documents"][0]
+    assert after["status"] == doc_before["status"] == "needs_review"
+    assert after["review_flags"] == doc_before["review_flags"]
+    assert after["classification"] == doc_before["classification"]
+    refreshed = client.get(f"/api/scans/{scan_id}/plan").json()
+    assert refreshed == preview
+    assert refreshed["report_rows"][0]["status"] == "needs_review"
+    assert refreshed["report_rows"][0]["amount"] is None
+    assert refreshed["totals"] == []
+
+
 def test_unsupported_evidence_quote_not_verified(tmp_path, monkeypatch):
     """An evidence quote absent from the source text fails verification."""
     _mock_classifier(

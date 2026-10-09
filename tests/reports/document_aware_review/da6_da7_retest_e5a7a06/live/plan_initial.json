@@ -1,0 +1,109 @@
+{
+  "plan_id": "plan_scan_01f5e1f4a0d0",
+  "scan_id": "scan_01f5e1f4a0d0",
+  "mode": "blocking",
+  "operations": [
+    {
+      "file_id": "84138b68",
+      "original_relative_path": "d67/archive/2026/invoice.pdf",
+      "destination_relative_path": "Invoices/2026-09/invoice.pdf",
+      "reason": "invoice dated 2026-09-18",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "296929c3",
+      "original_relative_path": "d67/invoices/INV-1043_Pixelforge_Studio.pdf",
+      "destination_relative_path": "Invoices/2026-10/INV-1043_Pixelforge_Studio.pdf",
+      "reason": "invoice dated 2026-10-02",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "3d62afcd",
+      "original_relative_path": "d67/misc/card-statement-sep2026.pdf",
+      "destination_relative_path": "Uncategorized/card-statement-sep2026.pdf",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "b477e9e1",
+      "original_relative_path": "d67/receipts/bayside-office-mart.pdf",
+      "destination_relative_path": "Uncategorized/bayside-office-mart.pdf",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "e0c19c6c",
+      "original_relative_path": "d67/receipts/sunbeam-cafe-receipt.pdf",
+      "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "reason": "receipt dated 2026-09-21",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "dc9d2726",
+      "original_relative_path": "d67/receipts/tibay-hardware-receipt.csv",
+      "destination_relative_path": "Receipts/2026-09/tibay-hardware-receipt.csv",
+      "reason": "receipt dated 2026-09-27",
+      "collision_suffixed": false
+    }
+  ],
+  "report_rows": [
+    {
+      "file_id": "84138b68",
+      "source_filename": "d67/archive/2026/invoice.pdf",
+      "category": "invoice",
+      "date": "2026-09-18",
+      "merchant": "CARABAO PAPER SUPPLY CO.",
+      "amount": "3470.00",
+      "currency": "PHP",
+      "status": "accepted"
+    },
+    {
+      "file_id": "296929c3",
+      "source_filename": "d67/invoices/INV-1043_Pixelforge_Studio.pdf",
+      "category": "invoice",
+      "date": "2026-10-02",
+      "merchant": "PIXELFORGE DESIGN STUDIO",
+      "amount": "18648.00",
+      "currency": "PHP",
+      "status": "accepted"
+    },
+    {
+      "file_id": "b477e9e1",
+      "source_filename": "d67/receipts/bayside-office-mart.pdf",
+      "category": "receipt",
+      "date": "2026-09-05",
+      "merchant": "BAYSIDE OFFICE MART",
+      "amount": "1520.00",
+      "currency": "PHP",
+      "status": "needs_review"
+    },
+    {
+      "file_id": "e0c19c6c",
+      "source_filename": "d67/receipts/sunbeam-cafe-receipt.pdf",
+      "category": "receipt",
+      "date": "2026-09-21",
+      "merchant": "SUNBEAM CAFE",
+      "amount": "683.20",
+      "currency": "PHP",
+      "status": "accepted"
+    },
+    {
+      "file_id": "dc9d2726",
+      "source_filename": "d67/receipts/tibay-hardware-receipt.csv",
+      "category": "receipt",
+      "date": "2026-09-27",
+      "merchant": "Tibay Hardware (fictional)",
+      "amount": "2145.00",
+      "currency": "PHP",
+      "status": "accepted"
+    }
+  ],
+  "totals": [
+    {
+      "currency": "PHP",
+      "amount": "24946.20",
+      "row_count": 4
+    }
+  ],
+  "blocking_review_count": 2
+}

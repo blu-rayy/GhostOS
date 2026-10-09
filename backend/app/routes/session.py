@@ -411,6 +411,42 @@ def correct_document(file_id: str, body: dict) -> dict:
                 detail="amount correction is not supported by validated source evidence",
             )
 
+    if body.get("accept") and profile == "transaction":
+        # Acceptance is not a second source of truth. Revalidate the complete
+        # proposed transaction before clearing any review state. A canonical
+        # amount from an earlier validation may be used as the temporary
+        # candidate, but the original amount_text is never overwritten.
+        candidate_data = {
+            field: proposed_classification.get(field)
+            for field in (
+                "category", "document_kind", "merchant", "date", "amount_text",
+                "currency", "evidence_quote", "explanation",
+            )
+            if field in proposed_classification
+        }
+        for field in ("merchant", "date", "currency"):
+            if field in normalized_updates:
+                candidate_data[field] = normalized_updates[field]
+        candidate_data["amount_text"] = (
+            body.get("amount")
+            or proposed_classification.get("amount_text")
+            or proposed_classification.get("amount")
+        )
+        try:
+            candidate = ClassificationRecord.model_validate(candidate_data)
+        except Exception as exc:
+            raise HTTPException(status_code=422, detail="Transaction correction failed schema validation") from exc
+        candidate_validation = validate_classification(doc.excerpt, candidate)
+        if (
+            candidate_validation.flags
+            or not candidate_validation.is_valid
+            or candidate_validation.parsed_amount is None
+        ):
+            raise HTTPException(
+                status_code=422,
+                detail="Cannot accept transaction while source validation findings remain unresolved",
+            )
+
     # Apply the correction fields
     if doc.classification is None:
         doc.classification = {

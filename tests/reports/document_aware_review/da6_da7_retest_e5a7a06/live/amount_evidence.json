@@ -1,0 +1,75 @@
+{
+  "d67/archive/2026/invoice.pdf": {
+    "status": "ok",
+    "category": "invoice",
+    "kind": "invoice",
+    "profile": "transaction",
+    "amount": "3470.00",
+    "amount_text": "PHP 3,470.00",
+    "currency": "PHP",
+    "evidence_quote": "TOTAL AMOUNT DUE: PHP 3,470.00",
+    "flags": []
+  },
+  "d67/invoices/INV-1043_Pixelforge_Studio.pdf": {
+    "status": "ok",
+    "category": "invoice",
+    "kind": "invoice",
+    "profile": "transaction",
+    "amount": "18648.00",
+    "amount_text": "PHP 18,648.00",
+    "currency": "PHP",
+    "evidence_quote": "Total Amount Due: PHP 18,648.00",
+    "flags": []
+  },
+  "d67/misc/card-statement-sep2026.pdf": {
+    "status": "needs_review",
+    "category": "invoice",
+    "kind": "statement",
+    "profile": "reference",
+    "amount": null,
+    "amount_text": "PHP 5,391.06",
+    "currency": "PHP",
+    "evidence_quote": "Total new charges: PHP 5,391.06",
+    "flags": [
+      "amount_conflict",
+      "missing_merchant",
+      "non_transactional_document",
+      "transaction_fields_on_non_transactional"
+    ]
+  },
+  "d67/receipts/bayside-office-mart.pdf": {
+    "status": "needs_review",
+    "category": "receipt",
+    "kind": "receipt",
+    "profile": "transaction",
+    "amount": null,
+    "amount_text": "PHP 1,520.00",
+    "currency": "PHP",
+    "evidence_quote": "AMOUNT DUE: PHP 1,520.00",
+    "flags": [
+      "amount_conflict"
+    ]
+  },
+  "d67/receipts/sunbeam-cafe-receipt.pdf": {
+    "status": "ok",
+    "category": "receipt",
+    "kind": "receipt",
+    "profile": "transaction",
+    "amount": "683.20",
+    "amount_text": "PHP 683.20",
+    "currency": "PHP",
+    "evidence_quote": "FINAL TOTAL: PHP 683.20",
+    "flags": []
+  },
+  "d67/receipts/tibay-hardware-receipt.csv": {
+    "status": "ok",
+    "category": "receipt",
+    "kind": "receipt",
+    "profile": "transaction",
+    "amount": "2145.00",
+    "amount_text": "2145.00",
+    "currency": "PHP",
+    "evidence_quote": "grand_total,,,2145.0",
+    "flags": []
+  }
+}
