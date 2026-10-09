@@ -1,0 +1,131 @@
+[
+  {
+    "id": "R0",
+    "check": "Root contains the lowercase source directory 'receipts/' that triggered F1",
+    "status": "PASS",
+    "expected": "['receipts']",
+    "actual": [
+      "receipts"
+    ]
+  },
+  {
+    "id": "R1",
+    "check": "Scan does not modify the root",
+    "status": "PASS",
+    "expected": "identical tree",
+    "actual": "identical"
+  },
+  {
+    "id": "R2",
+    "check": "Preview does not modify the root",
+    "status": "PASS",
+    "expected": "identical tree",
+    "actual": "identical"
+  },
+  {
+    "id": "R3",
+    "check": "Plan ID belongs to this scan",
+    "status": "PASS",
+    "expected": "plan_scan_28419f4558ec",
+    "actual": "plan_scan_28419f4558ec"
+  },
+  {
+    "id": "R4",
+    "check": "Zero blocking reviews (no correction needed)",
+    "status": "PASS",
+    "expected": 0,
+    "actual": 0
+  },
+  {
+    "id": "R5",
+    "check": "All five classified without review flags",
+    "status": "PASS",
+    "expected": "5 documents, all status ok",
+    "actual": "5 documents; statuses ['ok', 'ok', 'ok', 'ok', 'ok']"
+  },
+  {
+    "id": "R6",
+    "check": "Categories and dates match ground truth",
+    "status": "PASS",
+    "expected": "5/5",
+    "actual": "5/5"
+  },
+  {
+    "id": "R7",
+    "check": "Exactly five operations",
+    "status": "PASS",
+    "expected": 5,
+    "actual": 5
+  },
+  {
+    "id": "R8",
+    "check": "Planned destinations equal the independently expected destinations",
+    "status": "PASS",
+    "expected": {
+      "archive/2026/invoice.pdf": "Invoices/2026-09/invoice.pdf",
+      "inbox/invoice.pdf": "Invoices/2026-09/invoice (2).pdf",
+      "downloads/greenleaf-grocer-2026-09-14 (1).txt": "GhostOS Organized/Receipts/2026-09/greenleaf-grocer-2026-09-14 (1).txt",
+      "receipts/greenleaf-grocer-2026-09-14.txt": "GhostOS Organized/Receipts/2026-09/greenleaf-grocer-2026-09-14.txt",
+      "receipts/sunbeam-cafe-receipt.pdf": "GhostOS Organized/Receipts/2026-09/sunbeam-cafe-receipt.pdf"
+    },
+    "actual": {
+      "archive/2026/invoice.pdf": "Invoices/2026-09/invoice.pdf",
+      "downloads/greenleaf-grocer-2026-09-14 (1).txt": "GhostOS Organized/Receipts/2026-09/greenleaf-grocer-2026-09-14 (1).txt",
+      "inbox/invoice.pdf": "Invoices/2026-09/invoice (2).pdf",
+      "receipts/greenleaf-grocer-2026-09-14.txt": "GhostOS Organized/Receipts/2026-09/greenleaf-grocer-2026-09-14.txt",
+      "receipts/sunbeam-cafe-receipt.pdf": "GhostOS Organized/Receipts/2026-09/sunbeam-cafe-receipt.pdf"
+    }
+  },
+  {
+    "id": "R9",
+    "check": "Receipts routed to the distinct 'GhostOS Organized/Receipts/YYYY-MM/' location",
+    "status": "PASS",
+    "expected": "all 3 receipts under GhostOS Organized/Receipts/2026-09/",
+    "actual": [
+      "GhostOS Organized/Receipts/2026-09/greenleaf-grocer-2026-09-14 (1).txt",
+      "GhostOS Organized/Receipts/2026-09/greenleaf-grocer-2026-09-14.txt",
+      "GhostOS Organized/Receipts/2026-09/sunbeam-cafe-receipt.pdf"
+    ]
+  },
+  {
+    "id": "R10",
+    "check": "No destination inside any scanned source directory (case-insensitive)",
+    "status": "PASS",
+    "expected": "none inside ['archive', 'archive/2026', 'downloads', 'inbox', 'receipts']",
+    "actual": "none"
+  },
+  {
+    "id": "R11",
+    "check": "All destinations relative, inside the root, and currently free",
+    "status": "PASS",
+    "expected": "no problems",
+    "actual": "none"
+  },
+  {
+    "id": "R12",
+    "check": "Destinations unique (case-insensitive)",
+    "status": "PASS",
+    "expected": "5 unique",
+    "actual": 5
+  },
+  {
+    "id": "R13",
+    "check": "Outside canary unchanged",
+    "status": "PASS",
+    "expected": "5a7980030b5198c0",
+    "actual": "5a7980030b5198c0"
+  },
+  {
+    "id": "R14",
+    "check": "Plan totals equal independent ground truth (PHP 5439.70, USD 59.88)",
+    "status": "PASS",
+    "expected": {
+      "PHP": "5439.70",
+      "USD": "59.88"
+    },
+    "actual": {
+      "PHP": "5439.70",
+      "USD": "59.88"
+    }
+  }
+]

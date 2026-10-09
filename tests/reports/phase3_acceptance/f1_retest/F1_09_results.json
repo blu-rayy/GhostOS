@@ -1,0 +1,239 @@
+[
+  {
+    "id": "P1",
+    "check": "Scan ID and plan ID match the reviewed plan",
+    "status": "PASS",
+    "expected": "scan_28419f4558ec / plan_scan_28419f4558ec",
+    "actual": "HTTP 200 scan_28419f4558ec / plan_scan_28419f4558ec"
+  },
+  {
+    "id": "P2",
+    "check": "Plan byte-identical to the reviewed snapshot (operations, case, rows, totals)",
+    "status": "PASS",
+    "expected": "identical to F1_02_plan_for_approval.json",
+    "actual": "identical"
+  },
+  {
+    "id": "P3",
+    "check": "Five operations",
+    "status": "PASS",
+    "expected": 5,
+    "actual": 5
+  },
+  {
+    "id": "P4",
+    "check": "Zero blocking reviews",
+    "status": "PASS",
+    "expected": 0,
+    "actual": 0
+  },
+  {
+    "id": "P5",
+    "check": "Original five files present with recorded SHA-256 (and nothing else)",
+    "status": "PASS",
+    "expected": "matches F1_00_setup_manifest.json",
+    "actual": "matches"
+  },
+  {
+    "id": "P6",
+    "check": "All destinations still free",
+    "status": "PASS",
+    "expected": "none exist",
+    "actual": "none exist"
+  },
+  {
+    "id": "P7",
+    "check": "Outside canary unchanged",
+    "status": "PASS",
+    "expected": "5a7980030b5198c0",
+    "actual": "5a7980030b5198c0"
+  },
+  {
+    "id": "S1",
+    "check": "Approval succeeds: 5 moved, 0 failed",
+    "status": "PASS",
+    "expected": "HTTP 200, moved=5, failed=[]",
+    "actual": "HTTP 200 {'batch_id': 'batch_72e59374531a', 'moved': 5, 'failed': [], 'report_relative_path': 'GhostOS Reports/expenses-202610091755.csv', 'committed_at': '2026-10-09T17:55:15.565681+00:00'}"
+  },
+  {
+    "id": "D1",
+    "check": "Every file is at its approved destination with EXACT case and original SHA-256",
+    "status": "PASS",
+    "expected": [
+      "GhostOS Organized/Receipts/2026-09/greenleaf-grocer-2026-09-14 (1).txt",
+      "GhostOS Organized/Receipts/2026-09/greenleaf-grocer-2026-09-14.txt",
+      "GhostOS Organized/Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "Invoices/2026-09/invoice (2).pdf",
+      "Invoices/2026-09/invoice.pdf"
+    ],
+    "actual": [
+      "GhostOS Organized/Receipts/2026-09/greenleaf-grocer-2026-09-14 (1).txt",
+      "GhostOS Organized/Receipts/2026-09/greenleaf-grocer-2026-09-14.txt",
+      "GhostOS Organized/Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "Invoices/2026-09/invoice (2).pdf",
+      "Invoices/2026-09/invoice.pdf"
+    ]
+  },
+  {
+    "id": "D2",
+    "check": "Organized folder names on disk have the planned case",
+    "status": "PASS",
+    "expected": "GhostOS Organized/Receipts/2026-09, Invoices/2026-09, GhostOS Reports present exactly",
+    "actual": [
+      "GhostOS Organized",
+      "GhostOS Organized/Receipts",
+      "GhostOS Organized/Receipts/2026-09",
+      "GhostOS Reports",
+      "Invoices",
+      "Invoices/2026-09"
+    ]
+  },
+  {
+    "id": "D3",
+    "check": "Nothing organized under the lowercase source 'receipts/' directory",
+    "status": "PASS",
+    "expected": "receipts/ contains no files or subfolders",
+    "actual": "receipts/ is empty"
+  },
+  {
+    "id": "D4",
+    "check": "No file left in or written to any source directory",
+    "status": "PASS",
+    "expected": "none",
+    "actual": "none"
+  },
+  {
+    "id": "D5",
+    "check": "No file overwritten (5 distinct destinations, each with its own source bytes; collision suffixed)",
+    "status": "PASS",
+    "expected": "invoice.pdf=archive bytes, invoice (2).pdf=inbox bytes, 5 files",
+    "actual": "5 files"
+  },
+  {
+    "id": "D6",
+    "check": "Nothing written outside the selected root",
+    "status": "PASS",
+    "expected": "base children unchanged; A, old B and canary unchanged",
+    "actual": "base children ['A-blocker', 'B-acceptance', 'B-f1-retest', 'outside-canary']; ok=True"
+  },
+  {
+    "id": "D7",
+    "check": "No temporary report file left",
+    "status": "PASS",
+    "expected": "none",
+    "actual": "none"
+  },
+  {
+    "id": "C1",
+    "check": "Report inside root at the returned path; BOM, CRLF and header",
+    "status": "PASS",
+    "expected": "GhostOS Reports/expenses-<stamp>.csv, BOM, CRLF, 6-column header",
+    "actual": "GhostOS Reports/expenses-202610091755.csv; header=['source_file', 'merchant', 'date', 'category', 'amount', 'currency']"
+  },
+  {
+    "id": "C2",
+    "check": "Four data rows from the expected sources",
+    "status": "PASS",
+    "expected": [
+      "archive/2026/invoice.pdf",
+      "downloads/greenleaf-grocer-2026-09-14 (1).txt",
+      "inbox/invoice.pdf",
+      "receipts/sunbeam-cafe-receipt.pdf"
+    ],
+    "actual": [
+      "archive/2026/invoice.pdf",
+      "downloads/greenleaf-grocer-2026-09-14 (1).txt",
+      "inbox/invoice.pdf",
+      "receipts/sunbeam-cafe-receipt.pdf"
+    ]
+  },
+  {
+    "id": "C3",
+    "check": "Row values match ground truth",
+    "status": "PASS",
+    "expected": "all match",
+    "actual": "all match"
+  },
+  {
+    "id": "C4",
+    "check": "CSV totals = independent ground truth = plan totals",
+    "status": "PASS",
+    "expected": {
+      "PHP": "5439.70",
+      "USD": "59.88"
+    },
+    "actual": {
+      "PHP": "5439.70",
+      "USD": "59.88"
+    }
+  },
+  {
+    "id": "C5",
+    "check": "Duplicate copy excluded (one Greenleaf row; receipts/ copy is duplicate_of the downloads copy)",
+    "status": "PASS",
+    "expected": "only downloads/greenleaf-grocer-2026-09-14 (1).txt",
+    "actual": [
+      "downloads/greenleaf-grocer-2026-09-14 (1).txt"
+    ]
+  },
+  {
+    "id": "U1",
+    "check": "Undo succeeds with no conflicts",
+    "status": "PASS",
+    "expected": "HTTP 200, restored=5, conflicts=[]",
+    "actual": "HTTP 200, restored=5, conflicts=[]"
+  },
+  {
+    "id": "U2",
+    "check": "All five original paths (exact case) restored with original SHA-256",
+    "status": "PASS",
+    "expected": "5/5 identical",
+    "actual": "5/5 identical"
+  },
+  {
+    "id": "U3",
+    "check": "No organized files remain anywhere (incl. inside source folders)",
+    "status": "PASS",
+    "expected": "none",
+    "actual": "none"
+  },
+  {
+    "id": "U4",
+    "check": "Source folders contain only their original files",
+    "status": "PASS",
+    "expected": "only originals",
+    "actual": [
+      "archive/2026/invoice.pdf",
+      "downloads/greenleaf-grocer-2026-09-14 (1).txt",
+      "inbox/invoice.pdf",
+      "receipts/greenleaf-grocer-2026-09-14.txt",
+      "receipts/sunbeam-cafe-receipt.pdf"
+    ]
+  },
+  {
+    "id": "U5",
+    "check": "(observed) Report CSV remaining after undo",
+    "status": "PASS",
+    "expected": "record actual",
+    "actual": [
+      "GhostOS Reports/expenses-202610091755.csv"
+    ]
+  },
+  {
+    "id": "U6",
+    "check": "(observed) Empty generated folders remaining after undo",
+    "status": "PASS",
+    "expected": "record actual",
+    "actual": [
+      "GhostOS Organized/Receipts/2026-09",
+      "Invoices/2026-09"
+    ]
+  },
+  {
+    "id": "U7",
+    "check": "Outside root still unchanged after undo",
+    "status": "PASS",
+    "expected": "unchanged",
+    "actual": "unchanged"
+  }
+]
