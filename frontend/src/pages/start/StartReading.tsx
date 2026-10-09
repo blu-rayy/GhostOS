@@ -62,10 +62,15 @@ export function StartReading() {
               ← choose another folder
             </PaperButton>
           ) : (
-            <span className="flex items-center gap-2 text-[19px] text-[#444]">
-              <LockIcon size={20} crisp />
-              Nothing moves while Pip reads. Everything stays on this computer.
-            </span>
+            <div className="flex items-center gap-4">
+              <PaperButton variant="link" onClick={resetSession}>
+                ← cancel reading
+              </PaperButton>
+              <span className="flex items-center gap-2 text-[17px] text-[#444]">
+                <LockIcon size={19} crisp />
+                Nothing moves while Pip reads.
+              </span>
+            </div>
           )
         }
         right={

@@ -12,5 +12,6 @@ contextBridge.exposeInMainWorld('ghostos', {
   pipToFolder: (root, folder) => ipcRenderer.invoke('ghostos:pip-to-folder', root, folder),
   desktopPipStart: (root, options) => ipcRenderer.invoke('ghostos:desktop-pip-start', root, options),
   desktopPipTarget: (relPath) => ipcRenderer.send('ghostos:desktop-pip-target', relPath),
+  desktopPipProgress: (done, total) => ipcRenderer.send('ghostos:desktop-pip-progress', done, total),
   desktopPipStop: () => ipcRenderer.invoke('ghostos:desktop-pip-stop'),
 });

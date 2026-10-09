@@ -130,12 +130,8 @@ export interface DocumentCorrection {
   date?: string | null
   amount?: string | null
   currency?: string | null
-  /**
-   * What the paper is, when a person says so (e.g. typing in an unreadable receipt). The backend
-   * normalises it and derives field_profile from it; there is no way to send a profile.
-   * Statement/identity/legal/medical with a shop, date, amount or currency is rejected (422).
-   */
-  document_kind?: DocumentKind | null
+  // No document_kind or field_profile: the backend rejects both (422) and derives them itself.
+  // merchant/date/amount/currency are also a 422 unless the record is already a 'transaction'.
   /** Mark as reviewed by a human; clears review flags. */
   accept: boolean
 }

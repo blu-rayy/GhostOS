@@ -43,6 +43,19 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
     await correct(doc.file_id, { ...correction, accept: true }, 'review')
     setSaving(false)
   }
+  const details = { amount: amount || null, date: date || null, merchant: merchant || null }
+  /**
+   * Unreadable file. The backend only accepts a shop/date/amount on a 'transaction' record, so
+   * typing them in is two steps: say it's a receipt/invoice (which makes it one), then the details.
+   * "Leave it for later" sends no money fields at all.
+   */
+  const saveFailed = async () => {
+    if (!manual) return save({ category: 'uncertain' })
+    setSaving(true)
+    const ok = await correct(doc.file_id, { category: manualKind, accept: false }, 'kind')
+    if (ok) await correct(doc.file_id, { ...details, accept: true }, 'details')
+    setSaving(false)
+  }
   const sticky = isInjection ? '⚠ This file has text that tries to give Pip orders… Pip ignored it — files are only ever moved by you.' : isFailedDoc ? `${doc.review_flags[0]?.message ?? 'The local AI took too long on this file and gave up.'} Pip didn't guess anything, so there are no numbers to trust here.` : isMissingDate ? 'Pip found a shop and a total, but no date anywhere on the receipt. When did you buy this?' : isConflict ? "The subtotal and the amount due don't match, and there's no tax line explaining it. Which one did you pay?" : (doc.review_flags[0]?.message ?? 'Check the extracted details before this file is filed.')
   const status = doc.user_corrected ? '✓ checked' : isFailedDoc ? "couldn't read" : 'check this'
   return <aside className="flex w-[500px] min-h-0 shrink-0 flex-col border-l-[2.5px] border-ink bg-paper" aria-label="File details">
@@ -60,7 +73,7 @@ function DetailPanel({ row, onClose }: { row: FileRow; onClose: () => void }) {
       {!isInjection && <><p className="m-0 text-[16px] text-graphite">what Pip read in the file:</p><EvidenceExcerpt text={doc.excerpt} quote={doc.classification?.evidence_quote} /></>}
       <p className="m-0 text-[16px] text-graphite">goes to <span className="font-mono">{row.destination ?? (isInjection ? 'Other/' : 'Needs Review/')}</span> once checked</p>
     </div>
-    <div className="border-t-[2.5px] border-ink p-4">{state.actionError && <p className="mb-2 text-center text-[16px] text-danger">{state.actionError}</p>}<PanelAction disabled={saving} onClick={() => isInjection ? save() : save({ amount: amount || null, date: date || null, merchant: merchant || null, ...(isFailedDoc && manual ? { category: manualKind, document_kind: manualKind } : {}) })}>{isFailedDoc && !manual ? 'Leave it for later · mark checked' : isInjection ? 'Got it · file under Other' : isMissingDate ? 'Save date · mark checked' : 'Looks right · mark checked'}</PanelAction></div>
+    <div className="border-t-[2.5px] border-ink p-4">{state.actionError && <p className="mb-2 text-center text-[16px] text-danger">{state.actionError}</p>}<PanelAction disabled={saving} onClick={() => isInjection ? save() : isFailedDoc ? saveFailed() : save(details)}>{isFailedDoc && !manual ? 'Leave it for later · mark checked' : isInjection ? 'Got it · file under Other' : isMissingDate ? 'Save date · mark checked' : 'Looks right · mark checked'}</PanelAction></div>
   </aside>
 }
 

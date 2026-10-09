@@ -33,6 +33,8 @@ export type GhostOSPlatform = {
     start: (root: string, options?: { randomFiles?: boolean }) => void
     /** The file the backend is reading now (relative path); Pip possesses its icon. */
     target: (relativePath: string) => void
+    /** Reading progress, shown as a bar inside the Explorer window (total 0 = not known yet). */
+    progress: (done: number, total: number) => void
     /** Pip waves and leaves; GhostOS comes back to the front. */
     stop: () => void
     /** After a move: Pip flies into `folder` inside the Explorer window on `root`. */
@@ -49,6 +51,7 @@ export type ElectronBridge = {
   pipToFolder?: (root: string, folder: string) => Promise<{ ok: boolean; reason?: string }>
   desktopPipStart?: (root: string, options?: { randomFiles?: boolean }) => Promise<{ ok: boolean; reason?: string }>
   desktopPipTarget?: (relativePath: string) => void
+  desktopPipProgress?: (done: number, total: number) => void
   desktopPipStop?: () => Promise<{ ok: boolean }>
 }
 

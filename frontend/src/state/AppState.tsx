@@ -26,18 +26,6 @@ function makeEvent(e: Omit<ActivityEvent, 'id' | 'at'>): ActivityEvent {
   return { id: `ev${Date.now()}_${eventSeq}`, at: new Date().toISOString(), ...e }
 }
 
-/** First path segment that most destinations share ("Receipts/2026-09/a.pdf" -> "Receipts"). */
-function busiestTopFolder(paths: string[]): string | null {
-  const counts = new Map<string, number>()
-  for (const p of paths) {
-    const top = p.split('/')[0]
-    if (top && top !== p) counts.set(top, (counts.get(top) ?? 0) + 1)
-  }
-  let best: string | null = null
-  for (const [name, n] of counts) if (best === null || n > (counts.get(best) ?? 0)) best = name
-  return best
-}
-
 export interface Counts {
   documents: number
   skipped: number
@@ -209,6 +197,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           }
           lastProcessed = progress.files_processed
           if (pip && progress.current_file && progress.current_file !== lastFile) pip.target(progress.current_file)
+          pip?.progress(progress.files_processed, progress.files_total)
           lastFile = progress.current_file
           if (progress.state === 'error') return fail(progress.error ?? 'The scan failed.')
           if (progress.state === 'done') {
@@ -285,13 +274,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           )
         }
         log({ type: 'report_generated', level: 'success', title: 'Totals list written', detail: batch.report_relative_path })
-        // Desktop Pip (Settings toggle): Pip flies into the real folder that received the most
-        // files. Cosmetic; never affects the result.
-        const root = s.folder?.path
-        if (s.desktopPip && root && batch.failed.length === 0 && batch.moved > 0 && platform.desktopPip) {
-          const top = busiestTopFolder(s.plan.operations.map((op) => op.destination_relative_path))
-          if (top) platform.desktopPip.intoFolder(root, top)
-        }
       } catch (e) {
         patch({ busy: null, phase: 'reviewing', actionError: errorText(e), view: 'report', approvedPlan: null })
         log({ type: 'action_failed', level: 'error', title: 'Approval failed. Nothing was moved.', detail: errorText(e) })

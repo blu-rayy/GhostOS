@@ -26,6 +26,7 @@ export const electronPlatform: GhostOSPlatform = {
       ? {
           start: (root, options) => void getBridge()?.desktopPipStart?.(root, options).catch(() => undefined),
           target: (relativePath) => getBridge()?.desktopPipTarget?.(relativePath),
+          progress: (done, total) => getBridge()?.desktopPipProgress?.(done, total),
           stop: () => void getBridge()?.desktopPipStop?.().catch(() => undefined),
           intoFolder: (root, folder) => void getBridge()?.pipToFolder?.(root, folder).catch(() => undefined),
         }

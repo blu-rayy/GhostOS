@@ -38,7 +38,7 @@ public static class GhostWin {
 
   $r = New-Object GhostWin+RECT
   [GhostWin]::GetWindowRect($h, [ref]$r) | Out-Null
-  $win = @{ x = $r.L; y = $r.T; width = $r.R - $r.L; height = $r.B - $r.T }
+  $win = @{ x = $r.L; y = $r.T; width = $r.R - $r.L; height = $r.B - $r.T; hwnd = [int64]$h }
 
   Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
   $A = [Windows.Automation.AutomationElement]

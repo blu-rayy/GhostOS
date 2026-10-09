@@ -165,11 +165,55 @@ function overlayCall(s, js) {
   if (s?.overlay && !s.overlay.isDestroyed()) s.overlay.webContents.executeJavaScript(js).catch(() => undefined);
 }
 
+/**
+ * Fallback: watch the Explorer window Pip is haunting. If it's minimized, moved, resized or
+ * closed, Pip and the progress bar poof away and GhostOS comes forward, where its own
+ * progress card keeps counting. The rest of the scan carries on without the overlay.
+ */
+function watchExplorer(s, hwnd) {
+  if (!hwnd) return;
+  const child = execFile(
+    'powershell.exe',
+    ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', path.join(__dirname, 'watch-folder-window.ps1')],
+    { env: { ...process.env, GHOSTOS_HWND: String(hwnd) }, timeout: 16 * 60 * 1000, windowsHide: true },
+    (err, stdout) => {
+      if (s.watcher !== child) return; // stopped on purpose
+      s.watcher = null;
+      let event = null;
+      try {
+        event = JSON.parse(String(stdout).trim().split(/\r?\n/).pop()).event;
+      } catch {
+        return;
+      }
+      if (['closed', 'minimized', 'moved'].includes(event)) retireOverlay(s);
+    },
+  );
+  child.stdin.end(); // PowerShell can wait on an open stdin pipe
+  s.watcher = child;
+}
+
+function stopWatcher(s) {
+  const child = s.watcher;
+  s.watcher = null;
+  if (child && child.exitCode === null) child.kill();
+}
+
+/** Pip and the bar vanish at once; GhostOS (and its in-app progress) comes to the front. */
+function retireOverlay(s) {
+  const overlay = s.overlay;
+  if (!overlay || overlay.isDestroyed()) return;
+  s.overlay = null; // later progress/targets now only update the app
+  overlay.webContents.executeJavaScript('window.pipSession && window.pipSession.vanish()').catch(() => undefined);
+  setTimeout(() => !overlay.isDestroyed() && overlay.close(), 600);
+  if (!s.stopped) bringToFront(s.appWin);
+}
+
 async function stopSession(bringBack) {
   const s = session;
   session = null;
   if (!s) return;
   s.stopped = true;
+  stopWatcher(s);
   if (s.overlay && !s.overlay.isDestroyed()) {
     overlayCall(s, 'window.pipSession && window.pipSession.stop()');
     const overlay = s.overlay;
@@ -215,6 +259,8 @@ ipcMain.handle('ghostos:desktop-pip-start', async (event, root, options) => {
   const randomFiles = Boolean(options && options.randomFiles);
   overlayCall(s, `window.pipSession.init(${JSON.stringify({ items, win: local(win, display.bounds), randomFiles })})`);
   if (s.pending) overlayCall(s, `window.pipSession.target(${JSON.stringify(s.pending)})`);
+  if (s.progress) overlayCall(s, `window.pipSession.progress(${s.progress[0]}, ${s.progress[1]})`);
+  watchExplorer(s, found.window.hwnd);
   return { ok: true, items: items.length };
 });
 
@@ -224,6 +270,14 @@ ipcMain.on('ghostos:desktop-pip-target', (_event, relPath) => {
   if (!s || typeof relPath !== 'string' || relPath.length > 1024) return;
   s.pending = relPath;
   overlayCall(s, `window.pipSession.target(${JSON.stringify(relPath)})`);
+});
+
+// Fire-and-forget: reading progress for the bar inside the Explorer window.
+ipcMain.on('ghostos:desktop-pip-progress', (_event, done, total) => {
+  const s = session;
+  if (!s || !Number.isInteger(done) || !Number.isInteger(total) || done < 0 || total < 0) return;
+  s.progress = [Math.min(done, total || done), total];
+  overlayCall(s, `window.pipSession.progress(${s.progress[0]}, ${s.progress[1]})`);
 });
 
 ipcMain.handle('ghostos:desktop-pip-stop', async () => {

@@ -86,28 +86,33 @@ describe('document-aware review', () => {
     expect(plan.report_rows.find((r) => r.file_id === RECEIPT)?.status).toBe('accepted')
   })
 
-  it('files a non-transaction paper by its profile even when its category says invoice', async () => {
+  it('never counts a non-transaction paper, even when its category says invoice', async () => {
     const scan = await startScan()
-    // A statement mislabelled as an invoice and accepted outside the Check panel.
+    // A statement relabelled as an invoice outside the Check panel. The backend (bc6a5d6) still files
+    // by category, but the profile keeps it out of the totals.
     await settle(mockApi.correctDocument(STATEMENT, { category: 'invoice', accept: true }), 150)
     const plan = await settle(mockApi.getPlan(scan.scan_id), 200)
-    expect(plan.operations.find((o) => o.file_id === STATEMENT)?.destination_relative_path).toBe('Other/statement_0921.pdf')
+    expect(plan.operations.find((o) => o.file_id === STATEMENT)?.destination_relative_path).toBe('Invoices/2026-09/statement_0921.pdf')
     expect(plan.report_rows.find((r) => r.file_id === STATEMENT)).toBeUndefined()
   })
 
-  it('stores both keys on a hand-typed record and derives the profile only from the kind', async () => {
+  it('types in an unreadable file in two steps and derives the profile on the backend side', async () => {
     await startScan()
-    const untyped = await settle(mockApi.correctDocument('f10', { merchant: 'Somewhere', accept: false }), 150)
-    expect(untyped.classification).toMatchObject({ document_kind: null, field_profile: 'none' })
-    const typed = await settle(mockApi.correctDocument('f10', { document_kind: 'receipt', category: 'receipt', accept: true }), 150)
-    expect(typed.classification).toMatchObject({ document_kind: 'receipt', field_profile: 'transaction' })
+    // Details first: the bare record is 'uncertain' / 'none', so they're refused.
+    await expect(settle(mockApi.correctDocument('f10', { merchant: 'Somewhere', accept: false }), 150)).rejects.toThrow(/422.*'none'/)
+    const kinded = await settle(mockApi.correctDocument('f10', { category: 'receipt', accept: false }), 150)
+    expect(kinded.classification).toMatchObject({ category: 'receipt', document_kind: 'receipt', field_profile: 'transaction' })
+    const typed = await settle(mockApi.correctDocument('f10', { merchant: 'Somewhere', amount: '12.00', accept: true }), 150)
+    expect(typed.classification).toMatchObject({ merchant: 'Somewhere', amount: '12.00', field_profile: 'transaction' })
   })
 
-  it('rejects payment details on a statement, ID, legal or medical paper', async () => {
+  it('rejects payment details on non-transaction papers and any client-sent kind or profile', async () => {
     await startScan()
-    const attempt = settle(mockApi.correctDocument(BIRTH_CERT, { amount: '100.00', accept: true }), 150)
-    await expect(attempt).rejects.toThrow(/422/)
-    const relabel = settle(mockApi.correctDocument(RECEIPT, { document_kind: 'medical', merchant: 'Clinic', accept: true }), 150)
-    await expect(relabel).rejects.toThrow(/422/)
+    await expect(settle(mockApi.correctDocument(BIRTH_CERT, { amount: '100.00', accept: true }), 150)).rejects.toThrow(/422/)
+    await expect(settle(mockApi.correctDocument(STATEMENT, { merchant: 'BDO', accept: true }), 150)).rejects.toThrow(/422.*'reference'/)
+    const withKind = { document_kind: 'receipt', accept: true } as unknown as Parameters<typeof mockApi.correctDocument>[1]
+    await expect(settle(mockApi.correctDocument(UNCERTAIN, withKind), 150)).rejects.toThrow(/Unsupported correction fields: document_kind/)
+    const withProfile = { field_profile: 'transaction', accept: true } as unknown as Parameters<typeof mockApi.correctDocument>[1]
+    await expect(settle(mockApi.correctDocument(UNCERTAIN, withProfile), 150)).rejects.toThrow(/backend-controlled fields: field_profile/)
   })
 })

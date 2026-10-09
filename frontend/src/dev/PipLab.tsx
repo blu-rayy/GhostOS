@@ -31,6 +31,7 @@ type OverlayWindow = Window & {
     init(args: { items: OverlayItem[]; win: Box; randomFiles?: boolean }): void
     target(relPath: string): void
     stop(): void
+    progress(done: number, total: number): void
   }
 }
 type Box = { x: number; y: number; width: number; height: number }
@@ -112,7 +113,7 @@ export function PipLab() {
           name="possess"
           desc="Reading: Pip slips into the file being read; the icon lifts, wobbles and glows"
           run={(api) => {
-            api.init({ items: [centredItem('receipt', false)], win: { x: 0, y: 0, width: CELL_W, height: CELL_H } })
+            api.init({ items: [centredItem('receipt', false)], win: { x: 0, y: 0, width: CELL_W, height: CELL_H + 240 } /* keeps the progress bar out of view */ })
             setTimeout(() => api.target('receipt.pdf'), 300)
           }}
         />
@@ -121,7 +122,7 @@ export function PipLab() {
           desc="Same, on a dark theme: the dashed aura switches to light ink"
           dark
           run={(api) => {
-            api.init({ items: [centredItem('invoice', true)], win: { x: 0, y: 0, width: CELL_W, height: CELL_H } })
+            api.init({ items: [centredItem('invoice', true)], win: { x: 0, y: 0, width: CELL_W, height: CELL_H + 240 } /* keeps the progress bar out of view */ })
             setTimeout(() => api.target('invoice.pdf'), 300)
           }}
         />
@@ -133,6 +134,18 @@ export function PipLab() {
           run={(api) => {
             api.init({ items: [], win: STILL_WIN })
             setTimeout(() => api.stop(), 1200)
+          }}
+        />
+        <OverlayCell
+          name="progress"
+          desc="Reading: the bar inside the Explorer window, counting the files Pip has read"
+          loopMs={7600}
+          run={(api) => {
+            api.init({ items: [], win: { x: -40, y: -40, width: 380, height: CELL_H + 40 } })
+            const total = 12
+            api.progress(0, 0)
+            for (let i = 0; i <= total; i++) setTimeout(() => { api.target(`inbox/receipt_${String(i + 1).padStart(2, '0')}.pdf`); api.progress(i, total) }, 900 + i * 400)
+            setTimeout(() => api.stop(), 900 + total * 400 + 900)
           }}
         />
         <DiveCell />

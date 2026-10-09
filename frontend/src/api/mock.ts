@@ -64,36 +64,37 @@ function needsReview(doc: DocumentRecord): boolean {
   return doc.status !== 'ok' && !doc.user_corrected
 }
 
-const NON_TRANSACTIONAL_KINDS: DocumentKind[] = ['statement', 'identity_or_civil', 'legal', 'medical']
 const DOCUMENT_KINDS: DocumentKind[] = ['receipt', 'invoice', 'statement', 'identity_or_civil', 'legal', 'medical', 'other', 'uncertain']
 
-/** Mirrors schemas.field_profile_for: the profile always comes from the kind, never from the client. */
-function profileForKind(kind: DocumentKind | null): FieldProfile {
-  if (kind === 'receipt' || kind === 'invoice') return 'transaction'
-  if (kind === 'statement') return 'reference'
+/** Mirrors document_awareness.document_kind_for_classification: the explicit kind, else the category. */
+function kindOf(c: Classification): DocumentKind {
+  const k = c.document_kind
+  if (k) return DOCUMENT_KINDS.includes(k) ? k : 'other'
+  return c.category
+}
+
+/** Mirrors derive_field_profile: always from the kind, never from the client. */
+function profileOf(c: Classification): FieldProfile {
+  const k = kindOf(c)
+  if (k === 'receipt' || k === 'invoice') return 'transaction'
+  if (k === 'statement') return 'reference'
   return 'none'
 }
 
-/**
- * Agreed routing rule (Kurt, 2026-10-10): field_profile, else derived from document_kind; when
- * both are missing (a legacy record) null, and the old category rules apply unchanged.
- */
-function profileOf(c: Classification): FieldProfile | null {
-  if (c.field_profile) return c.field_profile
-  return c.document_kind ? profileForKind(c.document_kind) : null
+/** Mirrors session._classification_response: responses always carry the derived kind and profile. */
+function withDerived(doc: DocumentRecord): DocumentRecord {
+  const c = doc.classification
+  return c ? { ...doc, classification: { ...c, document_kind: kindOf(c), field_profile: profileOf(c) } } : doc
 }
+
+/** A 422 like FastAPI's, so the UI shows the same error text it would get from the backend. */
+const unprocessable = (detail: string) => new Error(`422 ${detail}`)
 
 function destinationFolder(doc: DocumentRecord): { folder: string; reason: string } {
   const c = doc.classification
   if (!c || doc.status === 'failed') return { folder: 'Needs Review', reason: 'Could not be classified' }
   if (needsReview(doc)) return { folder: 'Needs Review', reason: 'Waiting for human review' }
-  // Not a single payment: Other/, whatever the category says, except a document the user left
-  // for review (category 'uncertain'), which stays in Needs Review/. (Refinement proposed to
-  // Dev 1: without it "Leave for review" would file to Other/ once the profile rule lands.)
-  const profile = profileOf(c)
-  if (profile !== null && profile !== 'transaction') {
-    return c.category === 'uncertain' ? { folder: 'Needs Review', reason: 'Left for review' } : { folder: 'Other', reason: 'Not a transaction document' }
-  }
+  // Like the backend (bc6a5d6), folders still follow the category; the profile only gates the totals.
   if (c.category === 'invoice' || c.category === 'receipt') {
     if (!c.date) return { folder: 'Needs Review', reason: `${c.category} without a date` }
     const top = c.category === 'invoice' ? 'Invoices' : 'Receipts'
@@ -134,8 +135,7 @@ function buildPlan(s: ScanResult): PlanPreview {
     const c = doc.classification
     if (!c || (c.category !== 'invoice' && c.category !== 'receipt')) continue
     // Non-transaction papers never reach the totals, whatever the category says.
-    const profile = profileOf(c)
-    if (profile !== null && profile !== 'transaction') continue
+    if (profileOf(c) !== 'transaction') continue
     const complete = c.amount !== null && c.currency !== null && c.date !== null
     const accepted = complete && !needsReview(doc) && doc.duplicate_of === null
     report_rows.push({
@@ -221,25 +221,22 @@ export const mockApi: GhostApi = {
     await delay(150)
     const doc = scan?.documents.find((d) => d.file_id === fileId)
     if (!doc) throw new Error(`Unknown file ${fileId}`)
-    // Agreed PATCH rules (Kurt, 2026-10-10): only these fields are taken; document_kind is
-    // normalised and field_profile is always derived from it, never taken from the client.
-    const { accept, document_kind: rawKind, category, merchant, date, amount, currency } = correction
-    const fields = Object.fromEntries(Object.entries({ category, merchant, date, amount, currency }).filter(([, v]) => v !== undefined))
-    const kindGiven = rawKind !== undefined
-    const kind: DocumentKind | null = rawKind == null ? null : DOCUMENT_KINDS.includes(rawKind) ? rawKind : 'other'
-    const moneyGiven = ['merchant', 'date', 'amount', 'currency'].some((k) => fields[k] != null)
-    const effectiveKind = kindGiven ? kind : (doc.classification?.document_kind ?? null)
-    if (effectiveKind && NON_TRANSACTIONAL_KINDS.includes(effectiveKind) && moneyGiven) {
-      throw new Error(`422 ${effectiveKind} documents can't have a shop, date, amount or currency`)
+    // Mirrors PATCH /api/documents/{id} (bc6a5d6): backend-controlled and unknown fields are a
+    // 422; shop/date/amount/currency only when the CURRENT record is a transaction.
+    const body = Object.fromEntries(Object.entries(correction).filter(([, v]) => v !== undefined)) as Record<string, unknown>
+    const forbidden = ['field_profile', 'editable_fields', 'allowed_fields', 'destination_relative_path', 'operations'].filter((k) => k in body)
+    if (forbidden.length) throw unprocessable(`Unsupported backend-controlled fields: ${forbidden.join(', ')}`)
+    const unknown = Object.keys(body).filter((k) => !['category', 'merchant', 'date', 'amount', 'currency', 'accept'].includes(k)).sort()
+    if (unknown.length) throw unprocessable(`Unsupported correction fields: ${unknown.join(', ')}`)
+    const profile = profileOf(doc.classification ?? { category: 'uncertain' } as Classification)
+    const money = ['merchant', 'date', 'amount', 'currency'].filter((k) => k in body).sort()
+    if (money.length && profile !== 'transaction') {
+      throw unprocessable(`Document field profile '${profile}' does not allow transaction corrections: ${money.join(', ')}`)
     }
-    if (doc.classification) Object.assign(doc.classification, fields)
-    else if (Object.keys(fields).length > 0 || kindGiven) {
-      // Failed extraction: a person is entering the values by hand. Both keys are always stored;
-      // with no kind given that is document_kind null -> field_profile 'none'.
+    if (!doc.classification) {
+      // Failed extraction: the backend creates a bare record (no kind, so it derives 'uncertain'/'none').
       doc.classification = {
         category: 'uncertain',
-        document_kind: null,
-        field_profile: 'none',
         merchant: null,
         date: null,
         amount_text: null,
@@ -247,19 +244,18 @@ export const mockApi: GhostApi = {
         currency: null,
         evidence_quote: null,
         evidence_verified: false,
-        explanation: 'Entered manually because automatic extraction failed.',
-        ...fields,
+        explanation: 'Entered manually',
       }
     }
-    if (doc.classification && kindGiven) {
-      doc.classification.document_kind = kind
-      doc.classification.field_profile = profileForKind(kind)
+    for (const k of ['category', 'merchant', 'date', 'amount', 'currency'] as const) {
+      if (k in body) (doc.classification as unknown as Record<string, unknown>)[k] = body[k]
     }
-    if (accept) {
+    if (correction.accept) {
       doc.user_corrected = true
       doc.review_flags = []
+      doc.status = 'ok'
     }
-    return clone(doc)
+    return clone(withDerived(doc))
   },
 
   async getPlan(scanId) {

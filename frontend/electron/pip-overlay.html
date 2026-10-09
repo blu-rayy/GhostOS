@@ -9,7 +9,7 @@
        hiding the real icon) and wanders around carrying a box in between.
      - dive (query sx, sy, tx, ty, tw, th): one flight into a folder icon, then close.
      The three Pip drawings are copies of docs/brand/svg/pip-{carrying,reading,hello}.svg. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; script-src 'unsafe-inline'; style-src 'unsafe-inline'" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; font-src file: 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'" />
 <title>Pip</title>
 <style>
   html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
@@ -23,6 +23,28 @@
   .copy.possessed { animation: haunt 0.9s ease-in-out infinite; filter: drop-shadow(0 0 6px #9fb6ff) drop-shadow(0 0 2px #c9d7ff); }
   .aura { position: absolute; display: none; z-index: 2; border: 2.5px dashed #1a1a1a; border-radius: 14px; animation: jitter 0.35s steps(2) infinite; }
   .aura.on { display: block; }
+  /* Reading progress: a copy of the app's reading card (Start 1c, HatchProgress), drawn near the
+     bottom of the Explorer window, under Pip. Fonts are the app's own bundled files. */
+  @font-face { font-family: 'Patrick Hand'; src: url('../node_modules/@fontsource/patrick-hand/files/patrick-hand-latin-400-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Space Mono'; font-weight: 400; src: url('../node_modules/@fontsource/space-mono/files/space-mono-latin-400-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Space Mono'; font-weight: 700; src: url('../node_modules/@fontsource/space-mono/files/space-mono-latin-700-normal.woff2') format('woff2'); }
+  #bar { position: absolute; display: none; z-index: 2; box-sizing: border-box; padding: 11px 16px 10px; background: #fff; color: #1a1a1a; border: 2.5px solid #1a1a1a; border-radius: 255px 14px 225px 14px / 14px 225px 14px 255px; box-shadow: 4px 4px 0 #1a1a1a; font-family: 'Patrick Hand', 'Segoe Print', 'Comic Sans MS', cursive; transition: opacity 0.5s ease; }
+  #bar.on { display: flex; flex-direction: column; gap: 7px; }
+  #bar .mono { font-family: 'Space Mono', Consolas, monospace; }
+  #bar .head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; white-space: nowrap; }
+  #bar .count { font-size: 17px; line-height: 1.2; }
+  #bar .count .done { font-size: 20px; font-weight: 700; }
+  #bar .count .total { font-size: 15px; }
+  #bar .pct { font-size: 15px; font-weight: 700; }
+  #bar .track { height: 18px; box-sizing: border-box; border: 2px solid #1a1a1a; border-radius: 10px; overflow: hidden; background: #fff; }
+  /* The app's ink hatching; the stripes march while Pip reads so the bar never looks stuck. */
+  #bar .fill { height: 100%; width: 0; box-sizing: border-box; background-image: repeating-linear-gradient(-45deg, #1a1a1a 0 3px, #ffffff 3px 9px); background-size: 12.73px 12.73px; animation: march 0.9s linear infinite; transition: width 0.5s ease-out; }
+  #bar .fill.edge { border-right: 2px solid #1a1a1a; }
+  #bar.waiting .fill { width: 100%; opacity: 0.4; }
+  #bar.finished .fill { animation: none; }
+  @keyframes march { to { background-position: 12.73px 0; } }
+  #bar .now { min-height: 18px; font-size: 14px; color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #bar .now .mono { font-size: 12px; color: #1a1a1a; }
   @keyframes haunt {
     0% { transform: translateY(0) rotate(0deg); }
     25% { transform: translateY(-9px) rotate(-5deg); }
@@ -40,6 +62,7 @@
 <body>
 <div id="pip" data-pose="carrying"><svg xmlns="http://www.w3.org/2000/svg" width="150" height="163" viewBox="0 0 120 130" class="carrying" aria-hidden="true" focusable="false"><g><g><path d="M20 60a40 40 0 0 1 80 0v50q-6.67 10 -13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0Z" fill="#fff" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"></path><path d="M60 21q5-9-2-13" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.4"></path><circle cx="47" cy="58" r="10" fill="#fff" stroke="#1a1a1a" stroke-width="2.6"></circle><circle cx="73" cy="58" r="10" fill="#fff" stroke="#1a1a1a" stroke-width="2.6"></circle><path d="M57 57q3-2 6 0M37 56l-9-3M83 56l9-3" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.6"></path><path d="M40 57h14M66 57h14" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.6"></path><path d="M44 57.5a3 3 0 0 0 6 0ZM70 57.5a3 3 0 0 0 6 0Z" fill="#1a1a1a"></path><path d="M54 76q6-3 12 0" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.4"></path><path d="M104 29q6.5 9.5 0 14q-6.5-4.5 0-14Z" fill="#c9d7ff" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"></path><path d="M30 84h60v30H30Z" fill="#ffe066" stroke="#1a1a1a" stroke-width="2.6" stroke-linejoin="round"></path><path d="M30 92h60M54 84v8M66 84v8" stroke="#1a1a1a" stroke-width="2.2"></path><path d="M22 92q4 6 8 8M98 92q-4 6-8 8" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.6"></path></g></g></svg><svg xmlns="http://www.w3.org/2000/svg" width="150" height="163" viewBox="0 0 120 130" class="reading" aria-hidden="true" focusable="false"><g><g><path d="M20 60a40 40 0 0 1 80 0v50q-6.67 10 -13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0Z" fill="#fff" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"></path><path d="M60 21q5-9-2-13" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.4"></path><circle cx="47" cy="66" r="10" fill="#fff" stroke="#1a1a1a" stroke-width="2.6"></circle><circle cx="73" cy="66" r="10" fill="#fff" stroke="#1a1a1a" stroke-width="2.6"></circle><path d="M57 65q3-2 6 0M37 64l-9-3M83 64l9-3" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.6"></path><path d="M40 66h14M66 66h14" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.6"></path><g><path d="M44 66.5a3 3 0 0 0 6 0ZM70 66.5a3 3 0 0 0 6 0Z" fill="#1a1a1a"></path><animateTransform attributeName="transform" type="translate" values="-5 0;5 0;5 0;-5 0" keyTimes="0;0.72;0.84;1" dur="1.9s" repeatCount="indefinite"></animateTransform></g><path d="M38 50l14 2M68 52l14-2" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.3"></path><path d="M30 86h60v30H30Z" fill="#fff" stroke="#1a1a1a" stroke-width="2.6" stroke-linejoin="round"></path><path d="M37 95h44M37 103h34M37 110h22" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.2"></path></g></g></svg><svg xmlns="http://www.w3.org/2000/svg" width="150" height="163" viewBox="0 0 120 130" class="hello" aria-hidden="true" focusable="false"><g><g><path d="M20 60a40 40 0 0 1 80 0v50q-6.67 10 -13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0t-13.33 0Z" fill="#fff" stroke="#1a1a1a" stroke-width="3" stroke-linejoin="round"></path><path d="M60 21q5-9-2-13" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.5"></path><path d="M99 80c6-1 9-5 9-10" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="3"></path><path d="M104 64l2 3M110 64l-1 3" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="1.8"></path><path d="M21 80c-5 2-8 6-7 11" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="3"></path><circle cx="47" cy="62" r="10" fill="#fff" stroke="#1a1a1a" stroke-width="3"></circle><circle cx="73" cy="62" r="10" fill="#fff" stroke="#1a1a1a" stroke-width="3"></circle><path d="M57 61q3-2 6 0M37 60l-9-3M83 60l9-3" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="3"></path><path d="M40 60h14M66 60h14" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="2.6"></path><path d="M43 60.5a4 4 0 0 0 8 0ZM69 60.5a4 4 0 0 0 8 0Z" fill="#1a1a1a"></path><path d="M53 88q7-5 14 0" stroke="#1a1a1a" fill="none" stroke-linecap="round" stroke-width="3"></path></g></g></svg></div>
 <div id="poof"></div>
+<div id="bar" class="waiting" aria-label="Reading progress"><div class="head"><span class="count">reading files…</span><span class="pct mono"></span></div><div class="track" role="progressbar" aria-label="Reading progress"><div class="fill"></div></div><div class="now"></div></div>
 <script>
   const W = 150, H = 163
   const pipEl = document.getElementById('pip')
@@ -54,6 +77,40 @@
       ],
       { duration: 450, easing: 'ease-out', fill: 'forwards' },
     )
+  }
+
+  // ---------- progress bar ----------
+  const barEl = document.getElementById('bar')
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+  function placeBar(win) {
+    const width = Math.max(240, Math.min(380, win.width - 140))
+    barEl.style.width = `${width}px`
+    barEl.style.left = `${win.x + (win.width - width) / 2}px`
+    barEl.classList.add('on')
+    // Sit above Explorer's status bar.
+    barEl.style.top = `${win.y + win.height - barEl.offsetHeight - 48}px`
+  }
+  /** Same wording and bar as the app: "<b>15</b> of 20 files read", hatched fill, faded when unknown. */
+  let barTotal = 0
+  function setProgress(done, total) {
+    const known = total > 0
+    if (known) barTotal = total
+    const pct = known ? Math.max(0, Math.min(100, Math.round((100 * done) / total))) : 100
+    barEl.classList.toggle('waiting', !known)
+    barEl.querySelector('.count').innerHTML = known ? `<span class="mono done">${done}</span> of <span class="mono total">${total}</span> files read` : 'reading files…'
+    const fill = barEl.querySelector('.fill')
+    fill.style.width = `${pct}%`
+    fill.classList.toggle('edge', known && pct > 0 && pct < 100)
+    barEl.querySelector('.pct').textContent = known ? `${pct}%` : ''
+    const track = barEl.querySelector('.track')
+    if (known) {
+      track.setAttribute('aria-valuemin', '0')
+      track.setAttribute('aria-valuemax', '100')
+      track.setAttribute('aria-valuenow', String(pct))
+    }
+  }
+  function setNowReading(rel) {
+    barEl.querySelector('.now').innerHTML = rel ? `now reading <span class="mono">${esc(rel)}</span>` : ''
   }
 
   // ---------- session mode ----------
@@ -193,11 +250,29 @@
       S.goal = wanderGoal()
       S.mode = 'wander'
       S.on = true
+      placeBar(win)
       poof(S.pos.x, S.pos.y)
       requestAnimationFrame(tick)
     },
+    /** Explorer was minimized or moved: poof away now (no wave), bar included. */
+    vanish() {
+      if (!S.on) return
+      release()
+      S.mode = 'bye'
+      S.goal = null
+      S.alphaGoal = 0
+      S.scaleGoal = 0.3
+      poof(S.pos.x, S.pos.y)
+      barEl.style.transition = 'opacity 0.25s ease'
+      barEl.style.opacity = '0'
+    },
+    progress(done, total) {
+      if (!S.on || S.mode === 'bye') return
+      setProgress(done, total)
+    },
     target(rel) {
       if (!S.on || S.mode === 'bye') return
+      setNowReading(rel)
       const it = findItem(rel)
       if (it) return possess(it)
       // Demo data: the names being "read" aren't in this folder, so haunt a random visible
@@ -216,6 +291,12 @@
     stop() {
       if (!S.on) return
       release()
+      // Fill the bar like the app's "All read." state, then let it fade out with Pip.
+      if (barTotal > 0) setProgress(barTotal, barTotal)
+      barEl.classList.add('finished')
+      setNowReading('')
+      barEl.querySelector('.now').textContent = 'All read.'
+      setTimeout(() => { barEl.style.opacity = '0' }, 800)
       S.mode = 'bye'
       S.goal = null
       pipEl.dataset.pose = 'hello'
