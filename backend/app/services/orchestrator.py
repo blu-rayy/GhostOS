@@ -31,6 +31,7 @@ from app.services.session_store import (
 )
 from app.services.extractor import process_file_content
 from app.services import local_ai
+from app.services.classification_validation import validate_classification
 from app.services.operations import build_proposed_operation
 from app.schemas import ClassificationRecord
 
@@ -55,34 +56,39 @@ def _verify_evidence(excerpt: str, evidence_quote: Optional[str]) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# Review flag logic
+# Validator flag mapping (validator names -> frontend ReviewFlagCodes)
 # ---------------------------------------------------------------------------
 
-def _compute_review_flags(
-    classification: ClassificationRecord,
-    excerpt: str,
-    extraction_status: str,
-) -> list[dict]:
-    flags = []
+# Maps each flag emitted by classification_validation.validate_classification
+# onto the shared API/frontend ReviewFlagCode. Three validator names differ
+# from the frontend codes; the rest map 1:1. Flags unknown to this table pass
+# through untouched (the frontend renders unrecognized codes under the
+# document target) so validation information is never silently discarded.
+_VALIDATOR_FLAG_MAP: dict[str, tuple[str, str]] = {
+    "missing_evidence_quote": ("missing_evidence_quote", "No evidence quote was provided for verification"),
+    "evidence_quote_not_found": ("evidence_not_found", "Evidence quote not found verbatim in the extracted text"),
+    "missing_amount": ("missing_amount", "No amount found in the document"),
+    "invalid_amount_format": ("amount_unparseable", "The amount could not be parsed as a decimal value"),
+    "ambiguous_amount": ("amount_conflict", "Multiple conflicting amounts found; none was selected"),
+    "invalid_currency": ("invalid_currency", "The currency code is not supported"),
+    "missing_currency": ("missing_currency", "No currency found in the document"),
+    "currency_mismatch": ("currency_mismatch", "The declared currency does not match the document"),
+    "missing_merchant": ("missing_merchant", "No merchant found in the document"),
+    "missing_date": ("missing_date", "No date found in the document"),
+    "uncertain_classification": ("uncertain_classification", "The classification is uncertain and needs human review"),
+}
 
-    if extraction_status in ("error", "empty"):
-        flags.append({"code": "model_error", "message": "Text extraction failed or produced no content"})
-        return flags
 
-    if classification.category in ("invoice", "receipt"):
-        if not classification.date:
-            flags.append({"code": "missing_date", "message": "No date found in the document"})
-        if not classification.amount_text:
-            flags.append({"code": "missing_amount", "message": "No amount found in the document"})
-
-    if classification.evidence_quote and not _verify_evidence(excerpt, classification.evidence_quote):
-        flags.append({"code": "evidence_not_found", "message": "Evidence quote not found verbatim in the extracted text"})
-
-    # Prompt injection guard: long evidence quotes are suspicious
-    if classification.evidence_quote and len(classification.evidence_quote) > 200:
-        flags.append({"code": "possible_injection", "message": "Evidence quote is unusually long; manual review recommended"})
-
-    return flags
+def _map_validation_flags(validator_flags: tuple[str, ...]) -> list[dict]:
+    """Map validator flag names onto API review-flag dicts without dropping any."""
+    mapped: list[dict] = []
+    for flag in validator_flags:
+        if flag in _VALIDATOR_FLAG_MAP:
+            code, message = _VALIDATOR_FLAG_MAP[flag]
+            mapped.append({"code": code, "message": message})
+        else:
+            mapped.append({"code": flag, "message": f"Validation check reported: {flag}"})
+    return mapped
 
 
 # ---------------------------------------------------------------------------
@@ -324,18 +330,25 @@ def _run_scan(session: ScanSession) -> None:
             else:
                 seen_hashes[sha256] = file_id
 
-            # Classify
+            # Classify, then run the source-aware validator on the result.
             classification: Optional[ClassificationRecord] = None
             classify_flags: list[dict] = []
             classify_status = "ok"
+            parsed_amount: Optional[Decimal] = None
 
             if extraction_status == "success" and excerpt.strip():
                 try:
                     result = local_ai.classify_excerpt(excerpt)
                     classification = result.classification
-                    flags = _compute_review_flags(classification, excerpt, extraction_status)
-                    classify_flags = flags
-                    classify_status = "needs_review" if flags else "ok"
+                    validation = validate_classification(excerpt, classification)
+                    parsed_amount = validation.parsed_amount
+                    classify_flags = _map_validation_flags(validation.flags)
+                    # Prompt injection guard the validator does not cover:
+                    # long evidence quotes are suspicious.
+                    if classification.evidence_quote and len(classification.evidence_quote) > 200:
+                        classify_flags.append({"code": "possible_injection", "message": "Evidence quote is unusually long; manual review recommended"})
+                    if validation.needs_review or not validation.is_valid or classify_flags:
+                        classify_status = "needs_review"
                 except local_ai.LocalAIValidationError as e:
                     classify_status = "needs_review"
                     classify_flags = [{"code": "model_error", "message": str(e)}]
@@ -353,7 +366,9 @@ def _run_scan(session: ScanSession) -> None:
                 classify_status = "failed"
                 classify_flags = [{"code": "model_error", "message": extract_reason or "Extraction failed"}]
 
-            amount = _parse_amount(classification.amount_text) if classification else None
+            # Serialize the validator's parsed Decimal as a string (or null).
+            # The original amount_text is preserved verbatim in classification.
+            amount = str(parsed_amount) if parsed_amount is not None else None
 
             session.documents.append(DocumentRecord(
                 file_id=file_id,
