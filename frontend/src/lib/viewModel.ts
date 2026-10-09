@@ -144,6 +144,9 @@ export function reviewChipState(doc: DocumentRecord | null): ReviewChipState {
     const category = doc.classification?.category
     if (category === 'other') return { text: 'filed under Other', tone: 'done', stripe: '#9be8b8' }
     if (category === 'uncertain') return { text: 'left for review', tone: 'muted', stripe: '#cfcfcf' }
+    if (doc.review_disposition === 'filed_uncounted') {
+      return { text: 'filed without amount · not counted', tone: 'muted', stripe: '#cfcfcf' }
+    }
     return { text: '✓ checked', tone: 'done', stripe: '#9be8b8' }
   }
   if (doc.status === 'ok' && doc.review_flags.length === 0) {
@@ -169,6 +172,7 @@ export function reviewReasonText(row: FileRow): string {
       const category = doc.classification?.category
       if (category === 'other') return 'filed under Other/ · not counted'
       if (category === 'uncertain') return 'left for review → Uncategorized/ · not counted'
+      if (doc.review_disposition === 'filed_uncounted') return 'filed without a usable amount · not counted'
     }
     return doc.classification?.date ? `date added: ${doc.classification.date}` : 'you checked this file'
   }

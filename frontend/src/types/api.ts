@@ -125,7 +125,7 @@ export interface DocumentRecord {
    * The person's decision (backend bf99c68). 'leave_for_review': kept as needs_review and still
    * blocking a strict ('blocking') plan; it only moves, to Uncategorized/, in 'partial' mode.
    */
-  review_disposition?: 'none' | 'filed' | 'leave_for_review'
+  review_disposition?: 'none' | 'filed' | 'filed_uncounted' | 'leave_for_review'
 }
 
 /** PATCH /api/documents/{file_id}  body: DocumentCorrection  ->  DocumentRecord */

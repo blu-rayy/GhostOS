@@ -44,7 +44,7 @@ class DocumentRecord:
     review_flags: list = field(default_factory=list)
     duplicate_of: Optional[str] = None
     user_corrected: bool = False
-    review_disposition: Literal["none", "filed", "leave_for_review"] = "none"
+    review_disposition: Literal["none", "filed", "filed_uncounted", "leave_for_review"] = "none"
 
 
 @dataclass
