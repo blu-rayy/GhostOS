@@ -2,7 +2,7 @@ import { Search, X, Folder } from 'lucide-react'
 import type { ReactNode } from 'react'
 import type { DocumentRecord } from '../../types/api'
 import type { FileRow } from '../../lib/viewModel'
-import { basename, documentKindLabel } from '../../lib/viewModel'
+import { basename, documentKindLabel, reviewChipState, reviewReasonText } from '../../lib/viewModel'
 import { formatBytes, money } from '../../lib/format'
 import { Chip } from './Chip'
 import { PaperButton } from './Button'
@@ -28,20 +28,19 @@ export function SearchPill({ value, onChange }: { value: string; onChange: (valu
 
 export function ReviewRow({ row, selected, onClick, onKeyDown, buttonRef }: { row: FileRow; selected: boolean; onClick: () => void; onKeyDown: (event: React.KeyboardEvent<HTMLButtonElement>) => void; buttonRef?: (element: HTMLButtonElement | null) => void }) {
   const doc = row.doc
-  const failed = doc?.status === 'failed'
-  const checked = Boolean(doc?.user_corrected)
-  const reason = checked ? (doc?.classification?.date ? `date added: ${doc.classification.date}` : 'you checked this file') : (doc?.review_flags[0]?.message ?? doc?.classification?.explanation ?? row.skip?.detail ?? 'Ready to file.')
+  const chip = reviewChipState(doc)
+  const reason = reviewReasonText(row)
   const transactional = row.fieldProfile === 'transaction'
   const amount = !transactional ? '' : doc?.review_flags.some((flag) => flag.code === 'amount_conflict') ? '₱?,???.??' : money(row.amount, row.currency)
   // Non-transaction papers say what they are instead of naming a shop.
   const what = transactional || !doc ? `${row.category ?? 'other'} · ${row.merchant ?? 'unknown shop'}` : documentKindLabel(doc)
-  return <button ref={buttonRef} type="button" role="option" aria-selected={selected} onClick={onClick} onKeyDown={onKeyDown} style={{ boxShadow: selected ? '4px 4px 0 #1a1a1a' : `inset 8px 0 0 ${failed ? '#ffb3b3' : checked ? '#9be8b8' : '#ffe066'}` }} className={`group relative flex w-full items-center gap-4 border-[2.5px] border-transparent bg-paper px-4 py-3 text-left ${selected ? 'border-ink bg-row-selected' : ''}`}>
+  return <button ref={buttonRef} type="button" role="option" aria-selected={selected} onClick={onClick} onKeyDown={onKeyDown} style={{ boxShadow: selected ? '4px 4px 0 #1a1a1a' : `inset 8px 0 0 ${chip.stripe}` }} className={`group relative flex w-full items-center gap-4 border-[2.5px] border-transparent bg-paper px-4 py-3 text-left ${selected ? 'border-ink bg-row-selected' : ''}`}>
     <span className="min-w-0 flex-1 pl-2">
       <span className="block truncate text-[19px] leading-6">{row.relPath}</span>
       <span className="block truncate text-[16px] text-graphite">{what} · {reason}</span>
     </span>
     <span className="font-mono text-[13px]">{amount}</span>
-    <Chip tone={checked ? 'done' : failed ? 'oops' : 'check'} size="sm">{checked ? '✓ checked' : failed ? "couldn't read" : 'check this'}</Chip>
+    <Chip tone={chip.tone === 'muted' ? 'muted' : chip.tone} size="sm">{chip.text}</Chip>
   </button>
 }
 
@@ -62,7 +61,7 @@ export function RadioCard({ checked, onChange, children }: { checked: boolean; o
 }
 
 export function ProgressDots({ checked, total }: { checked: number; total: number }) {
-  return <div className="flex gap-1.5" aria-label={`${checked} of ${total} checked`}>{Array.from({ length: Math.max(5, Math.min(5, total)) }, (_, index) => <span key={index} className={`h-3 w-3 rounded-full border-2 border-ink ${index < Math.min(checked, 5) ? 'bg-ink' : 'bg-paper'}`} />)}</div>
+  return <div className="flex gap-1.5" aria-label={`${checked} of ${total} decided`}>{Array.from({ length: Math.max(5, Math.min(5, total)) }, (_, index) => <span key={index} className={`h-3 w-3 rounded-full border-2 border-ink ${index < Math.min(checked, 5) ? 'bg-ink' : 'bg-paper'}`} />)}</div>
 }
 
 export function FolderRow({ path, note, count }: { path: string; note: string; count: number }) {

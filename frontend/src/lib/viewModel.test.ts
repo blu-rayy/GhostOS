@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import scanFixture from '../fixtures/scan.json'
 import type { PlanPreview, ScanResult } from '../types/api'
-import { buildFileRows, docStatus, flagsFor, isBlocking, isInsideRoot } from './viewModel'
+import { buildFileRows, docStatus, flagsFor, isBlocking, isInsideRoot, reviewChipState, reviewReasonText } from './viewModel'
 
 const scan = scanFixture as unknown as ScanResult
 const emptyPlan: PlanPreview = {
@@ -58,5 +58,35 @@ describe('view model logic', () => {
     expect(isInsideRoot('/absolute/file.pdf')).toBe(false)
     expect(isInsideRoot('C:/Windows/System32/file.pdf')).toBe(false)
     expect(isInsideRoot('\\\\server\\share\\file.pdf')).toBe(false)
+  })
+
+  it('labels backend-accepted unflagged files as ready, not check-this', () => {
+    const ok = scan.documents.find((document) => document.file_id === 'f01')!
+    expect(ok.status).toBe('ok')
+    expect(ok.user_corrected).toBe(false)
+    expect(ok.review_flags).toEqual([])
+    expect(reviewChipState(ok)).toMatchObject({ text: 'ready', tone: 'done' })
+  })
+
+  it('keeps review-needed files on the attention state', () => {
+    const review = scan.documents.find((document) => document.file_id === 'f07')!
+    expect(reviewChipState(review)).toMatchObject({ text: 'check this', tone: 'check' })
+    const failed = scan.documents.find((document) => document.file_id === 'f10')!
+    expect(reviewChipState(failed)).toMatchObject({ text: "couldn't read", tone: 'oops' })
+  })
+
+  it('names the actual decision on decided rows instead of checked', () => {
+    const rows = buildFileRows(scan, emptyPlan)
+    const byId = new Map(rows.map((row) => [row.id, row]))
+    const filed = { ...byId.get('f20')!.doc!, user_corrected: true, classification: { ...byId.get('f20')!.doc!.classification!, category: 'other' as const } }
+    expect(reviewChipState(filed)).toMatchObject({ text: 'filed under Other', tone: 'done' })
+    expect(reviewReasonText({ ...byId.get('f20')!, doc: filed })).toContain('filed under Other/')
+    const left = { ...byId.get('f20')!.doc!, user_corrected: true, classification: { ...byId.get('f20')!.doc!.classification!, category: 'uncertain' as const } }
+    expect(reviewChipState(left)).toMatchObject({ text: 'left for review', tone: 'muted' })
+    expect(reviewReasonText({ ...byId.get('f20')!, doc: left })).toContain('left for review → Uncategorized/')
+    const leftFailed = { ...byId.get('f10')!.doc!, user_corrected: true }
+    expect(reviewChipState(leftFailed)).toMatchObject({ text: 'left for later', tone: 'muted' })
+    const verified = { ...byId.get('f07')!.doc!, user_corrected: true }
+    expect(reviewChipState(verified)).toMatchObject({ text: '✓ checked', tone: 'done' })
   })
 })
