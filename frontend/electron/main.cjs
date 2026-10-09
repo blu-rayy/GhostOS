@@ -3,11 +3,29 @@
 // The privileged capabilities exposed (via preload) are a native folder picker that
 // returns a path string, and the opt-in desktop Pip animation below. Nothing here
 // reads, moves or deletes files.
-const { app, BrowserWindow, desktopCapturer, dialog, ipcMain, screen, shell } = require('electron');
+const { app, BrowserWindow, desktopCapturer, dialog, ipcMain, net, protocol, screen, shell } = require('electron');
 const { execFile } = require('node:child_process');
 const path = require('node:path');
+const { pathToFileURL } = require('node:url');
 
 const DEV_URL = process.env.VITE_DEV_SERVER_URL;
+
+// Production builds load from app://ghostos/ instead of file://, so the renderer has a real
+// origin the local backend can allow in CORS (file:// pages send `Origin: null`).
+const APP_ORIGIN = 'app://ghostos';
+const DIST_DIR = path.join(__dirname, '..', 'dist');
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true } },
+]);
+
+/** Serves files from dist/ only; anything outside it, or another host, is refused. */
+function serveDist(request) {
+  const { host, pathname } = new URL(request.url);
+  if (host !== 'ghostos') return new Response('Not found', { status: 404 });
+  const file = path.resolve(DIST_DIR, decodeURIComponent(pathname).replace(/^\/+/, '') || 'index.html');
+  if (!file.startsWith(DIST_DIR + path.sep)) return new Response('Forbidden', { status: 403 });
+  return net.fetch(pathToFileURL(file).toString());
+}
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -37,7 +55,7 @@ function createWindow() {
 
   // Block in-app navigation to anything other than the app itself.
   win.webContents.on('will-navigate', (event, url) => {
-    const allowed = DEV_URL ? url.startsWith(DEV_URL) : url.startsWith('file://');
+    const allowed = url.startsWith(DEV_URL ?? `${APP_ORIGIN}/`);
     if (!allowed) event.preventDefault();
   });
   // Never open new Electron windows; send external links to the OS browser only if https.
@@ -49,7 +67,7 @@ function createWindow() {
   if (DEV_URL) {
     win.loadURL(DEV_URL);
   } else {
-    win.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
+    win.loadURL(`${APP_ORIGIN}/index.html`);
   }
 }
 
@@ -91,13 +109,15 @@ ipcMain.handle('ghostos:select-folder', async (event) => {
  */
 const DESKTOP_PIP_OK = process.platform === 'win32';
 const OVERLAY_HTML = path.join(__dirname, 'pip-overlay.html');
+// powershell.exe can't read inside app.asar; packaged builds unpack the .ps1 helpers (asarUnpack).
+const HELPER_DIR = __dirname.replace(/app\.asar(?=[\\/]|$)/, 'app.asar.unpacked');
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function findFolderWindow(root, target) {
   return new Promise((resolve) => {
     const child = execFile(
       'powershell.exe',
-      ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', path.join(__dirname, 'find-folder-window.ps1')],
+      ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', path.join(HELPER_DIR, 'find-folder-window.ps1')],
       { env: { ...process.env, GHOSTOS_ROOT: root, GHOSTOS_TARGET: target }, timeout: 8000, windowsHide: true },
       (err, stdout) => {
         if (err) return resolve({ found: false, reason: err.message });
@@ -185,7 +205,7 @@ function watchExplorer(s, hwnd) {
   if (!hwnd) return;
   const child = execFile(
     'powershell.exe',
-    ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', path.join(__dirname, 'watch-folder-window.ps1')],
+    ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File', path.join(HELPER_DIR, 'watch-folder-window.ps1')],
     { env: { ...process.env, GHOSTOS_HWND: String(hwnd) }, timeout: 16 * 60 * 1000, windowsHide: true },
     (err, stdout) => {
       if (s.watcher !== child) return; // stopped on purpose
@@ -339,6 +359,7 @@ ipcMain.handle('ghostos:pip-to-folder', async (event, root, target) => {
 if (process.platform === 'win32') app.setAppUserModelId('com.ghostos.app');
 
 app.whenReady().then(() => {
+  protocol.handle('app', serveDist);
   createWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

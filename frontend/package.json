@@ -1,8 +1,10 @@
 {
   "name": "ghostos-frontend",
+  "productName": "GhostOS",
   "private": true,
   "version": "0.1.0",
   "description": "GhostOS desktop UI (React + Vite, runs in the browser and in Electron).",
+  "author": "GhostOS team (AppBuildersPH Hackathon 2026)",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
@@ -15,6 +17,10 @@
     "test": "vitest run",
     "preview": "vite preview --host 127.0.0.1",
     "electron:preview": "npm run build && electron .",
+    "package:win": "cross-env VITE_USE_FIXTURES=false npm run build && electron-builder --win",
+    "package:win:demo": "cross-env VITE_USE_FIXTURES=true npm run build && electron-builder --win -c.directories.output=release/demo",
+    "package:dir": "cross-env VITE_USE_FIXTURES=false npm run build && electron-builder --win --dir",
+    "package:win:signed": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-signed.ps1",
     "pip-lab": "vite --host 127.0.0.1 --open /pip-lab.html"
   },
   "dependencies": {
@@ -34,11 +40,48 @@
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
     "oxlint": "^1.81.0",
     "tailwindcss": "^4.3.3",
     "typescript": "~6.0.2",
     "vite": "^8.3.0",
     "vitest": "^4.1.11",
     "wait-on": "^9.0.1"
+  },
+  "build": {
+    "appId": "com.ghostos.app",
+    "productName": "GhostOS",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json",
+      "!node_modules/**/*"
+    ],
+    "asarUnpack": [
+      "electron/*.ps1"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "electron/icon.png",
+      "signtoolOptions": {
+        "publisherName": [
+          "GhostOS team"
+        ],
+        "signingHashAlgorithms": [
+          "sha256"
+        ]
+      }
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "GhostOS-Setup-${version}.${ext}"
+    }
   }
 }
