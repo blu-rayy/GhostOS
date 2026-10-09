@@ -1,0 +1,527 @@
+[
+  {
+    "id": "G1",
+    "scenario": "G",
+    "input": "scan + preview",
+    "expected": "no file written or changed",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "A1",
+    "scenario": "A",
+    "input": "receipts/sunbeam-cafe-receipt.pdf classification",
+    "expected": "kind=receipt, profile=transaction [QA (contract: single POS transaction)]",
+    "actual": "kind=receipt, profile=transaction, category=receipt",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1 (profile derivation)",
+    "note": ""
+  },
+  {
+    "id": "B1",
+    "scenario": "B",
+    "input": "identity/birth-certificate.pdf classification",
+    "expected": "kind=identity_or_civil, profile=none [ground truth]",
+    "actual": "kind=identity_or_civil, profile=none, category=other",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1 (profile derivation)",
+    "note": ""
+  },
+  {
+    "id": "B1b",
+    "scenario": "B",
+    "input": "identity/drivers-license-record.txt classification",
+    "expected": "kind=identity_or_civil, profile=none [ground truth]",
+    "actual": "kind=identity_or_civil, profile=none, category=other",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1 (profile derivation)",
+    "note": ""
+  },
+  {
+    "id": "C1",
+    "scenario": "C",
+    "input": "misc/bank-statement-oct2026.txt classification",
+    "expected": "kind=statement, profile=reference [ground truth]",
+    "actual": "kind=statement, profile=reference, category=other",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1 (profile derivation)",
+    "note": ""
+  },
+  {
+    "id": "C1b",
+    "scenario": "C",
+    "input": "misc/card-statement-sep2026.pdf classification",
+    "expected": "kind=statement, profile=reference [QA (contract: card statement)]",
+    "actual": "kind=statement, profile=reference, category=invoice",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1 (profile derivation)",
+    "note": ""
+  },
+  {
+    "id": "D1",
+    "scenario": "D",
+    "input": "legal/lease-agreement-summary.pdf classification",
+    "expected": "kind=legal, profile=none [ground truth]",
+    "actual": "kind=legal, profile=none, category=other",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1 (profile derivation)",
+    "note": ""
+  },
+  {
+    "id": "D2",
+    "scenario": "D",
+    "input": "medical/prescription-note.txt classification",
+    "expected": "kind=medical, profile=none [ground truth]",
+    "actual": "kind=medical, profile=none, category=other",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1 (profile derivation)",
+    "note": ""
+  },
+  {
+    "id": "E1",
+    "scenario": "E",
+    "input": "misc/aircon-payment-note.txt classification",
+    "expected": "kind=uncertain, profile=none [QA (ground-truth category uncertain)]",
+    "actual": "kind=receipt, profile=transaction, category=receipt",
+    "status": "FAIL",
+    "owner_if_failing": "Dev 2 (classifier)",
+    "note": ""
+  },
+  {
+    "id": "X1",
+    "scenario": "decision",
+    "input": "invoices/meralite-power-bill-sep2026.txt classification",
+    "expected": "kind=invoice, profile=transaction [ground truth category=invoice (contract lists utility statements as 'statement': DECISION NEEDED)]",
+    "actual": "kind=statement, profile=reference, category=invoice",
+    "status": "FAIL",
+    "owner_if_failing": "Dev 2 (classifier)",
+    "note": ""
+  },
+  {
+    "id": "B2",
+    "scenario": "B/C/D",
+    "input": "identity/birth-certificate.pdf transaction fields in API response",
+    "expected": "merchant/date/amount/currency all null (no invented values)",
+    "actual": "all null",
+    "status": "PASS",
+    "owner_if_failing": "Dev 2 / Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B2b",
+    "scenario": "B/C/D",
+    "input": "identity/drivers-license-record.txt transaction fields in API response",
+    "expected": "merchant/date/amount/currency all null (no invented values)",
+    "actual": "all null",
+    "status": "PASS",
+    "owner_if_failing": "Dev 2 / Dev 1",
+    "note": ""
+  },
+  {
+    "id": "C2",
+    "scenario": "B/C/D",
+    "input": "misc/bank-statement-oct2026.txt transaction fields in API response",
+    "expected": "merchant/date/amount/currency all null (no invented values)",
+    "actual": "all null",
+    "status": "PASS",
+    "owner_if_failing": "Dev 2 / Dev 1",
+    "note": ""
+  },
+  {
+    "id": "C2b",
+    "scenario": "B/C/D",
+    "input": "misc/card-statement-sep2026.pdf transaction fields in API response",
+    "expected": "merchant/date/amount/currency all null (no invented values)",
+    "actual": {
+      "date": "2026-09-25",
+      "currency": "PHP"
+    },
+    "status": "FAIL",
+    "owner_if_failing": "Dev 2 / Dev 1",
+    "note": "flag transaction_fields_on_non_transactional present"
+  },
+  {
+    "id": "D3",
+    "scenario": "B/C/D",
+    "input": "legal/lease-agreement-summary.pdf transaction fields in API response",
+    "expected": "merchant/date/amount/currency all null (no invented values)",
+    "actual": "all null",
+    "status": "PASS",
+    "owner_if_failing": "Dev 2 / Dev 1",
+    "note": ""
+  },
+  {
+    "id": "D4",
+    "scenario": "B/C/D",
+    "input": "medical/prescription-note.txt transaction fields in API response",
+    "expected": "merchant/date/amount/currency all null (no invented values)",
+    "actual": "all null",
+    "status": "PASS",
+    "owner_if_failing": "Dev 2 / Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B3",
+    "scenario": "B/C/D",
+    "input": "identity/birth-certificate.pdf needs an explicit decision",
+    "expected": "status needs_review (blocks approval until decided)",
+    "actual": "needs_review",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "C3",
+    "scenario": "B/C/D",
+    "input": "misc/bank-statement-oct2026.txt needs an explicit decision",
+    "expected": "status needs_review (blocks approval until decided)",
+    "actual": "needs_review",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "C3b",
+    "scenario": "B/C/D",
+    "input": "misc/card-statement-sep2026.pdf needs an explicit decision",
+    "expected": "status needs_review (blocks approval until decided)",
+    "actual": "needs_review",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "D5",
+    "scenario": "B/C/D",
+    "input": "legal/lease-agreement-summary.pdf needs an explicit decision",
+    "expected": "status needs_review (blocks approval until decided)",
+    "actual": "needs_review",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "D6",
+    "scenario": "B/C/D",
+    "input": "medical/prescription-note.txt needs an explicit decision",
+    "expected": "status needs_review (blocks approval until decided)",
+    "actual": "needs_review",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "C4",
+    "scenario": "C/G",
+    "input": "initial plan report rows",
+    "expected": "no report row for statement/identity/legal/medical",
+    "actual": "none",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "A2",
+    "scenario": "A",
+    "input": "receipt report row",
+    "expected": "accepted row PHP 683.20",
+    "actual": "accepted 683.20 PHP",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1 / Dev 2",
+    "note": ""
+  },
+  {
+    "id": "F1",
+    "scenario": "F",
+    "input": "PATCH identity/birth-certificate.pdf {\"amount\": \"100.00\", \"accept\": true}",
+    "expected": "HTTP 422 (transaction field on profile none); record unchanged",
+    "actual": "HTTP 422 Document field profile 'none' does not allow transaction corrections: amount; record unchanged",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "F2",
+    "scenario": "F",
+    "input": "PATCH identity/birth-certificate.pdf {\"merchant\": \"City Registry\", \"date\": \"2026-10-01\"}",
+    "expected": "HTTP 422 (transaction fields on profile none); record unchanged",
+    "actual": "HTTP 422 Document field profile 'none' does not allow transaction corrections: date, merchant; record unchanged",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "F3",
+    "scenario": "F",
+    "input": "PATCH misc/bank-statement-oct2026.txt {\"amount\": \"5391.06\", \"currency\": \"PHP\", \"accept\": true}",
+    "expected": "HTTP 422 (statement is not one expense); record unchanged",
+    "actual": "HTTP 422 Document field profile 'reference' does not allow transaction corrections: amount, currency; record unchanged",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "F4",
+    "scenario": "F",
+    "input": "PATCH medical/prescription-note.txt {\"field_profile\": \"transaction\"}",
+    "expected": "HTTP 422 (backend-controlled field); record unchanged",
+    "actual": "HTTP 422 Unsupported backend-controlled fields: field_profile; record unchanged",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "F5",
+    "scenario": "F",
+    "input": "PATCH legal/lease-agreement-summary.pdf {\"destination_relative_path\": \"../../escape.pdf\"}",
+    "expected": "HTTP 422 (backend-controlled field); record unchanged",
+    "actual": "HTTP 422 Unsupported backend-controlled fields: destination_relative_path; record unchanged",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "F6",
+    "scenario": "F",
+    "input": "PATCH identity/birth-certificate.pdf {\"document_kind\": \"receipt\"}",
+    "expected": "HTTP 422 (kind is not client-editable); record unchanged",
+    "actual": "HTTP 422 Unsupported correction fields: document_kind; record unchanged",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "F7",
+    "scenario": "F",
+    "input": "PATCH receipts/sunbeam-cafe-receipt.pdf {\"editable_fields\": [\"amount\"], \"accept\": true}",
+    "expected": "HTTP 422 (backend-controlled field); record unchanged",
+    "actual": "HTTP 422 Unsupported backend-controlled fields: editable_fields; record unchanged",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "F8",
+    "scenario": "F",
+    "input": "PATCH identity/drivers-license-record.txt {category: receipt, accept: true}",
+    "expected": "rejected as contradictory (identity_or_civil cannot be filed as a receipt); record unchanged",
+    "actual": "HTTP 200; category now receipt, profile none, status ok",
+    "status": "FAIL",
+    "owner_if_failing": "Dev 1",
+    "note": "Not rejected: only merchant/date/amount/currency are checked against the profile."
+  },
+  {
+    "id": "A3",
+    "scenario": "A",
+    "input": "PATCH receipt {merchant, amount, currency, accept}",
+    "expected": "HTTP 200; values kept; profile stays transaction",
+    "actual": "HTTP 200; merchant=Sunbeam Cafe amount=683.20 profile=transaction",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "DEC-birth_certificate",
+    "scenario": "B/C/D/E",
+    "input": "decision file on identity/birth-certificate.pdf",
+    "expected": "HTTP 200; user_corrected; no transaction values",
+    "actual": "HTTP 200; status=ok; invented=none",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "DEC-bank_statement",
+    "scenario": "B/C/D/E",
+    "input": "decision file on misc/bank-statement-oct2026.txt",
+    "expected": "HTTP 200; user_corrected; no transaction values",
+    "actual": "HTTP 200; status=ok; invented=none",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "DEC-card_statement",
+    "scenario": "B/C/D/E",
+    "input": "decision file on misc/card-statement-sep2026.pdf",
+    "expected": "HTTP 200; user_corrected; no transaction values",
+    "actual": "HTTP 200; status=ok; invented={'date': '2026-09-25', 'currency': 'PHP'}",
+    "status": "FAIL",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "DEC-legal",
+    "scenario": "B/C/D/E",
+    "input": "decision file on legal/lease-agreement-summary.pdf",
+    "expected": "HTTP 200; user_corrected; no transaction values",
+    "actual": "HTTP 200; status=ok; invented=none",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "DEC-medical",
+    "scenario": "B/C/D/E",
+    "input": "decision leave on medical/prescription-note.txt",
+    "expected": "HTTP 200; user_corrected; no transaction values",
+    "actual": "HTTP 200; status=ok; invented=none",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "G2-birth_certificate",
+    "scenario": "B/C/D/E/G",
+    "input": "plan destination for identity/birth-certificate.pdf after decision",
+    "expected": "starts with Other/ (fixed backend map)",
+    "actual": "Other/birth-certificate.pdf",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "G2-bank_statement",
+    "scenario": "B/C/D/E/G",
+    "input": "plan destination for misc/bank-statement-oct2026.txt after decision",
+    "expected": "starts with Other/ (fixed backend map)",
+    "actual": "Other/bank-statement-oct2026.txt",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "G2-card_statement",
+    "scenario": "B/C/D/E/G",
+    "input": "plan destination for misc/card-statement-sep2026.pdf after decision",
+    "expected": "starts with Other/ (fixed backend map)",
+    "actual": "Other/card-statement-sep2026.pdf",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "G2-legal",
+    "scenario": "B/C/D/E/G",
+    "input": "plan destination for legal/lease-agreement-summary.pdf after decision",
+    "expected": "starts with Other/ (fixed backend map)",
+    "actual": "Other/lease-agreement-summary.pdf",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "G2-medical",
+    "scenario": "B/C/D/E/G",
+    "input": "plan destination for medical/prescription-note.txt after decision",
+    "expected": "starts with Needs Review/ (fixed backend map)",
+    "actual": "Needs Review/prescription-note.txt",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "G3",
+    "scenario": "C/G",
+    "input": "report rows after all decisions",
+    "expected": "no row for any non-transactional document",
+    "actual": "none",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "G4",
+    "scenario": "G",
+    "input": "every planned destination",
+    "expected": "from the fixed map (Invoices|Receipts/YYYY-MM, Other, Needs Review, GhostOS Organized/...)",
+    "actual": "all from fixed map",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "C5",
+    "scenario": "C",
+    "input": "plan totals after decisions",
+    "expected": "statement balances and transactions excluded; receipt counted",
+    "actual": {
+      "PHP": "683.20"
+    },
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "G5",
+    "scenario": "G",
+    "input": "after all corrections + plan refresh",
+    "expected": "no file written or changed; no approve/undo requested",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "X2",
+    "scenario": "decision",
+    "input": "utility bill in totals",
+    "expected": "ground truth: accepted invoice PHP 3412.75 / contract: utility statement excluded",
+    "actual": "kind=statement; report row=none",
+    "status": "NOT TESTED",
+    "owner_if_failing": "Dev 1 + Dev 4 (decision)",
+    "note": "Contract and ground truth disagree; reported as a decision, not graded."
+  },
+  {
+    "id": "F10",
+    "scenario": "F",
+    "input": "model output with model-supplied field_profile",
+    "expected": "rejected by ClassificationRecord",
+    "actual": "rejected (ValidationError, extra=forbid)",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1 / Dev 2",
+    "note": ""
+  },
+  {
+    "id": "F11",
+    "scenario": "F",
+    "input": "model output with model-supplied path",
+    "expected": "rejected by ClassificationRecord",
+    "actual": "rejected (ValidationError, extra=forbid)",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1 / Dev 2",
+    "note": ""
+  },
+  {
+    "id": "F12",
+    "scenario": "F",
+    "input": "model output with model-supplied field list",
+    "expected": "rejected by ClassificationRecord",
+    "actual": "rejected (ValidationError, extra=forbid)",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1 / Dev 2",
+    "note": ""
+  },
+  {
+    "id": "F13",
+    "scenario": "F",
+    "input": "model kind alias 'bank_statement'",
+    "expected": "normalized to statement, profile reference",
+    "actual": "statement/reference",
+    "status": "PASS",
+    "owner_if_failing": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "F14",
+    "scenario": "F",
+    "input": "model returns document_kind=null with category=invoice",
+    "expected": "safe default (not transaction) OR documented fallback",
+    "actual": "profile=transaction",
+    "status": "NOT TESTED",
+    "owner_if_failing": "Dev 1 (decision)",
+    "note": "Legacy fallback derives 'transaction' from category; a statement labelled invoice with a null kind would be countable. Not observed in this run."
+  }
+]

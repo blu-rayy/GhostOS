@@ -100,8 +100,13 @@ def test_explicit_null_document_kind_is_preserved_by_scan_worker(tmp_path, monke
     assert classification["document_kind"] is None
     assert classification["field_profile"] == "none"
     plan = client.get(f"/api/scans/{scan_id}/plan").json()
-    assert plan["operations"][0]["destination_relative_path"].startswith("Other/")
+    assert plan["operations"][0]["destination_relative_path"].startswith("Uncategorized/")
     assert plan["report_rows"] == []
+
+    partial_plan = client.get(f"/api/scans/{scan_id}/plan?mode=partial").json()
+    assert partial_plan["mode"] == "partial"
+    assert partial_plan["operations"][0]["destination_relative_path"].startswith("Uncategorized/")
+    assert partial_plan["report_rows"] == []
 
 
 def test_conflicting_totals_yield_amount_conflict(tmp_path, monkeypatch):

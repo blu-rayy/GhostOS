@@ -68,6 +68,73 @@ export function docStatus(d: DocumentRecord): RowStatus {
   return 'extracted'
 }
 
+/** Row chip tone for the Check screen. `muted` marks a file the user deferred. */
+export type ReviewTone = 'check' | 'done' | 'oops' | 'muted'
+
+export interface ReviewChipState {
+  text: string
+  tone: ReviewTone
+  /** Left-edge stripe colour for the row (mirrors the chip tone). */
+  stripe: string
+}
+
+/**
+ * What the Check-screen row chip says about a document.
+ *
+ * - `failed` and uncorrected -> "couldn't read" (pink).
+ * - corrected to `other` -> "filed under Other" (green).
+ * - corrected to `uncertain`, or a failed file left without details ->
+ *   "left for review" / "left for later" (grey, never the green check).
+ * - backend-accepted (`status: ok`) with no flags and no correction ->
+ *   "ready" (green) instead of the yellow attention state.
+ * - anything still waiting on the user -> "check this" (yellow).
+ */
+export function reviewChipState(doc: DocumentRecord | null): ReviewChipState {
+  if (!doc) return { text: 'check this', tone: 'check', stripe: '#ffe066' }
+  if (doc.status === 'failed' && !doc.user_corrected) {
+    return { text: "couldn't read", tone: 'oops', stripe: '#ffb3b3' }
+  }
+  if (doc.user_corrected) {
+    if (doc.status === 'failed') {
+      const c = doc.classification
+      const hasDetails = Boolean(c?.merchant || c?.date || c?.amount)
+      if (hasDetails) return { text: '✓ checked', tone: 'done', stripe: '#9be8b8' }
+      return { text: 'left for later', tone: 'muted', stripe: '#cfcfcf' }
+    }
+    const category = doc.classification?.category
+    if (category === 'other') return { text: 'filed under Other', tone: 'done', stripe: '#9be8b8' }
+    if (category === 'uncertain') return { text: 'left for review', tone: 'muted', stripe: '#cfcfcf' }
+    return { text: '✓ checked', tone: 'done', stripe: '#9be8b8' }
+  }
+  if (doc.status === 'ok' && doc.review_flags.length === 0) {
+    return { text: 'ready', tone: 'done', stripe: '#9be8b8' }
+  }
+  return { text: 'check this', tone: 'check', stripe: '#ffe066' }
+}
+
+/**
+ * Sub-line under the file name. Decided files name their actual decision
+ * (never "you checked this file" for a file that was only deferred).
+ */
+export function reviewReasonText(row: FileRow): string {
+  const doc = row.doc
+  if (!doc) return row.skip?.detail ?? 'Ready to file.'
+  if (doc.user_corrected) {
+    if (doc.status === 'failed') {
+      const c = doc.classification
+      if (!c?.merchant && !c?.date && !c?.amount) {
+        return 'left for later → Uncategorized/ · not counted'
+      }
+    } else {
+      const category = doc.classification?.category
+      if (category === 'other') return 'filed under Other/ · not counted'
+      if (category === 'uncertain') return 'left for review → Uncategorized/ · not counted'
+    }
+    return doc.classification?.date ? `date added: ${doc.classification.date}` : 'you checked this file'
+  }
+  return doc.review_flags[0]?.message ?? doc.classification?.explanation ?? 'Ready to file.'
+}
+
 /** True when this document blocks approval (mirrors blocking_review_count). */
 export function isBlocking(d: DocumentRecord): boolean {
   return d.status === 'needs_review' && !d.user_corrected

@@ -1,0 +1,82 @@
+{
+  "plan_id": "plan_scan_8428a60ab5da",
+  "scan_id": "scan_8428a60ab5da",
+  "mode": "blocking",
+  "operations": [
+    {
+      "file_id": "b28daea5",
+      "original_relative_path": "inbox-a/identity/birth-certificate.pdf",
+      "destination_relative_path": "Uncategorized/birth-certificate.pdf",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "47639828",
+      "original_relative_path": "inbox-a/misc/aircon-payment-note.txt",
+      "destination_relative_path": "Uncategorized/aircon-payment-note.txt",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "1a6c16c8",
+      "original_relative_path": "inbox-a/receipts/bayside-office-mart.pdf",
+      "destination_relative_path": "Uncategorized/bayside-office-mart.pdf",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "513eee66",
+      "original_relative_path": "inbox-a/receipts/sunbeam-cafe-receipt.pdf",
+      "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "reason": "receipt dated 2026-09-21",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "0816e21d",
+      "original_relative_path": "inbox-a/scans/empty-scan.txt",
+      "destination_relative_path": "Uncategorized/empty-scan.txt",
+      "reason": "Could not be classified",
+      "collision_suffixed": false
+    }
+  ],
+  "report_rows": [
+    {
+      "file_id": "47639828",
+      "source_filename": "inbox-a/misc/aircon-payment-note.txt",
+      "category": "receipt",
+      "date": null,
+      "merchant": null,
+      "amount": null,
+      "currency": null,
+      "status": "needs_review"
+    },
+    {
+      "file_id": "1a6c16c8",
+      "source_filename": "inbox-a/receipts/bayside-office-mart.pdf",
+      "category": "receipt",
+      "date": "2026-09-05",
+      "merchant": "BAYSIDE OFFICE MART",
+      "amount": "1520.00",
+      "currency": "PHP",
+      "status": "needs_review"
+    },
+    {
+      "file_id": "513eee66",
+      "source_filename": "inbox-a/receipts/sunbeam-cafe-receipt.pdf",
+      "category": "receipt",
+      "date": "2026-09-21",
+      "merchant": "SUNBEAM CAFE",
+      "amount": "683.20",
+      "currency": "PHP",
+      "status": "accepted"
+    }
+  ],
+  "totals": [
+    {
+      "currency": "PHP",
+      "amount": "683.20",
+      "row_count": 1
+    }
+  ],
+  "blocking_review_count": 4
+}

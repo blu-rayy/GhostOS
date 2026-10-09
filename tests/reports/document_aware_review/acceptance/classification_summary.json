@@ -1,0 +1,186 @@
+[
+  {
+    "label": "receipt",
+    "file": "receipts/sunbeam-cafe-receipt.pdf",
+    "category": "receipt",
+    "document_kind": "receipt",
+    "field_profile": "transaction",
+    "merchant": "SUNBEAM CAFE",
+    "date": "2026-09-21",
+    "amount": "683.20",
+    "currency": "PHP",
+    "status": "ok",
+    "flags": [],
+    "expected_kind": "receipt",
+    "expected_profile": "transaction",
+    "expectation_source": "QA (contract: single POS transaction)",
+    "report_row": "accepted"
+  },
+  {
+    "label": "birth_certificate",
+    "file": "identity/birth-certificate.pdf",
+    "category": "other",
+    "document_kind": "identity_or_civil",
+    "field_profile": "none",
+    "merchant": null,
+    "date": null,
+    "amount": null,
+    "currency": null,
+    "status": "needs_review",
+    "flags": [
+      "missing_evidence_quote",
+      "non_transactional_document"
+    ],
+    "expected_kind": "identity_or_civil",
+    "expected_profile": "none",
+    "expectation_source": "ground truth",
+    "report_row": null
+  },
+  {
+    "label": "drivers_license",
+    "file": "identity/drivers-license-record.txt",
+    "category": "other",
+    "document_kind": "identity_or_civil",
+    "field_profile": "none",
+    "merchant": null,
+    "date": null,
+    "amount": null,
+    "currency": null,
+    "status": "needs_review",
+    "flags": [
+      "missing_evidence_quote",
+      "non_transactional_document"
+    ],
+    "expected_kind": "identity_or_civil",
+    "expected_profile": "none",
+    "expectation_source": "ground truth",
+    "report_row": null
+  },
+  {
+    "label": "bank_statement",
+    "file": "misc/bank-statement-oct2026.txt",
+    "category": "other",
+    "document_kind": "statement",
+    "field_profile": "reference",
+    "merchant": null,
+    "date": null,
+    "amount": null,
+    "currency": null,
+    "status": "needs_review",
+    "flags": [
+      "missing_evidence_quote",
+      "missing_currency",
+      "non_transactional_document"
+    ],
+    "expected_kind": "statement",
+    "expected_profile": "reference",
+    "expectation_source": "ground truth",
+    "report_row": null
+  },
+  {
+    "label": "card_statement",
+    "file": "misc/card-statement-sep2026.pdf",
+    "category": "invoice",
+    "document_kind": "statement",
+    "field_profile": "reference",
+    "merchant": null,
+    "date": "2026-09-25",
+    "amount": null,
+    "currency": "PHP",
+    "status": "needs_review",
+    "flags": [
+      "amount_conflict",
+      "missing_merchant",
+      "non_transactional_document",
+      "transaction_fields_on_non_transactional"
+    ],
+    "expected_kind": "statement",
+    "expected_profile": "reference",
+    "expectation_source": "QA (contract: card statement)",
+    "report_row": null
+  },
+  {
+    "label": "legal",
+    "file": "legal/lease-agreement-summary.pdf",
+    "category": "other",
+    "document_kind": "legal",
+    "field_profile": "none",
+    "merchant": null,
+    "date": null,
+    "amount": null,
+    "currency": null,
+    "status": "needs_review",
+    "flags": [
+      "missing_evidence_quote",
+      "missing_currency",
+      "non_transactional_document"
+    ],
+    "expected_kind": "legal",
+    "expected_profile": "none",
+    "expectation_source": "ground truth",
+    "report_row": null
+  },
+  {
+    "label": "medical",
+    "file": "medical/prescription-note.txt",
+    "category": "other",
+    "document_kind": "medical",
+    "field_profile": "none",
+    "merchant": null,
+    "date": null,
+    "amount": null,
+    "currency": null,
+    "status": "needs_review",
+    "flags": [
+      "missing_evidence_quote",
+      "non_transactional_document"
+    ],
+    "expected_kind": "medical",
+    "expected_profile": "none",
+    "expectation_source": "ground truth",
+    "report_row": null
+  },
+  {
+    "label": "uncertain_note",
+    "file": "misc/aircon-payment-note.txt",
+    "category": "receipt",
+    "document_kind": "receipt",
+    "field_profile": "transaction",
+    "merchant": null,
+    "date": null,
+    "amount": null,
+    "currency": null,
+    "status": "needs_review",
+    "flags": [
+      "missing_evidence_quote",
+      "missing_amount",
+      "missing_merchant",
+      "missing_date"
+    ],
+    "expected_kind": "uncertain",
+    "expected_profile": "none",
+    "expectation_source": "QA (ground-truth category uncertain)",
+    "report_row": "needs_review"
+  },
+  {
+    "label": "utility_bill",
+    "file": "invoices/meralite-power-bill-sep2026.txt",
+    "category": "invoice",
+    "document_kind": "statement",
+    "field_profile": "reference",
+    "merchant": null,
+    "date": "2026-09-15",
+    "amount": null,
+    "currency": "PHP",
+    "status": "needs_review",
+    "flags": [
+      "missing_merchant",
+      "non_transactional_document",
+      "transaction_fields_on_non_transactional"
+    ],
+    "expected_kind": "invoice",
+    "expected_profile": "transaction",
+    "expectation_source": "ground truth category=invoice (contract lists utility statements as 'statement': DECISION NEEDED)",
+    "report_row": null
+  }
+]

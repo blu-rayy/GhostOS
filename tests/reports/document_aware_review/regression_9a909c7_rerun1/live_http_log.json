@@ -1,0 +1,1275 @@
+[
+  {
+    "at": "2026-10-09T19:25:17.680374+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/status",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "backend_endpoint": "http://127.0.0.1:8000",
+        "model_name": "qwen3:4b-instruct",
+        "model_endpoint": "http://127.0.0.1:11434",
+        "model_loaded": true,
+        "external_requests": 0,
+        "last_inference_ms": null,
+        "last_inference_at": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:17.706827+00:00",
+    "request": {
+      "method": "POST",
+      "path": "/api/scan",
+      "body": {
+        "root": "<ROOT_R2>"
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_4c743136da13",
+        "state": "running",
+        "files_total": 0,
+        "files_processed": 0,
+        "current_file": null,
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:18.724222+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_4c743136da13",
+        "state": "running",
+        "files_total": 5,
+        "files_processed": 0,
+        "current_file": "identity/birth-certificate.pdf",
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:19.726414+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_4c743136da13",
+        "state": "running",
+        "files_total": 5,
+        "files_processed": 2,
+        "current_file": "misc/bank-statement-oct2026.txt",
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:20.728322+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_4c743136da13",
+        "state": "running",
+        "files_total": 5,
+        "files_processed": 2,
+        "current_file": "misc/bank-statement-oct2026.txt",
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:21.730282+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_4c743136da13",
+        "state": "running",
+        "files_total": 5,
+        "files_processed": 3,
+        "current_file": "misc/card-statement-sep2026.pdf",
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:22.756049+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_4c743136da13",
+        "state": "running",
+        "files_total": 5,
+        "files_processed": 4,
+        "current_file": "receipts/sunbeam-cafe-receipt.pdf",
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.769391+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_4c743136da13",
+        "state": "done",
+        "files_total": 5,
+        "files_processed": 5,
+        "current_file": null,
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.770575+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_4c743136da13",
+        "root": "<ROOT_R2>",
+        "scanned_at": "2026-10-09T19:25:17.705973+00:00",
+        "files_seen": 5,
+        "max_files": 100,
+        "documents": [
+          {
+            "file_id": "f3ce4c59",
+            "relative_path": "identity/birth-certificate.pdf",
+            "file_type": "pdf",
+            "size_bytes": 1095,
+            "sha256": "df083a5d7500220e94e943891489ab6dc100a88a783426a351e864ef6c4edd1b",
+            "excerpt": "CERTIFICATE OF LIVE BIRTH (fictional)\nPhilippine Statistics Authority\nName: MARA ISABEL VILLANUEVA\nDate of birth: 02 April 1995\nPlace of birth: Makati City\nSex: Female\nMother: Elena Villanueva\nFather: Ramon Villanueva",
+            "status": "needs_review",
+            "classification": {
+              "category": "other",
+              "merchant": null,
+              "date": null,
+              "amount_text": null,
+              "amount": null,
+              "currency": null,
+              "evidence_quote": null,
+              "evidence_verified": false,
+              "explanation": "This is a birth certificate, which falls under identity_or_civil document kind and is not a transactional document.",
+              "document_kind": "identity_or_civil",
+              "field_profile": "none"
+            },
+            "review_flags": [
+              {
+                "code": "missing_evidence_quote",
+                "message": "No evidence quote was provided for verification"
+              },
+              {
+                "code": "non_transactional_document",
+                "message": "This is not a transaction document and has no expense fields"
+              }
+            ],
+            "duplicate_of": null,
+            "user_corrected": false
+          },
+          {
+            "file_id": "d55b1c0e",
+            "relative_path": "identity/drivers-license-record.txt",
+            "file_type": "txt",
+            "size_bytes": 157,
+            "sha256": "a834865ede0b6a3b8d47b243fb53676ef679a35410c23dded2d9f4c95f753b69",
+            "excerpt": "LAND TRANSPORTATION OFFICE (fictional)\nDriver's License Record\nLicense No: D12-34-567890\nName: MARA ISABEL VILLANUEVA\nExpiry: 15 Nov 2028\nRestrictions: 1, 2",
+            "status": "needs_review",
+            "classification": {
+              "category": "other",
+              "merchant": null,
+              "date": null,
+              "amount_text": null,
+              "amount": null,
+              "currency": null,
+              "evidence_quote": null,
+              "evidence_verified": false,
+              "explanation": "This is a driver's license record, which falls under identity or civil documentation, not a transactional document.",
+              "document_kind": "identity_or_civil",
+              "field_profile": "none"
+            },
+            "review_flags": [
+              {
+                "code": "missing_evidence_quote",
+                "message": "No evidence quote was provided for verification"
+              },
+              {
+                "code": "non_transactional_document",
+                "message": "This is not a transaction document and has no expense fields"
+              }
+            ],
+            "duplicate_of": null,
+            "user_corrected": false
+          },
+          {
+            "file_id": "987aefe8",
+            "relative_path": "misc/bank-statement-oct2026.txt",
+            "file_type": "txt",
+            "size_bytes": 211,
+            "sha256": "b3fe6daa6638a8d26466aa54b270e6fe513acf55aa5c00e02741fa985c5ffcb2",
+            "excerpt": "SAMPLE NATIONAL BANK (fictional)\nSavings Account Statement\nAccount: XXXX-1234\nStatement period: 01 Sep 2026 to 30 Sep 2026\nOpening balance: PHP 12,450.00\nInterest earned: PHP 12.50\nClosing balance: PHP 9,120.50",
+            "status": "needs_review",
+            "classification": {
+              "category": "other",
+              "merchant": null,
+              "date": null,
+              "amount_text": null,
+              "amount": null,
+              "currency": null,
+              "evidence_quote": null,
+              "evidence_verified": false,
+              "explanation": "This is a bank statement, which is a non-transactional document and thus classified as 'other' in category and 'statement' in document_kind.",
+              "document_kind": "statement",
+              "field_profile": "reference"
+            },
+            "review_flags": [
+              {
+                "code": "missing_evidence_quote",
+                "message": "No evidence quote was provided for verification"
+              },
+              {
+                "code": "missing_currency",
+                "message": "No currency found in the document"
+              },
+              {
+                "code": "non_transactional_document",
+                "message": "This is not a transaction document and has no expense fields"
+              }
+            ],
+            "duplicate_of": null,
+            "user_corrected": false
+          },
+          {
+            "file_id": "c01919bb",
+            "relative_path": "misc/card-statement-sep2026.pdf",
+            "file_type": "pdf",
+            "size_bytes": 1296,
+            "sha256": "af2bda441bd6a6c020cf481ddcb7b95713d533616b71f1175da380f7e0b2cac5",
+            "excerpt": "HARBOR FEDERAL BANK (fictional)\nCredit Card Statement\nCard number: XXXX-XXXX-XXXX-0000\nStatement date: 2026-09-25\n2026-09-03 BRIGHTLINE WEB HOSTING: PHP 3,421.36\n2026-09-14 GREENLEAF GROCER: PHP 1,286.50\n2026-09-21 SUNBEAM CAFE: PHP 683.20\nTotal new charges: PHP 5,391.06\nStatement balance: PHP 5,391.06\nMinimum amount due: PHP 850.00\nPayment due date: 2026-10-15",
+            "status": "needs_review",
+            "classification": {
+              "category": "invoice",
+              "merchant": null,
+              "date": "2026-09-25",
+              "amount_text": "PHP 5,391.06",
+              "amount": null,
+              "currency": "PHP",
+              "evidence_quote": "Total new charges: PHP 5,391.06",
+              "evidence_verified": true,
+              "explanation": "This is a bank credit card statement, which is categorized as a statement document, not a transaction receipt or invoice. The total amount is clearly stated and matches the final charge amount.",
+              "document_kind": "statement",
+              "field_profile": "reference"
+            },
+            "review_flags": [
+              {
+                "code": "amount_conflict",
+                "message": "Multiple conflicting amounts found; none was selected"
+              },
+              {
+                "code": "missing_merchant",
+                "message": "No merchant found in the document"
+              },
+              {
+                "code": "non_transactional_document",
+                "message": "This is not a transaction document and has no expense fields"
+              },
+              {
+                "code": "transaction_fields_on_non_transactional",
+                "message": "Transaction fields were reported for a non-transactional document"
+              }
+            ],
+            "duplicate_of": null,
+            "user_corrected": false
+          },
+          {
+            "file_id": "75438af4",
+            "relative_path": "receipts/sunbeam-cafe-receipt.pdf",
+            "file_type": "pdf",
+            "size_bytes": 1217,
+            "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+            "excerpt": "SUNBEAM CAFE (fictional)\nSample Street, Quezon City\nOR No. 2026-118204\nDate: 09/21/2026 10:15 AM\n1 x Flat white: PHP 180.00\n1 x Spanish latte: PHP 190.00\n2 x Butter croissant @ 120.00: PHP 240.00\nSubtotal: PHP 610.00\nVAT 12%: PHP 73.20\nFINAL TOTAL: PHP 683.20\nPaid by card ending 0000",
+            "status": "ok",
+            "classification": {
+              "category": "receipt",
+              "merchant": "SUNBEAM CAFE",
+              "date": "2026-09-21",
+              "amount_text": "PHP 683.20",
+              "amount": "683.20",
+              "currency": "PHP",
+              "evidence_quote": "FINAL TOTAL: PHP 683.20",
+              "evidence_verified": true,
+              "explanation": "The document is a transaction record from a caf\u00e9 showing a final total amount, which classifies it as a receipt.",
+              "document_kind": "receipt",
+              "field_profile": "transaction"
+            },
+            "review_flags": [],
+            "duplicate_of": null,
+            "user_corrected": false
+          }
+        ],
+        "skipped": []
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.778594+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_4c743136da13",
+        "scan_id": "scan_4c743136da13",
+        "operations": [
+          {
+            "file_id": "f3ce4c59",
+            "original_relative_path": "identity/birth-certificate.pdf",
+            "destination_relative_path": "Needs Review/birth-certificate.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "d55b1c0e",
+            "original_relative_path": "identity/drivers-license-record.txt",
+            "destination_relative_path": "Needs Review/drivers-license-record.txt",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "987aefe8",
+            "original_relative_path": "misc/bank-statement-oct2026.txt",
+            "destination_relative_path": "Needs Review/bank-statement-oct2026.txt",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "c01919bb",
+            "original_relative_path": "misc/card-statement-sep2026.pdf",
+            "destination_relative_path": "Needs Review/card-statement-sep2026.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "75438af4",
+            "original_relative_path": "receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "GhostOS Organized/Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "75438af4",
+            "source_filename": "receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "683.20",
+            "row_count": 1
+          }
+        ],
+        "blocking_review_count": 4
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.780208+00:00",
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/c01919bb",
+      "body": {
+        "category": "invoice",
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "file_id": "c01919bb",
+        "relative_path": "misc/card-statement-sep2026.pdf",
+        "file_type": "pdf",
+        "size_bytes": 1296,
+        "sha256": "af2bda441bd6a6c020cf481ddcb7b95713d533616b71f1175da380f7e0b2cac5",
+        "excerpt": "HARBOR FEDERAL BANK (fictional)\nCredit Card Statement\nCard number: XXXX-XXXX-XXXX-0000\nStatement date: 2026-09-25\n2026-09-03 BRIGHTLINE WEB HOSTING: PHP 3,421.36\n2026-09-14 GREENLEAF GROCER: PHP 1,286.50\n2026-09-21 SUNBEAM CAFE: PHP 683.20\nTotal new charges: PHP 5,391.06\nStatement balance: PHP 5,391.06\nMinimum amount due: PHP 850.00\nPayment due date: 2026-10-15",
+        "status": "ok",
+        "classification": {
+          "category": "invoice",
+          "merchant": null,
+          "date": "2026-09-25",
+          "amount_text": "PHP 5,391.06",
+          "amount": null,
+          "currency": "PHP",
+          "evidence_quote": "Total new charges: PHP 5,391.06",
+          "evidence_verified": true,
+          "explanation": "This is a bank credit card statement, which is categorized as a statement document, not a transaction receipt or invoice. The total amount is clearly stated and matches the final charge amount.",
+          "document_kind": "statement",
+          "field_profile": "reference"
+        },
+        "review_flags": [],
+        "duplicate_of": null,
+        "user_corrected": true
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.799504+00:00",
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/d55b1c0e",
+      "body": {
+        "category": "receipt",
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "file_id": "d55b1c0e",
+        "relative_path": "identity/drivers-license-record.txt",
+        "file_type": "txt",
+        "size_bytes": 157,
+        "sha256": "a834865ede0b6a3b8d47b243fb53676ef679a35410c23dded2d9f4c95f753b69",
+        "excerpt": "LAND TRANSPORTATION OFFICE (fictional)\nDriver's License Record\nLicense No: D12-34-567890\nName: MARA ISABEL VILLANUEVA\nExpiry: 15 Nov 2028\nRestrictions: 1, 2",
+        "status": "ok",
+        "classification": {
+          "category": "receipt",
+          "merchant": null,
+          "date": null,
+          "amount_text": null,
+          "amount": null,
+          "currency": null,
+          "evidence_quote": null,
+          "evidence_verified": false,
+          "explanation": "This is a driver's license record, which falls under identity or civil documentation, not a transactional document.",
+          "document_kind": "identity_or_civil",
+          "field_profile": "none"
+        },
+        "review_flags": [],
+        "duplicate_of": null,
+        "user_corrected": true
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.815842+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_4c743136da13",
+        "root": "<ROOT_R2>",
+        "scanned_at": "2026-10-09T19:25:17.705973+00:00",
+        "files_seen": 5,
+        "max_files": 100,
+        "documents": [
+          {
+            "file_id": "f3ce4c59",
+            "relative_path": "identity/birth-certificate.pdf",
+            "file_type": "pdf",
+            "size_bytes": 1095,
+            "sha256": "df083a5d7500220e94e943891489ab6dc100a88a783426a351e864ef6c4edd1b",
+            "excerpt": "CERTIFICATE OF LIVE BIRTH (fictional)\nPhilippine Statistics Authority\nName: MARA ISABEL VILLANUEVA\nDate of birth: 02 April 1995\nPlace of birth: Makati City\nSex: Female\nMother: Elena Villanueva\nFather: Ramon Villanueva",
+            "status": "needs_review",
+            "classification": {
+              "category": "other",
+              "merchant": null,
+              "date": null,
+              "amount_text": null,
+              "amount": null,
+              "currency": null,
+              "evidence_quote": null,
+              "evidence_verified": false,
+              "explanation": "This is a birth certificate, which falls under identity_or_civil document kind and is not a transactional document.",
+              "document_kind": "identity_or_civil",
+              "field_profile": "none"
+            },
+            "review_flags": [
+              {
+                "code": "missing_evidence_quote",
+                "message": "No evidence quote was provided for verification"
+              },
+              {
+                "code": "non_transactional_document",
+                "message": "This is not a transaction document and has no expense fields"
+              }
+            ],
+            "duplicate_of": null,
+            "user_corrected": false
+          },
+          {
+            "file_id": "d55b1c0e",
+            "relative_path": "identity/drivers-license-record.txt",
+            "file_type": "txt",
+            "size_bytes": 157,
+            "sha256": "a834865ede0b6a3b8d47b243fb53676ef679a35410c23dded2d9f4c95f753b69",
+            "excerpt": "LAND TRANSPORTATION OFFICE (fictional)\nDriver's License Record\nLicense No: D12-34-567890\nName: MARA ISABEL VILLANUEVA\nExpiry: 15 Nov 2028\nRestrictions: 1, 2",
+            "status": "ok",
+            "classification": {
+              "category": "receipt",
+              "merchant": null,
+              "date": null,
+              "amount_text": null,
+              "amount": null,
+              "currency": null,
+              "evidence_quote": null,
+              "evidence_verified": false,
+              "explanation": "This is a driver's license record, which falls under identity or civil documentation, not a transactional document.",
+              "document_kind": "identity_or_civil",
+              "field_profile": "none"
+            },
+            "review_flags": [],
+            "duplicate_of": null,
+            "user_corrected": true
+          },
+          {
+            "file_id": "987aefe8",
+            "relative_path": "misc/bank-statement-oct2026.txt",
+            "file_type": "txt",
+            "size_bytes": 211,
+            "sha256": "b3fe6daa6638a8d26466aa54b270e6fe513acf55aa5c00e02741fa985c5ffcb2",
+            "excerpt": "SAMPLE NATIONAL BANK (fictional)\nSavings Account Statement\nAccount: XXXX-1234\nStatement period: 01 Sep 2026 to 30 Sep 2026\nOpening balance: PHP 12,450.00\nInterest earned: PHP 12.50\nClosing balance: PHP 9,120.50",
+            "status": "needs_review",
+            "classification": {
+              "category": "other",
+              "merchant": null,
+              "date": null,
+              "amount_text": null,
+              "amount": null,
+              "currency": null,
+              "evidence_quote": null,
+              "evidence_verified": false,
+              "explanation": "This is a bank statement, which is a non-transactional document and thus classified as 'other' in category and 'statement' in document_kind.",
+              "document_kind": "statement",
+              "field_profile": "reference"
+            },
+            "review_flags": [
+              {
+                "code": "missing_evidence_quote",
+                "message": "No evidence quote was provided for verification"
+              },
+              {
+                "code": "missing_currency",
+                "message": "No currency found in the document"
+              },
+              {
+                "code": "non_transactional_document",
+                "message": "This is not a transaction document and has no expense fields"
+              }
+            ],
+            "duplicate_of": null,
+            "user_corrected": false
+          },
+          {
+            "file_id": "c01919bb",
+            "relative_path": "misc/card-statement-sep2026.pdf",
+            "file_type": "pdf",
+            "size_bytes": 1296,
+            "sha256": "af2bda441bd6a6c020cf481ddcb7b95713d533616b71f1175da380f7e0b2cac5",
+            "excerpt": "HARBOR FEDERAL BANK (fictional)\nCredit Card Statement\nCard number: XXXX-XXXX-XXXX-0000\nStatement date: 2026-09-25\n2026-09-03 BRIGHTLINE WEB HOSTING: PHP 3,421.36\n2026-09-14 GREENLEAF GROCER: PHP 1,286.50\n2026-09-21 SUNBEAM CAFE: PHP 683.20\nTotal new charges: PHP 5,391.06\nStatement balance: PHP 5,391.06\nMinimum amount due: PHP 850.00\nPayment due date: 2026-10-15",
+            "status": "ok",
+            "classification": {
+              "category": "invoice",
+              "merchant": null,
+              "date": "2026-09-25",
+              "amount_text": "PHP 5,391.06",
+              "amount": null,
+              "currency": "PHP",
+              "evidence_quote": "Total new charges: PHP 5,391.06",
+              "evidence_verified": true,
+              "explanation": "This is a bank credit card statement, which is categorized as a statement document, not a transaction receipt or invoice. The total amount is clearly stated and matches the final charge amount.",
+              "document_kind": "statement",
+              "field_profile": "reference"
+            },
+            "review_flags": [],
+            "duplicate_of": null,
+            "user_corrected": true
+          },
+          {
+            "file_id": "75438af4",
+            "relative_path": "receipts/sunbeam-cafe-receipt.pdf",
+            "file_type": "pdf",
+            "size_bytes": 1217,
+            "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+            "excerpt": "SUNBEAM CAFE (fictional)\nSample Street, Quezon City\nOR No. 2026-118204\nDate: 09/21/2026 10:15 AM\n1 x Flat white: PHP 180.00\n1 x Spanish latte: PHP 190.00\n2 x Butter croissant @ 120.00: PHP 240.00\nSubtotal: PHP 610.00\nVAT 12%: PHP 73.20\nFINAL TOTAL: PHP 683.20\nPaid by card ending 0000",
+            "status": "ok",
+            "classification": {
+              "category": "receipt",
+              "merchant": "SUNBEAM CAFE",
+              "date": "2026-09-21",
+              "amount_text": "PHP 683.20",
+              "amount": "683.20",
+              "currency": "PHP",
+              "evidence_quote": "FINAL TOTAL: PHP 683.20",
+              "evidence_verified": true,
+              "explanation": "The document is a transaction record from a caf\u00e9 showing a final total amount, which classifies it as a receipt.",
+              "document_kind": "receipt",
+              "field_profile": "transaction"
+            },
+            "review_flags": [],
+            "duplicate_of": null,
+            "user_corrected": false
+          }
+        ],
+        "skipped": []
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.837112+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_4c743136da13",
+        "scan_id": "scan_4c743136da13",
+        "operations": [
+          {
+            "file_id": "f3ce4c59",
+            "original_relative_path": "identity/birth-certificate.pdf",
+            "destination_relative_path": "Needs Review/birth-certificate.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "d55b1c0e",
+            "original_relative_path": "identity/drivers-license-record.txt",
+            "destination_relative_path": "Other/drivers-license-record.txt",
+            "reason": "Non-transactional document",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "987aefe8",
+            "original_relative_path": "misc/bank-statement-oct2026.txt",
+            "destination_relative_path": "Needs Review/bank-statement-oct2026.txt",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "c01919bb",
+            "original_relative_path": "misc/card-statement-sep2026.pdf",
+            "destination_relative_path": "Other/card-statement-sep2026.pdf",
+            "reason": "Non-transactional document",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "75438af4",
+            "original_relative_path": "receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "GhostOS Organized/Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "75438af4",
+            "source_filename": "receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "683.20",
+            "row_count": 1
+          }
+        ],
+        "blocking_review_count": 2
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.839693+00:00",
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/f3ce4c59",
+      "body": {
+        "document_kind": "receipt"
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "file_id": "f3ce4c59",
+        "relative_path": "identity/birth-certificate.pdf",
+        "file_type": "pdf",
+        "size_bytes": 1095,
+        "sha256": "df083a5d7500220e94e943891489ab6dc100a88a783426a351e864ef6c4edd1b",
+        "excerpt": "CERTIFICATE OF LIVE BIRTH (fictional)\nPhilippine Statistics Authority\nName: MARA ISABEL VILLANUEVA\nDate of birth: 02 April 1995\nPlace of birth: Makati City\nSex: Female\nMother: Elena Villanueva\nFather: Ramon Villanueva",
+        "status": "needs_review",
+        "classification": {
+          "category": "other",
+          "merchant": null,
+          "date": null,
+          "amount_text": null,
+          "amount": null,
+          "currency": null,
+          "evidence_quote": null,
+          "evidence_verified": false,
+          "explanation": "This is a birth certificate, which falls under identity_or_civil document kind and is not a transactional document.",
+          "document_kind": "receipt",
+          "field_profile": "transaction"
+        },
+        "review_flags": [
+          {
+            "code": "missing_evidence_quote",
+            "message": "No evidence quote was provided for verification"
+          },
+          {
+            "code": "non_transactional_document",
+            "message": "This is not a transaction document and has no expense fields"
+          }
+        ],
+        "duplicate_of": null,
+        "user_corrected": false
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.868178+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_4c743136da13",
+        "scan_id": "scan_4c743136da13",
+        "operations": [
+          {
+            "file_id": "f3ce4c59",
+            "original_relative_path": "identity/birth-certificate.pdf",
+            "destination_relative_path": "Needs Review/birth-certificate.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "d55b1c0e",
+            "original_relative_path": "identity/drivers-license-record.txt",
+            "destination_relative_path": "Other/drivers-license-record.txt",
+            "reason": "Non-transactional document",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "987aefe8",
+            "original_relative_path": "misc/bank-statement-oct2026.txt",
+            "destination_relative_path": "Needs Review/bank-statement-oct2026.txt",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "c01919bb",
+            "original_relative_path": "misc/card-statement-sep2026.pdf",
+            "destination_relative_path": "Other/card-statement-sep2026.pdf",
+            "reason": "Non-transactional document",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "75438af4",
+            "original_relative_path": "receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "GhostOS Organized/Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "75438af4",
+            "source_filename": "receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "683.20",
+            "row_count": 1
+          }
+        ],
+        "blocking_review_count": 2
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.869330+00:00",
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/f3ce4c59",
+      "body": {
+        "document_kind": 5
+      }
+    },
+    "response": {
+      "status": 422,
+      "body": {
+        "detail": "document_kind must be a supported string or null"
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.870211+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_4c743136da13",
+        "scan_id": "scan_4c743136da13",
+        "operations": [
+          {
+            "file_id": "f3ce4c59",
+            "original_relative_path": "identity/birth-certificate.pdf",
+            "destination_relative_path": "Needs Review/birth-certificate.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "d55b1c0e",
+            "original_relative_path": "identity/drivers-license-record.txt",
+            "destination_relative_path": "Other/drivers-license-record.txt",
+            "reason": "Non-transactional document",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "987aefe8",
+            "original_relative_path": "misc/bank-statement-oct2026.txt",
+            "destination_relative_path": "Needs Review/bank-statement-oct2026.txt",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "c01919bb",
+            "original_relative_path": "misc/card-statement-sep2026.pdf",
+            "destination_relative_path": "Other/card-statement-sep2026.pdf",
+            "reason": "Non-transactional document",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "75438af4",
+            "original_relative_path": "receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "GhostOS Organized/Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "75438af4",
+            "source_filename": "receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "683.20",
+            "row_count": 1
+          }
+        ],
+        "blocking_review_count": 2
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.893142+00:00",
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/987aefe8",
+      "body": {
+        "amount": "9120.50",
+        "currency": "PHP",
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 422,
+      "body": {
+        "detail": "Document field profile 'reference' does not allow transaction corrections: amount, currency"
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.908491+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_4c743136da13",
+        "scan_id": "scan_4c743136da13",
+        "operations": [
+          {
+            "file_id": "f3ce4c59",
+            "original_relative_path": "identity/birth-certificate.pdf",
+            "destination_relative_path": "Needs Review/birth-certificate.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "d55b1c0e",
+            "original_relative_path": "identity/drivers-license-record.txt",
+            "destination_relative_path": "Other/drivers-license-record.txt",
+            "reason": "Non-transactional document",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "987aefe8",
+            "original_relative_path": "misc/bank-statement-oct2026.txt",
+            "destination_relative_path": "Needs Review/bank-statement-oct2026.txt",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "c01919bb",
+            "original_relative_path": "misc/card-statement-sep2026.pdf",
+            "destination_relative_path": "Other/card-statement-sep2026.pdf",
+            "reason": "Non-transactional document",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "75438af4",
+            "original_relative_path": "receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "GhostOS Organized/Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "75438af4",
+            "source_filename": "receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "683.20",
+            "row_count": 1
+          }
+        ],
+        "blocking_review_count": 2
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.909509+00:00",
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/987aefe8",
+      "body": {
+        "document_kind": "receipt"
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "file_id": "987aefe8",
+        "relative_path": "misc/bank-statement-oct2026.txt",
+        "file_type": "txt",
+        "size_bytes": 211,
+        "sha256": "b3fe6daa6638a8d26466aa54b270e6fe513acf55aa5c00e02741fa985c5ffcb2",
+        "excerpt": "SAMPLE NATIONAL BANK (fictional)\nSavings Account Statement\nAccount: XXXX-1234\nStatement period: 01 Sep 2026 to 30 Sep 2026\nOpening balance: PHP 12,450.00\nInterest earned: PHP 12.50\nClosing balance: PHP 9,120.50",
+        "status": "needs_review",
+        "classification": {
+          "category": "other",
+          "merchant": null,
+          "date": null,
+          "amount_text": null,
+          "amount": null,
+          "currency": null,
+          "evidence_quote": null,
+          "evidence_verified": false,
+          "explanation": "This is a bank statement, which is a non-transactional document and thus classified as 'other' in category and 'statement' in document_kind.",
+          "document_kind": "receipt",
+          "field_profile": "transaction"
+        },
+        "review_flags": [
+          {
+            "code": "missing_evidence_quote",
+            "message": "No evidence quote was provided for verification"
+          },
+          {
+            "code": "missing_currency",
+            "message": "No currency found in the document"
+          },
+          {
+            "code": "non_transactional_document",
+            "message": "This is not a transaction document and has no expense fields"
+          }
+        ],
+        "duplicate_of": null,
+        "user_corrected": false
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.916292+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_4c743136da13",
+        "scan_id": "scan_4c743136da13",
+        "operations": [
+          {
+            "file_id": "f3ce4c59",
+            "original_relative_path": "identity/birth-certificate.pdf",
+            "destination_relative_path": "Needs Review/birth-certificate.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "d55b1c0e",
+            "original_relative_path": "identity/drivers-license-record.txt",
+            "destination_relative_path": "Other/drivers-license-record.txt",
+            "reason": "Non-transactional document",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "987aefe8",
+            "original_relative_path": "misc/bank-statement-oct2026.txt",
+            "destination_relative_path": "Needs Review/bank-statement-oct2026.txt",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "c01919bb",
+            "original_relative_path": "misc/card-statement-sep2026.pdf",
+            "destination_relative_path": "Other/card-statement-sep2026.pdf",
+            "reason": "Non-transactional document",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "75438af4",
+            "original_relative_path": "receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "GhostOS Organized/Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "75438af4",
+            "source_filename": "receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "683.20",
+            "row_count": 1
+          }
+        ],
+        "blocking_review_count": 2
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.940305+00:00",
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/987aefe8",
+      "body": {
+        "merchant": "Sample National Bank",
+        "date": "2026-09-30",
+        "amount": "9120.50",
+        "currency": "PHP",
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "file_id": "987aefe8",
+        "relative_path": "misc/bank-statement-oct2026.txt",
+        "file_type": "txt",
+        "size_bytes": 211,
+        "sha256": "b3fe6daa6638a8d26466aa54b270e6fe513acf55aa5c00e02741fa985c5ffcb2",
+        "excerpt": "SAMPLE NATIONAL BANK (fictional)\nSavings Account Statement\nAccount: XXXX-1234\nStatement period: 01 Sep 2026 to 30 Sep 2026\nOpening balance: PHP 12,450.00\nInterest earned: PHP 12.50\nClosing balance: PHP 9,120.50",
+        "status": "ok",
+        "classification": {
+          "category": "other",
+          "merchant": "Sample National Bank",
+          "date": "2026-09-30",
+          "amount_text": null,
+          "amount": "9120.50",
+          "currency": "PHP",
+          "evidence_quote": null,
+          "evidence_verified": false,
+          "explanation": "This is a bank statement, which is a non-transactional document and thus classified as 'other' in category and 'statement' in document_kind.",
+          "document_kind": "receipt",
+          "field_profile": "transaction"
+        },
+        "review_flags": [],
+        "duplicate_of": null,
+        "user_corrected": true
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T19:25:23.947657+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_4c743136da13/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_4c743136da13",
+        "scan_id": "scan_4c743136da13",
+        "operations": [
+          {
+            "file_id": "f3ce4c59",
+            "original_relative_path": "identity/birth-certificate.pdf",
+            "destination_relative_path": "Needs Review/birth-certificate.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "d55b1c0e",
+            "original_relative_path": "identity/drivers-license-record.txt",
+            "destination_relative_path": "Other/drivers-license-record.txt",
+            "reason": "Non-transactional document",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "987aefe8",
+            "original_relative_path": "misc/bank-statement-oct2026.txt",
+            "destination_relative_path": "Other/bank-statement-oct2026.txt",
+            "reason": "Not an invoice or receipt",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "c01919bb",
+            "original_relative_path": "misc/card-statement-sep2026.pdf",
+            "destination_relative_path": "Other/card-statement-sep2026.pdf",
+            "reason": "Non-transactional document",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "75438af4",
+            "original_relative_path": "receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "GhostOS Organized/Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "75438af4",
+            "source_filename": "receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "683.20",
+            "row_count": 1
+          }
+        ],
+        "blocking_review_count": 1
+      }
+    }
+  }
+]

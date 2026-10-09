@@ -1,0 +1,247 @@
+[
+  {
+    "id": "Q1",
+    "check": "Scan ID and plan ID unchanged",
+    "status": "PASS",
+    "expected": "scan_1cabbc9828aa / plan_scan_1cabbc9828aa",
+    "actual": "HTTP 200 scan_1cabbc9828aa / plan_scan_1cabbc9828aa"
+  },
+  {
+    "id": "Q2",
+    "check": "Plan byte-identical to the reviewed partial preview",
+    "status": "PASS",
+    "expected": "identical to plan_partial_for_review.json",
+    "actual": "identical"
+  },
+  {
+    "id": "Q3",
+    "check": "Preview mode is partial; approval body will be {mode: partial}",
+    "status": "PASS",
+    "expected": "partial",
+    "actual": "partial"
+  },
+  {
+    "id": "Q4",
+    "check": "Exactly five operations",
+    "status": "PASS",
+    "expected": 5,
+    "actual": 5
+  },
+  {
+    "id": "Q5",
+    "check": "The two unresolved documents still go to Uncategorized/",
+    "status": "PASS",
+    "expected": {
+      "inbox-b/legal/lease-agreement-summary.pdf": "Uncategorized/...",
+      "inbox-b/receipts/bayside-office-mart.pdf": "Uncategorized/..."
+    },
+    "actual": {
+      "inbox-b/legal/lease-agreement-summary.pdf": "Uncategorized/lease-agreement-summary.pdf",
+      "inbox-b/receipts/bayside-office-mart.pdf": "Uncategorized/bayside-office-mart.pdf"
+    }
+  },
+  {
+    "id": "Q6",
+    "check": "Original five files present with recorded SHA-256 (and nothing else)",
+    "status": "PASS",
+    "expected": "matches setup manifest",
+    "actual": "matches"
+  },
+  {
+    "id": "Q7",
+    "check": "Destinations inside root B and currently free",
+    "status": "PASS",
+    "expected": "no problems",
+    "actual": "none"
+  },
+  {
+    "id": "Q8",
+    "check": "Destinations unique (case-insensitive)",
+    "status": "PASS",
+    "expected": 5,
+    "actual": 5
+  },
+  {
+    "id": "Q9",
+    "check": "Outside-root canary and root A unchanged",
+    "status": "PASS",
+    "expected": "unchanged",
+    "actual": "base children ['A-normal', 'B-partial', 'outside-canary']; unchanged"
+  },
+  {
+    "id": "S1",
+    "check": "Partial approval succeeds: 5 moved, 0 failed",
+    "status": "PASS",
+    "expected": "HTTP 200, moved=5, failed=[]",
+    "actual": "HTTP 200 {'batch_id': 'batch_1ce449203861', 'moved': 5, 'failed': [], 'report_relative_path': 'GhostOS Reports/expenses-202610091949.csv', 'committed_at': '2026-10-09T19:49:13.500680+00:00'}"
+  },
+  {
+    "id": "M1",
+    "check": "Each file at its approved destination with EXACT case and original SHA-256",
+    "status": "PASS",
+    "expected": [
+      "Other/drivers-license-record.txt",
+      "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "Receipts/2026-09/tibay-hardware-receipt.csv",
+      "Uncategorized/bayside-office-mart.pdf",
+      "Uncategorized/lease-agreement-summary.pdf"
+    ],
+    "actual": [
+      "Other/drivers-license-record.txt",
+      "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "Receipts/2026-09/tibay-hardware-receipt.csv",
+      "Uncategorized/bayside-office-mart.pdf",
+      "Uncategorized/lease-agreement-summary.pdf"
+    ]
+  },
+  {
+    "id": "M2",
+    "check": "No overwrite: 5 distinct files, each holding its own source bytes",
+    "status": "PASS",
+    "expected": "5 files, multiset of hashes = originals",
+    "actual": "5 files"
+  },
+  {
+    "id": "M3",
+    "check": "No Unsorted/ folder created",
+    "status": "PASS",
+    "expected": "none",
+    "actual": "none"
+  },
+  {
+    "id": "M4",
+    "check": "No organized file inside a source folder",
+    "status": "PASS",
+    "expected": "none",
+    "actual": "none"
+  },
+  {
+    "id": "M5",
+    "check": "No temporary report file left",
+    "status": "PASS",
+    "expected": "none",
+    "actual": "none"
+  },
+  {
+    "id": "M6",
+    "check": "Nothing outside root B written; root A and canary unchanged",
+    "status": "PASS",
+    "expected": "unchanged",
+    "actual": "base children ['A-normal', 'B-partial', 'outside-canary']; unchanged"
+  },
+  {
+    "id": "R1",
+    "check": "Report written inside root B; BOM, CRLF, header",
+    "status": "PASS",
+    "expected": "GhostOS Reports/expenses-<stamp>.csv",
+    "actual": "GhostOS Reports/expenses-202610091949.csv; header=['source_file', 'merchant', 'date', 'category', 'amount', 'currency']"
+  },
+  {
+    "id": "R2",
+    "check": "Exactly two accepted receipt rows (Sunbeam, Tibay)",
+    "status": "PASS",
+    "expected": [
+      [
+        "inbox-b/receipts/sunbeam-cafe-receipt.pdf",
+        "683.20",
+        "PHP"
+      ],
+      [
+        "inbox-b/receipts/tibay-hardware-receipt.csv",
+        "2145.00",
+        "PHP"
+      ]
+    ],
+    "actual": [
+      [
+        "inbox-b/receipts/sunbeam-cafe-receipt.pdf",
+        "683.20",
+        "PHP"
+      ],
+      [
+        "inbox-b/receipts/tibay-hardware-receipt.csv",
+        "2145.00",
+        "PHP"
+      ]
+    ]
+  },
+  {
+    "id": "R3",
+    "check": "Licence, lease and Bayside absent from the CSV",
+    "status": "PASS",
+    "expected": "absent",
+    "actual": "absent"
+  },
+  {
+    "id": "R4",
+    "check": "Totals recomputed from the CSV = PHP 2,828.20",
+    "status": "PASS",
+    "expected": {
+      "PHP": "2828.20"
+    },
+    "actual": {
+      "PHP": "2828.20"
+    }
+  },
+  {
+    "id": "U1",
+    "check": "Undo succeeds with no conflicts",
+    "status": "PASS",
+    "expected": "HTTP 200, restored=5, conflicts=[]",
+    "actual": "HTTP 200, restored=5, conflicts=[]"
+  },
+  {
+    "id": "U2",
+    "check": "All five original paths (exact case) restored with original SHA-256",
+    "status": "PASS",
+    "expected": "5/5 identical",
+    "actual": "5/5 identical"
+  },
+  {
+    "id": "U3",
+    "check": "No organized files remain (only the report may remain)",
+    "status": "PASS",
+    "expected": "only GhostOS Reports/*",
+    "actual": [
+      "GhostOS Reports/expenses-202610091949.csv"
+    ]
+  },
+  {
+    "id": "U4",
+    "check": "Source folders contain only their original files",
+    "status": "PASS",
+    "expected": "only originals",
+    "actual": [
+      "inbox-b/identity/drivers-license-record.txt",
+      "inbox-b/legal/lease-agreement-summary.pdf",
+      "inbox-b/receipts/bayside-office-mart.pdf",
+      "inbox-b/receipts/sunbeam-cafe-receipt.pdf",
+      "inbox-b/receipts/tibay-hardware-receipt.csv"
+    ]
+  },
+  {
+    "id": "U5",
+    "check": "(observed) report files remaining after undo",
+    "status": "RECORDED",
+    "actual": [
+      "GhostOS Reports/expenses-202610091949.csv"
+    ]
+  },
+  {
+    "id": "U6",
+    "check": "(observed) empty folders remaining after undo",
+    "status": "RECORDED",
+    "actual": [
+      "Other",
+      "Receipts/2026-09",
+      "Uncategorized"
+    ]
+  },
+  {
+    "id": "U7",
+    "check": "Outside root B still unchanged after undo",
+    "status": "PASS",
+    "expected": "unchanged",
+    "actual": "base children ['A-normal', 'B-partial', 'outside-canary']"
+  }
+]

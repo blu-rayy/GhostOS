@@ -6,6 +6,7 @@ it never generates file paths or executable operations.
 """
 
 from app.schemas import ClassificationRecord, ClassificationCategory, ProposedOperation
+from app.services.document_awareness import field_profile_for_classification
 
 # Fixed destination folders keyed by category.
 # These rules are owned entirely by the backend.
@@ -34,6 +35,15 @@ def build_proposed_operation(
       fixed folder rules. The filename is preserved; only the folder changes.
     """
     category = classification.category
+
+    # A current document-aware record with an explicit null/non-transactional
+    # kind must not become an expense operation merely because its safe folder
+    # category is invoice or receipt. Legacy seven-field records retain the
+    # category-based compatibility fallback inside this helper.
+    if field_profile_for_classification(
+        classification.model_dump(exclude_unset=True)
+    ) != "transaction":
+        return None, True, "Document is not a single transaction"
 
     if category in _REVIEW_CATEGORIES:
         return None, True, f"Category '{category}' requires human review"

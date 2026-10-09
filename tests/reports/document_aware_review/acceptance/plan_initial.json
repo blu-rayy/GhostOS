@@ -1,0 +1,99 @@
+{
+  "plan_id": "plan_scan_0d3029d71167",
+  "scan_id": "scan_0d3029d71167",
+  "operations": [
+    {
+      "file_id": "f3ce4c59",
+      "original_relative_path": "identity/birth-certificate.pdf",
+      "destination_relative_path": "Needs Review/birth-certificate.pdf",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "d55b1c0e",
+      "original_relative_path": "identity/drivers-license-record.txt",
+      "destination_relative_path": "Needs Review/drivers-license-record.txt",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "cb0aef73",
+      "original_relative_path": "invoices/meralite-power-bill-sep2026.txt",
+      "destination_relative_path": "Needs Review/meralite-power-bill-sep2026.txt",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "ce33ab67",
+      "original_relative_path": "legal/lease-agreement-summary.pdf",
+      "destination_relative_path": "Needs Review/lease-agreement-summary.pdf",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "1e57ef5f",
+      "original_relative_path": "medical/prescription-note.txt",
+      "destination_relative_path": "Needs Review/prescription-note.txt",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "0e261bd2",
+      "original_relative_path": "misc/aircon-payment-note.txt",
+      "destination_relative_path": "Needs Review/aircon-payment-note.txt",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "987aefe8",
+      "original_relative_path": "misc/bank-statement-oct2026.txt",
+      "destination_relative_path": "Needs Review/bank-statement-oct2026.txt",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "c01919bb",
+      "original_relative_path": "misc/card-statement-sep2026.pdf",
+      "destination_relative_path": "Needs Review/card-statement-sep2026.pdf",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "75438af4",
+      "original_relative_path": "receipts/sunbeam-cafe-receipt.pdf",
+      "destination_relative_path": "GhostOS Organized/Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "reason": "receipt dated 2026-09-21",
+      "collision_suffixed": false
+    }
+  ],
+  "report_rows": [
+    {
+      "file_id": "0e261bd2",
+      "source_filename": "misc/aircon-payment-note.txt",
+      "category": "receipt",
+      "date": null,
+      "merchant": null,
+      "amount": null,
+      "currency": null,
+      "status": "needs_review"
+    },
+    {
+      "file_id": "75438af4",
+      "source_filename": "receipts/sunbeam-cafe-receipt.pdf",
+      "category": "receipt",
+      "date": "2026-09-21",
+      "merchant": "SUNBEAM CAFE",
+      "amount": "683.20",
+      "currency": "PHP",
+      "status": "accepted"
+    }
+  ],
+  "totals": [
+    {
+      "currency": "PHP",
+      "amount": "683.20",
+      "row_count": 1
+    }
+  ],
+  "blocking_review_count": 8
+}

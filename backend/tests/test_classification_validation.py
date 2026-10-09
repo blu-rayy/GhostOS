@@ -635,6 +635,27 @@ def test_uncertain_document_kind_requires_review() -> None:
     assert "uncertain_document_kind" in result.flags
 
 
+def test_explicit_null_document_kind_requires_review_but_legacy_fallback_does_not() -> None:
+    explicit_null = make_classification(
+        category="invoice",
+        document_kind=None,
+        evidence_quote="Invoice",
+    )
+    explicit_result = validate_classification("Invoice", explicit_null)
+
+    legacy = make_classification(
+        category="invoice",
+        evidence_quote="Invoice",
+    )
+    legacy_result = validate_classification("Invoice", legacy)
+
+    assert explicit_null.field_profile == "none"
+    assert explicit_result.needs_review is True
+    assert "uncertain_document_kind" in explicit_result.flags
+    assert legacy.field_profile == "transaction"
+    assert "uncertain_document_kind" not in legacy_result.flags
+
+
 def test_multiple_flags_have_stable_order_and_no_duplicates() -> None:
     result = validate_classification(
         "INVOICE",
