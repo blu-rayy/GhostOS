@@ -53,8 +53,6 @@ _SUPPORTED_CURRENCIES = {
     "S$": "SGD",
     "JPY": "JPY",
     "¥": "JPY",
-    "SGD": "SGD",
-    "JPY": "JPY",
 }
 _CURRENCY_TOKEN = r"(?:PHP|USD|EUR|GBP|SGD|JPY|₱|\$|€|£|¥)"
 _NUMBER_TOKEN = r"(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d{1,2})?"
