@@ -110,6 +110,32 @@ def test_classify_statement_exposes_reference_profile(monkeypatch):
     data = response.json()
     assert data["classification"]["document_kind"] == "statement"
     assert data["field_profile"] == "reference"
+    assert data["proposed_operation"] is None
+    assert data["needs_review"] is True
+
+
+def test_classify_explicit_null_kind_cannot_propose_transaction_operation(monkeypatch):
+    content = json.dumps({
+        "category": "invoice",
+        "document_kind": None,
+        "merchant": "Unknown supplier",
+        "date": "2026-10-09",
+        "amount_text": "PHP 500.00",
+        "currency": "PHP",
+        "evidence_quote": "Total: PHP 500.00",
+        "explanation": "The document kind is not identified.",
+    })
+    monkeypatch.setattr(local_ai, "urlopen", _mock_urlopen(content))
+    response = client.post("/api/classify", json={
+        "file_id": "file-null-kind",
+        "text_excerpt": "Unknown invoice-like paperwork\nTotal: PHP 500.00",
+    })
+    assert response.status_code == 200
+    data = response.json()
+    assert data["classification"]["document_kind"] is None
+    assert data["field_profile"] == "none"
+    assert data["proposed_operation"] is None
+    assert data["needs_review"] is True
 
 
 def test_classify_ollama_unavailable_returns_503(monkeypatch):

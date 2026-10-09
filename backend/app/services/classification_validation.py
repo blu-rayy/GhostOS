@@ -324,7 +324,10 @@ def validate_classification(
             _append_flag(flags, "transaction_fields_on_non_transactional")
             is_valid = False
             parsed_amount = None
-    elif document_kind == "uncertain":
+    elif document_kind == "uncertain" or (
+        document_kind is None
+        and "document_kind" in classification.model_fields_set
+    ):
         _append_flag(flags, "uncertain_document_kind")
         needs_review = True
 
