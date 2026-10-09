@@ -1,3 +1,7 @@
 /AGENTS.md
 /TODO.md
 /dev3_context.md
+# Code-signing material (keep in %USERPROFILE%\.ghostos-signing, never in the repo)
+*.pfx
+*.p12
+pfx-password.txt

@@ -16,6 +16,8 @@ app.add_middleware(
     allow_origins=[
         "http://127.0.0.1:5173",
         "http://localhost:5173",
+        # Packaged Electron app (frontend/electron/main.cjs serves dist/ from this origin).
+        "app://ghostos",
     ],
     allow_credentials=False,
     allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
