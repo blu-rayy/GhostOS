@@ -77,6 +77,28 @@ Scans a selected local folder and returns a structured metadata inventory for su
 }
 ```
 
+**Response Example:**
+
+```json
+{
+  "root_path": "C:\\Users\\YourName\\Documents\\GhostOSTest",
+  "total_files": 1,
+  "files": [
+    {
+      "file_id": "a1b2c3d4",
+      "relative_path": "receipts/coffee.pdf",
+      "filename": "coffee.pdf",
+      "extension": ".pdf",
+      "size_bytes": 10240,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "extraction_status": "success",
+      "text_excerpt": "COFFEE SHOP RECEIPT\nTotal: $4.50",
+      "reason": null
+    }
+  ]
+}
+```
+
 **Features & Safety:**
 - Recursively discovers supported files inside the folder.
 - Rejects invalid or symlinked roots.
