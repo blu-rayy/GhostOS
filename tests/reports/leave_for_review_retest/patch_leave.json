@@ -1,0 +1,32 @@
+{
+  "request": {
+    "category": "uncertain",
+    "accept": true
+  },
+  "status": 200,
+  "response": {
+    "file_id": "a8947c58",
+    "relative_path": "lv/legal/lease-agreement-summary.pdf",
+    "file_type": "pdf",
+    "size_bytes": 1020,
+    "sha256": "4538c2e2306137414f574f3a216ea56da1c71756255c94fbc6c506e5b00516f9",
+    "excerpt": "LEASE AGREEMENT - SUMMARY (fictional)\nLessor: Example Properties Inc.\nLessee: Mara Villanueva Studio\nMonthly rent: PHP 28,000.00\nTerm: 12 months, renewable\nNotice period: 60 days",
+    "status": "ok",
+    "classification": {
+      "category": "uncertain",
+      "merchant": null,
+      "date": null,
+      "amount_text": null,
+      "amount": null,
+      "currency": null,
+      "evidence_quote": null,
+      "evidence_verified": false,
+      "explanation": "This is a lease agreement, which falls under legal documents and does not involve a transaction with a merchant or financial amount to be recorded as a receipt or invoice.",
+      "document_kind": "legal",
+      "field_profile": "none"
+    },
+    "review_flags": [],
+    "duplicate_of": null,
+    "user_corrected": true
+  }
+}

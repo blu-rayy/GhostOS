@@ -1,0 +1,33 @@
+{
+  "commit": "b584d923c472510bd5f0941adb794d79561746e8",
+  "created_at": "2026-10-09T20:26:56.413651+00:00",
+  "root": "<TEST_BASE>/L2",
+  "fixture_source": {
+    "lv/legal/lease-agreement-summary.pdf": "legal/lease-agreement-summary.pdf",
+    "lv/identity/birth-certificate.pdf": "identity/birth-certificate.pdf",
+    "lv/receipts/sunbeam-cafe-receipt.pdf": "receipts/sunbeam-cafe-receipt.pdf"
+  },
+  "snapshot": {
+    "files": {
+      "lv/identity/birth-certificate.pdf": {
+        "sha256": "df083a5d7500220e94e943891489ab6dc100a88a783426a351e864ef6c4edd1b",
+        "size": 1095
+      },
+      "lv/legal/lease-agreement-summary.pdf": {
+        "sha256": "4538c2e2306137414f574f3a216ea56da1c71756255c94fbc6c506e5b00516f9",
+        "size": 1020
+      },
+      "lv/receipts/sunbeam-cafe-receipt.pdf": {
+        "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+        "size": 1217
+      }
+    },
+    "dirs": [
+      "lv",
+      "lv/identity",
+      "lv/legal",
+      "lv/receipts"
+    ]
+  },
+  "canary_sha256": "80c0271f261179828899fcd22b88b8ff87efd5cfb0e7dbdcbb7b0a7ae88bdc01"
+}

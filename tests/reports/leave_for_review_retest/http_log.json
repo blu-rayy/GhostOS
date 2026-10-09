@@ -1,0 +1,605 @@
+[
+  {
+    "at": "2026-10-09T20:26:56.433886+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/status",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "backend_endpoint": "http://127.0.0.1:8000",
+        "model_name": "qwen3:4b-instruct",
+        "model_endpoint": "http://127.0.0.1:11434",
+        "model_loaded": true,
+        "external_requests": 0,
+        "last_inference_ms": null,
+        "last_inference_at": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:26:56.452814+00:00",
+    "request": {
+      "method": "POST",
+      "path": "/api/scan",
+      "body": {
+        "root": "<TEST_BASE>\\L2"
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_6bdcb43ff537",
+        "state": "running",
+        "files_total": 0,
+        "files_processed": 0,
+        "current_file": null,
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:26:57.478667+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_6bdcb43ff537/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_6bdcb43ff537",
+        "state": "running",
+        "files_total": 3,
+        "files_processed": 0,
+        "current_file": "lv/identity/birth-certificate.pdf",
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:26:58.480780+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_6bdcb43ff537/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_6bdcb43ff537",
+        "state": "running",
+        "files_total": 3,
+        "files_processed": 0,
+        "current_file": "lv/identity/birth-certificate.pdf",
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:26:59.493512+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_6bdcb43ff537/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_6bdcb43ff537",
+        "state": "running",
+        "files_total": 3,
+        "files_processed": 0,
+        "current_file": "lv/identity/birth-certificate.pdf",
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:27:00.520273+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_6bdcb43ff537/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_6bdcb43ff537",
+        "state": "running",
+        "files_total": 3,
+        "files_processed": 0,
+        "current_file": "lv/identity/birth-certificate.pdf",
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:27:01.522378+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_6bdcb43ff537/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_6bdcb43ff537",
+        "state": "running",
+        "files_total": 3,
+        "files_processed": 1,
+        "current_file": "lv/legal/lease-agreement-summary.pdf",
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:27:02.524208+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_6bdcb43ff537/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_6bdcb43ff537",
+        "state": "running",
+        "files_total": 3,
+        "files_processed": 2,
+        "current_file": "lv/receipts/sunbeam-cafe-receipt.pdf",
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:27:03.526049+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_6bdcb43ff537/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_6bdcb43ff537",
+        "state": "running",
+        "files_total": 3,
+        "files_processed": 2,
+        "current_file": "lv/receipts/sunbeam-cafe-receipt.pdf",
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:27:04.548497+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_6bdcb43ff537/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_6bdcb43ff537",
+        "state": "done",
+        "files_total": 3,
+        "files_processed": 3,
+        "current_file": null,
+        "error": null
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:27:04.550286+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_6bdcb43ff537",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_6bdcb43ff537",
+        "root": "<TEST_BASE>\\L2",
+        "scanned_at": "2026-10-09T20:26:56.451971+00:00",
+        "files_seen": 3,
+        "max_files": 100,
+        "documents": [
+          {
+            "file_id": "9ca4732d",
+            "relative_path": "lv/identity/birth-certificate.pdf",
+            "file_type": "pdf",
+            "size_bytes": 1095,
+            "sha256": "df083a5d7500220e94e943891489ab6dc100a88a783426a351e864ef6c4edd1b",
+            "excerpt": "CERTIFICATE OF LIVE BIRTH (fictional)\nPhilippine Statistics Authority\nName: MARA ISABEL VILLANUEVA\nDate of birth: 02 April 1995\nPlace of birth: Makati City\nSex: Female\nMother: Elena Villanueva\nFather: Ramon Villanueva",
+            "status": "needs_review",
+            "classification": {
+              "category": "other",
+              "merchant": null,
+              "date": null,
+              "amount_text": null,
+              "amount": null,
+              "currency": null,
+              "evidence_quote": null,
+              "evidence_verified": false,
+              "explanation": "This is a birth certificate, which falls under identity_or_civil document kind and is not a transactional document.",
+              "document_kind": "identity_or_civil",
+              "field_profile": "none"
+            },
+            "review_flags": [
+              {
+                "code": "missing_evidence_quote",
+                "message": "No evidence quote was provided for verification"
+              },
+              {
+                "code": "non_transactional_document",
+                "message": "This is not a transaction document and has no expense fields"
+              }
+            ],
+            "duplicate_of": null,
+            "user_corrected": false
+          },
+          {
+            "file_id": "a8947c58",
+            "relative_path": "lv/legal/lease-agreement-summary.pdf",
+            "file_type": "pdf",
+            "size_bytes": 1020,
+            "sha256": "4538c2e2306137414f574f3a216ea56da1c71756255c94fbc6c506e5b00516f9",
+            "excerpt": "LEASE AGREEMENT - SUMMARY (fictional)\nLessor: Example Properties Inc.\nLessee: Mara Villanueva Studio\nMonthly rent: PHP 28,000.00\nTerm: 12 months, renewable\nNotice period: 60 days",
+            "status": "needs_review",
+            "classification": {
+              "category": "other",
+              "merchant": null,
+              "date": null,
+              "amount_text": null,
+              "amount": null,
+              "currency": null,
+              "evidence_quote": null,
+              "evidence_verified": false,
+              "explanation": "This is a lease agreement, which falls under legal documents and does not involve a transaction with a merchant or financial amount to be recorded as a receipt or invoice.",
+              "document_kind": "legal",
+              "field_profile": "none"
+            },
+            "review_flags": [
+              {
+                "code": "missing_evidence_quote",
+                "message": "No evidence quote was provided for verification"
+              },
+              {
+                "code": "missing_currency",
+                "message": "No currency found in the document"
+              },
+              {
+                "code": "non_transactional_document",
+                "message": "This is not a transaction document and has no expense fields"
+              }
+            ],
+            "duplicate_of": null,
+            "user_corrected": false
+          },
+          {
+            "file_id": "68ae7c18",
+            "relative_path": "lv/receipts/sunbeam-cafe-receipt.pdf",
+            "file_type": "pdf",
+            "size_bytes": 1217,
+            "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+            "excerpt": "SUNBEAM CAFE (fictional)\nSample Street, Quezon City\nOR No. 2026-118204\nDate: 09/21/2026 10:15 AM\n1 x Flat white: PHP 180.00\n1 x Spanish latte: PHP 190.00\n2 x Butter croissant @ 120.00: PHP 240.00\nSubtotal: PHP 610.00\nVAT 12%: PHP 73.20\nFINAL TOTAL: PHP 683.20\nPaid by card ending 0000",
+            "status": "ok",
+            "classification": {
+              "category": "receipt",
+              "merchant": "SUNBEAM CAFE",
+              "date": "2026-09-21",
+              "amount_text": "PHP 683.20",
+              "amount": "683.20",
+              "currency": "PHP",
+              "evidence_quote": "FINAL TOTAL: PHP 683.20",
+              "evidence_verified": true,
+              "explanation": "The document is a transaction record from a caf\u00e9 showing a final total amount, which classifies it as a receipt.",
+              "document_kind": "receipt",
+              "field_profile": "transaction"
+            },
+            "review_flags": [],
+            "duplicate_of": null,
+            "user_corrected": false
+          }
+        ],
+        "skipped": []
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:27:04.557822+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_6bdcb43ff537/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_6bdcb43ff537",
+        "scan_id": "scan_6bdcb43ff537",
+        "mode": "blocking",
+        "operations": [
+          {
+            "file_id": "9ca4732d",
+            "original_relative_path": "lv/identity/birth-certificate.pdf",
+            "destination_relative_path": "Uncategorized/birth-certificate.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "a8947c58",
+            "original_relative_path": "lv/legal/lease-agreement-summary.pdf",
+            "destination_relative_path": "Uncategorized/lease-agreement-summary.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "68ae7c18",
+            "original_relative_path": "lv/receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "68ae7c18",
+            "source_filename": "lv/receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "683.20",
+            "row_count": 1
+          }
+        ],
+        "blocking_review_count": 2
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:27:04.579825+00:00",
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/a8947c58",
+      "body": {
+        "category": "uncertain",
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "file_id": "a8947c58",
+        "relative_path": "lv/legal/lease-agreement-summary.pdf",
+        "file_type": "pdf",
+        "size_bytes": 1020,
+        "sha256": "4538c2e2306137414f574f3a216ea56da1c71756255c94fbc6c506e5b00516f9",
+        "excerpt": "LEASE AGREEMENT - SUMMARY (fictional)\nLessor: Example Properties Inc.\nLessee: Mara Villanueva Studio\nMonthly rent: PHP 28,000.00\nTerm: 12 months, renewable\nNotice period: 60 days",
+        "status": "ok",
+        "classification": {
+          "category": "uncertain",
+          "merchant": null,
+          "date": null,
+          "amount_text": null,
+          "amount": null,
+          "currency": null,
+          "evidence_quote": null,
+          "evidence_verified": false,
+          "explanation": "This is a lease agreement, which falls under legal documents and does not involve a transaction with a merchant or financial amount to be recorded as a receipt or invoice.",
+          "document_kind": "legal",
+          "field_profile": "none"
+        },
+        "review_flags": [],
+        "duplicate_of": null,
+        "user_corrected": true
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:27:04.582171+00:00",
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/9ca4732d",
+      "body": {
+        "category": "other",
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "file_id": "9ca4732d",
+        "relative_path": "lv/identity/birth-certificate.pdf",
+        "file_type": "pdf",
+        "size_bytes": 1095,
+        "sha256": "df083a5d7500220e94e943891489ab6dc100a88a783426a351e864ef6c4edd1b",
+        "excerpt": "CERTIFICATE OF LIVE BIRTH (fictional)\nPhilippine Statistics Authority\nName: MARA ISABEL VILLANUEVA\nDate of birth: 02 April 1995\nPlace of birth: Makati City\nSex: Female\nMother: Elena Villanueva\nFather: Ramon Villanueva",
+        "status": "ok",
+        "classification": {
+          "category": "other",
+          "merchant": null,
+          "date": null,
+          "amount_text": null,
+          "amount": null,
+          "currency": null,
+          "evidence_quote": null,
+          "evidence_verified": false,
+          "explanation": "This is a birth certificate, which falls under identity_or_civil document kind and is not a transactional document.",
+          "document_kind": "identity_or_civil",
+          "field_profile": "none"
+        },
+        "review_flags": [],
+        "duplicate_of": null,
+        "user_corrected": true
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:27:04.583867+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_6bdcb43ff537",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_6bdcb43ff537",
+        "root": "<TEST_BASE>\\L2",
+        "scanned_at": "2026-10-09T20:26:56.451971+00:00",
+        "files_seen": 3,
+        "max_files": 100,
+        "documents": [
+          {
+            "file_id": "9ca4732d",
+            "relative_path": "lv/identity/birth-certificate.pdf",
+            "file_type": "pdf",
+            "size_bytes": 1095,
+            "sha256": "df083a5d7500220e94e943891489ab6dc100a88a783426a351e864ef6c4edd1b",
+            "excerpt": "CERTIFICATE OF LIVE BIRTH (fictional)\nPhilippine Statistics Authority\nName: MARA ISABEL VILLANUEVA\nDate of birth: 02 April 1995\nPlace of birth: Makati City\nSex: Female\nMother: Elena Villanueva\nFather: Ramon Villanueva",
+            "status": "ok",
+            "classification": {
+              "category": "other",
+              "merchant": null,
+              "date": null,
+              "amount_text": null,
+              "amount": null,
+              "currency": null,
+              "evidence_quote": null,
+              "evidence_verified": false,
+              "explanation": "This is a birth certificate, which falls under identity_or_civil document kind and is not a transactional document.",
+              "document_kind": "identity_or_civil",
+              "field_profile": "none"
+            },
+            "review_flags": [],
+            "duplicate_of": null,
+            "user_corrected": true
+          },
+          {
+            "file_id": "a8947c58",
+            "relative_path": "lv/legal/lease-agreement-summary.pdf",
+            "file_type": "pdf",
+            "size_bytes": 1020,
+            "sha256": "4538c2e2306137414f574f3a216ea56da1c71756255c94fbc6c506e5b00516f9",
+            "excerpt": "LEASE AGREEMENT - SUMMARY (fictional)\nLessor: Example Properties Inc.\nLessee: Mara Villanueva Studio\nMonthly rent: PHP 28,000.00\nTerm: 12 months, renewable\nNotice period: 60 days",
+            "status": "ok",
+            "classification": {
+              "category": "uncertain",
+              "merchant": null,
+              "date": null,
+              "amount_text": null,
+              "amount": null,
+              "currency": null,
+              "evidence_quote": null,
+              "evidence_verified": false,
+              "explanation": "This is a lease agreement, which falls under legal documents and does not involve a transaction with a merchant or financial amount to be recorded as a receipt or invoice.",
+              "document_kind": "legal",
+              "field_profile": "none"
+            },
+            "review_flags": [],
+            "duplicate_of": null,
+            "user_corrected": true
+          },
+          {
+            "file_id": "68ae7c18",
+            "relative_path": "lv/receipts/sunbeam-cafe-receipt.pdf",
+            "file_type": "pdf",
+            "size_bytes": 1217,
+            "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+            "excerpt": "SUNBEAM CAFE (fictional)\nSample Street, Quezon City\nOR No. 2026-118204\nDate: 09/21/2026 10:15 AM\n1 x Flat white: PHP 180.00\n1 x Spanish latte: PHP 190.00\n2 x Butter croissant @ 120.00: PHP 240.00\nSubtotal: PHP 610.00\nVAT 12%: PHP 73.20\nFINAL TOTAL: PHP 683.20\nPaid by card ending 0000",
+            "status": "ok",
+            "classification": {
+              "category": "receipt",
+              "merchant": "SUNBEAM CAFE",
+              "date": "2026-09-21",
+              "amount_text": "PHP 683.20",
+              "amount": "683.20",
+              "currency": "PHP",
+              "evidence_quote": "FINAL TOTAL: PHP 683.20",
+              "evidence_verified": true,
+              "explanation": "The document is a transaction record from a caf\u00e9 showing a final total amount, which classifies it as a receipt.",
+              "document_kind": "receipt",
+              "field_profile": "transaction"
+            },
+            "review_flags": [],
+            "duplicate_of": null,
+            "user_corrected": false
+          }
+        ],
+        "skipped": []
+      }
+    }
+  },
+  {
+    "at": "2026-10-09T20:27:04.589781+00:00",
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_6bdcb43ff537/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_6bdcb43ff537",
+        "scan_id": "scan_6bdcb43ff537",
+        "mode": "blocking",
+        "operations": [
+          {
+            "file_id": "9ca4732d",
+            "original_relative_path": "lv/identity/birth-certificate.pdf",
+            "destination_relative_path": "Other/birth-certificate.pdf",
+            "reason": "Non-transactional document",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "a8947c58",
+            "original_relative_path": "lv/legal/lease-agreement-summary.pdf",
+            "destination_relative_path": "Uncategorized/lease-agreement-summary.pdf",
+            "reason": "Left for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "68ae7c18",
+            "original_relative_path": "lv/receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "68ae7c18",
+            "source_filename": "lv/receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "683.20",
+            "row_count": 1
+          }
+        ],
+        "blocking_review_count": 0
+      }
+    }
+  }
+]
