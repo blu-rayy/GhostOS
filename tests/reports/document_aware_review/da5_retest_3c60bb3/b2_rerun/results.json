@@ -1,0 +1,57 @@
+[
+  {
+    "id": "B2a'",
+    "case": "B new-scan omission (corrected)",
+    "method": "MOCKED classifier",
+    "check": "mocked response really omits document_kind (harness check)",
+    "expected": "explanation 'MOCK: kind omitted'",
+    "actual": "MOCK: kind omitted",
+    "status": "PASS",
+    "owner": "QA harness",
+    "note": ""
+  },
+  {
+    "id": "B2a",
+    "case": "B new-scan omission (corrected)",
+    "method": "MOCKED classifier",
+    "check": "how a NEW scan with the kind omitted is treated",
+    "expected": "record (developer contract: legacy category fallback)",
+    "actual": "API kind invoice, profile transaction, status needs_review, flags ['amount_conflict'], amount None, amount_text 'PHP 5,391.06'; blocking dest Uncategorized/card-statement-sep2026.pdf; row ('needs_review', '5391.06')",
+    "status": "RECORDED",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "B2b",
+    "case": "B new-scan omission (corrected)",
+    "method": "MOCKED classifier",
+    "check": "accept-as-is on that statement",
+    "expected": "not counted (QA safety rule); legacy compatibility would allow it",
+    "actual": "HTTP 200; destination Invoices/2026-09/card-statement-sep2026.pdf; row ('accepted', '5391.06'); totals [{'currency': 'PHP', 'amount': '5391.06', 'row_count': 1}]",
+    "status": "FAIL",
+    "owner": "Dev 1 + team",
+    "note": "Counted as an expense via the legacy fallback for a NEW model response without document_kind."
+  },
+  {
+    "id": "B2c",
+    "case": "B new-scan omission (corrected)",
+    "method": "MOCKED classifier",
+    "check": "R3 unchanged",
+    "expected": "unchanged",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "G4",
+    "case": "R2 preview",
+    "method": "MOCKED classifier",
+    "check": "R2 scan + previews wrote nothing; canary unchanged",
+    "expected": "unchanged",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  }
+]
