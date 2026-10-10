@@ -1,0 +1,85 @@
+{
+  "plan_id": "plan_scan_c21328ae8438",
+  "scan_id": "scan_c21328ae8438",
+  "mode": "blocking",
+  "operations": [
+    {
+      "file_id": "9b6354fa",
+      "original_relative_path": "fm/invoices/INV-1043_Pixelforge_Studio.pdf",
+      "destination_relative_path": "Invoices/2026-10/INV-1043_Pixelforge_Studio.pdf",
+      "reason": "invoice dated 2026-10-02",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "1bb08723",
+      "original_relative_path": "fm/receipts/bayside-office-mart.pdf",
+      "destination_relative_path": "Uncategorized/bayside-office-mart.pdf",
+      "reason": "Waiting for human review",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "b39f5f24",
+      "original_relative_path": "fm/receipts/kanto-stall-cash-note.txt",
+      "destination_relative_path": "Receipts/2026-09/kanto-stall-cash-note.txt",
+      "reason": "receipt dated 2026-09-12",
+      "collision_suffixed": false
+    },
+    {
+      "file_id": "c8e36776",
+      "original_relative_path": "fm/receipts/sunbeam-cafe-receipt.pdf",
+      "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+      "reason": "receipt dated 2026-09-21",
+      "collision_suffixed": false
+    }
+  ],
+  "report_rows": [
+    {
+      "file_id": "9b6354fa",
+      "source_filename": "fm/invoices/INV-1043_Pixelforge_Studio.pdf",
+      "category": "invoice",
+      "date": "2026-10-02",
+      "merchant": "PIXELFORGE DESIGN STUDIO",
+      "amount": "18648.00",
+      "currency": "PHP",
+      "status": "accepted"
+    },
+    {
+      "file_id": "1bb08723",
+      "source_filename": "fm/receipts/bayside-office-mart.pdf",
+      "category": "receipt",
+      "date": "2026-09-05",
+      "merchant": "BAYSIDE OFFICE MART",
+      "amount": null,
+      "currency": "PHP",
+      "status": "needs_review"
+    },
+    {
+      "file_id": "b39f5f24",
+      "source_filename": "fm/receipts/kanto-stall-cash-note.txt",
+      "category": "receipt",
+      "date": "2026-09-12",
+      "merchant": "KANTO MARKET STALL 14",
+      "amount": null,
+      "currency": null,
+      "status": "needs_review"
+    },
+    {
+      "file_id": "c8e36776",
+      "source_filename": "fm/receipts/sunbeam-cafe-receipt.pdf",
+      "category": "receipt",
+      "date": "2026-09-21",
+      "merchant": "SUNBEAM CAFE",
+      "amount": "683.20",
+      "currency": "PHP",
+      "status": "accepted"
+    }
+  ],
+  "totals": [
+    {
+      "currency": "PHP",
+      "amount": "19331.20",
+      "row_count": 2
+    }
+  ],
+  "blocking_review_count": 1
+}
