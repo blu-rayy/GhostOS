@@ -1199,6 +1199,81 @@ def test_explicit_leave_for_review_routes_uncategorized_through_commit(tmp_path)
     assert stored.review_disposition == "leave_for_review"
 
 
+@pytest.mark.parametrize(
+    ("file_id", "excerpt", "classification_overrides", "flags"),
+    [
+        (
+            "leave-conflicting-receipt",
+            "BAYSIDE OFFICE MART\nSubtotal: PHP 1,250.00\nAMOUNT DUE: PHP 1,520.00",
+            {"amount_text": "PHP 1,520.00", "amount": None, "evidence_quote": "AMOUNT DUE: PHP 1,520.00"},
+            [{"code": "amount_conflict", "message": "Multiple conflicting amounts found; none was selected"}],
+        ),
+        (
+            "leave-clean-receipt",
+            "SUNBEAM CAFE\nFINAL TOTAL: PHP 683.20",
+            {"amount_text": "PHP 683.20", "amount": "683.20", "evidence_quote": "FINAL TOTAL: PHP 683.20"},
+            [],
+        ),
+    ],
+)
+def test_leave_for_review_on_transaction_files_uncategorized_and_uncounted(
+    tmp_path, file_id, excerpt, classification_overrides, flags
+):
+    """Leave for Review accepts nothing, so even a receipt whose amounts conflict can take it."""
+    import hashlib
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    content = excerpt.encode()
+    (tmp_path / "receipt.txt").write_bytes(content)
+    sess = ScanSession(
+        scan_id=f"test_{file_id}",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    sess.documents.append(DocumentRecord(
+        file_id=file_id,
+        relative_path="receipt.txt",
+        file_type="txt",
+        size_bytes=len(content),
+        sha256=hashlib.sha256(content).hexdigest(),
+        excerpt=excerpt,
+        status="needs_review" if flags else "ok",
+        classification={
+            "category": "receipt",
+            "document_kind": "receipt",
+            "field_profile": "transaction",
+            "merchant": excerpt.splitlines()[0],
+            "date": "2026-09-05",
+            "currency": "PHP",
+            "evidence_verified": True,
+            "explanation": "Receipt.",
+            **classification_overrides,
+        },
+        review_flags=flags,
+    ))
+    ss.put_scan(sess)
+
+    # Accepting the conflicting receipt as a transaction is still refused.
+    if flags:
+        refused = client.patch(f"/api/documents/{file_id}", json={"accept": True})
+        assert refused.status_code == 422
+
+    correction = client.patch(f"/api/documents/{file_id}", json={"category": "uncertain", "accept": True})
+    assert correction.status_code == 200, correction.text
+    payload = correction.json()
+    assert payload["review_disposition"] == "leave_for_review"
+    assert payload["status"] == "needs_review"
+    assert payload["classification"]["document_kind"] == "receipt"
+
+    partial = client.get(f"/api/scans/{sess.scan_id}/plan?mode=partial")
+    assert partial.status_code == 200, partial.text
+    plan = partial.json()
+    assert plan["operations"][0]["destination_relative_path"].startswith("Uncategorized/")
+    assert plan["report_rows"] == []
+    assert plan["totals"] == []
+
+
 def test_filed_non_transactional_document_uses_other_and_filed_disposition(tmp_path):
     from app.services.session_store import DocumentRecord, ScanSession, store as ss
 

@@ -89,6 +89,20 @@ describe('fixture mock plan rules', () => {
     expect(plan.report_rows.find((row) => row.file_id === 'f10')?.status).toBe('accepted')
   })
 
+  it('lets a receipt with conflicting amounts be left for review, uncounted', async () => {
+    const progress = await settle(mockApi.startScan('C:/GhostOS-fixture-root'), 250)
+    await expect(settle(mockApi.correctDocument('f07', { accept: true }), 150)).rejects.toThrow(/Cannot accept transaction/)
+
+    const left = await settle(mockApi.correctDocument('f07', { category: 'uncertain', accept: true }), 150)
+    expect(left.review_disposition).toBe('leave_for_review')
+    expect(left.status).toBe('needs_review')
+    expect(left.classification?.document_kind).toBe('receipt')
+
+    const plan = await settle(mockApi.getPlan(progress.scan_id, 'partial'), 200)
+    expect(plan.operations.find((op) => op.file_id === 'f07')?.destination_relative_path).toMatch(/^Uncategorized\//)
+    expect(plan.report_rows.find((row) => row.file_id === 'f07')?.status).not.toBe('accepted')
+  })
+
   it('reports the configured undo conflict deterministically', async () => {
     const plan = await loadFixturePlan()
     mockScenario.undoConflict = true

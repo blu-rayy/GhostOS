@@ -75,7 +75,7 @@ VITE_USE_FIXTURES=false
 VITE_API_BASE=http://127.0.0.1:8000
 ```
 
-A 25-file sample folder (7 invoices, 7 receipts, 8 other, 3 uncertain) with edge cases (duplicates, collisions, conflicts, statements, prompt injection) lives in `tests/fixtures/sample_folder/`.
+A 28-file sample folder with edge cases (duplicates, collisions, conflicts, statements, prompt injection, and important papers such as a birth certificate, two passports and a land title) lives in `tests/fixtures/sample_folder/`. For live demos, `py tests\fixtures\make_demo_folder.py` builds a 9-file subset that reads in about 45 seconds on a 4 GB GPU once the model is warm; see [tests/fixtures/README.md](tests/fixtures/README.md).
 
 If `ollama list` already shows `qwen3:4b-instruct`, do not pull it again. If Ollama is already running, leave it running and skip `ollama serve`.
 
@@ -197,7 +197,7 @@ Implemented in the current backend are local scanning/extraction, structured loc
 | `backend/tests/` | Contract, validation, and session tests |
 | `frontend/src/` | React + TypeScript UI (browser + Electron): Check → Totals → Done flow, paper design system |
 | `frontend/src/api/` | `GhostApi` interface, HTTP client, and the fixture mock used for demos |
-| `tests/fixtures/sample_folder/` | 25-file demo dataset covering the edge cases |
+| `tests/fixtures/sample_folder/` | 28-file demo dataset covering the edge cases |
 | `tests/reports/` | QA evidence: acceptance logs, retest reports, model evaluations |
 | `docs/` | Product plan, API handoff, design screens, QA strategy |
 | `context.md` | Working reference: mission, phases, and team ownership |
