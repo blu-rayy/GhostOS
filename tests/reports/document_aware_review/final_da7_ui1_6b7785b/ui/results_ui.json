@@ -1,0 +1,47 @@
+[
+  {
+    "id": "U0",
+    "method": "UI (Edge + real frontend, live backend)",
+    "check": "UI scans the fresh typed root (not the committed fixtures)",
+    "expected": "POST /api/scan root = <TEST_BASE>/UI-L",
+    "actual": "\"{\\\"root\\\":\\\"<TEST_BASE>\\\\\\\\UI-L\\\"}\"",
+    "status": "PASS",
+    "note": ""
+  },
+  {
+    "id": "U1",
+    "method": "UI (Edge + real frontend, live backend)",
+    "check": "Bayside (amount_conflict, amount empty): \"Looks right\" blocked, no malformed request",
+    "expected": "amount box empty; button disabled; hint shown; forced click sends no PATCH; record unchanged",
+    "actual": "{\"amount_box\":\"\",\"disabled\":true,\"hint_visible\":true,\"patches_sent\":[],\"before\":{\"status\":\"needs_review\",\"flags\":[\"amount_conflict\"],\"amount\":null,\"amount_text\":\"PHP 1,520.00\",\"user_corrected\":false,\"review_disposition\":\"none\"},\"after\":{\"status\":\"needs_review\",\"flags\":[\"amount_conflict\"],\"amount\":null,\"amount_text\":\"PHP 1,520.00\",\"user_corrected\":false,\"review_disposition\":\"none\"}}",
+    "status": "PASS",
+    "note": ""
+  },
+  {
+    "id": "U2",
+    "method": "UI (Edge + real frontend, live backend)",
+    "check": "Cash note (missing_amount, amount empty): \"Looks right\" blocked, no malformed request",
+    "expected": "amount box empty; button disabled; hint shown; forced click sends no PATCH; record unchanged",
+    "actual": "{\"amount_box\":\"\",\"disabled\":true,\"hint_visible\":true,\"patches_sent\":[],\"before\":{\"status\":\"needs_review\",\"flags\":[\"missing_amount\"],\"amount\":null,\"amount_text\":null,\"user_corrected\":false,\"review_disposition\":\"none\"},\"after\":{\"status\":\"needs_review\",\"flags\":[\"missing_amount\"],\"amount\":null,\"amount_text\":null,\"user_corrected\":false,\"review_disposition\":\"none\"}}",
+    "status": "PASS",
+    "note": ""
+  },
+  {
+    "id": "U3",
+    "method": "UI (Edge + real frontend, live backend)",
+    "check": "Flagged empty-amount documents stay out of expense rows and totals (UI session plan, blocking + partial)",
+    "expected": "not accepted, amount null; totals exclude them",
+    "actual": "{\"rows\":[[\"fu/receipts/bayside-office-mart.pdf\",\"needs_review\",null],[\"fu/receipts/kanto-stall-cash-note.txt\",\"needs_review\",null]],\"totals\":[{\"currency\":\"PHP\",\"amount\":\"19331.20\",\"row_count\":2}],\"partial_totals\":[{\"currency\":\"PHP\",\"amount\":\"19331.20\",\"row_count\":2}],\"blocking\":2}",
+    "status": "PASS",
+    "note": ""
+  },
+  {
+    "id": "U4",
+    "method": "UI (Edge + real frontend, live backend)",
+    "check": "No approve/undo/move request was sent by the UI run",
+    "expected": "no POST to /approve or /undo",
+    "actual": "[]",
+    "status": "PASS",
+    "note": ""
+  }
+]

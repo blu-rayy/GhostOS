@@ -1,0 +1,255 @@
+{
+  "request": {
+    "amount": "18648.00",
+    "accept": true
+  },
+  "status": 200,
+  "response": {
+    "file_id": "c1bc2f40",
+    "relative_path": "fa/invoices/INV-1043_Pixelforge_Studio.pdf",
+    "file_type": "pdf",
+    "size_bytes": 1331,
+    "sha256": "a4a03b73a0af92d7de9299e61083648b42a130492841fb12f22688751638cff7",
+    "excerpt": "PIXELFORGE DESIGN STUDIO (fictional)\nInvoice: INV-1043\nDate issued: 02-Oct-2026\nClient: Mara Villanueva Studio\nLogo refinement, 8 hrs @ PHP 1,500.00: PHP 12,000.00\nSocial media template set: PHP 6,500.00\nSubtotal: PHP 18,500.00\nLess 10% loyalty discount: -PHP 1,850.00\nNet of discount: PHP 16,650.00\nVAT 12%: PHP 1,998.00\nTotal Amount Due: PHP 18,648.00\nPlease pay within 15 days.",
+    "status": "ok",
+    "classification": {
+      "category": "invoice",
+      "merchant": "PIXELFORGE DESIGN STUDIO",
+      "date": "2026-10-02",
+      "amount_text": "PHP 18,648.00",
+      "amount": "18648.00",
+      "currency": "PHP",
+      "evidence_quote": "Total Amount Due: PHP 18,648.00",
+      "evidence_verified": true,
+      "explanation": "The document is clearly labeled as an invoice with a total amount due, vendor name, and issue date, matching the definition of an invoice.",
+      "document_kind": "invoice",
+      "field_profile": "transaction"
+    },
+    "review_flags": [],
+    "duplicate_of": null,
+    "user_corrected": true,
+    "review_disposition": "filed"
+  },
+  "doc_before": {
+    "file_id": "c1bc2f40",
+    "relative_path": "fa/invoices/INV-1043_Pixelforge_Studio.pdf",
+    "file_type": "pdf",
+    "size_bytes": 1331,
+    "sha256": "a4a03b73a0af92d7de9299e61083648b42a130492841fb12f22688751638cff7",
+    "excerpt": "PIXELFORGE DESIGN STUDIO (fictional)\nInvoice: INV-1043\nDate issued: 02-Oct-2026\nClient: Mara Villanueva Studio\nLogo refinement, 8 hrs @ PHP 1,500.00: PHP 12,000.00\nSocial media template set: PHP 6,500.00\nSubtotal: PHP 18,500.00\nLess 10% loyalty discount: -PHP 1,850.00\nNet of discount: PHP 16,650.00\nVAT 12%: PHP 1,998.00\nTotal Amount Due: PHP 18,648.00\nPlease pay within 15 days.",
+    "status": "ok",
+    "classification": {
+      "category": "invoice",
+      "merchant": "PIXELFORGE DESIGN STUDIO",
+      "date": "2026-10-02",
+      "amount_text": "PHP 18,648.00",
+      "amount": "18648.00",
+      "currency": "PHP",
+      "evidence_quote": "Total Amount Due: PHP 18,648.00",
+      "evidence_verified": true,
+      "explanation": "The document is clearly labeled as an invoice with a total amount due, vendor name, and issue date, matching the definition of an invoice.",
+      "document_kind": "invoice",
+      "field_profile": "transaction"
+    },
+    "review_flags": [],
+    "duplicate_of": null,
+    "user_corrected": false,
+    "review_disposition": "none"
+  },
+  "doc_after": {
+    "file_id": "c1bc2f40",
+    "relative_path": "fa/invoices/INV-1043_Pixelforge_Studio.pdf",
+    "file_type": "pdf",
+    "size_bytes": 1331,
+    "sha256": "a4a03b73a0af92d7de9299e61083648b42a130492841fb12f22688751638cff7",
+    "excerpt": "PIXELFORGE DESIGN STUDIO (fictional)\nInvoice: INV-1043\nDate issued: 02-Oct-2026\nClient: Mara Villanueva Studio\nLogo refinement, 8 hrs @ PHP 1,500.00: PHP 12,000.00\nSocial media template set: PHP 6,500.00\nSubtotal: PHP 18,500.00\nLess 10% loyalty discount: -PHP 1,850.00\nNet of discount: PHP 16,650.00\nVAT 12%: PHP 1,998.00\nTotal Amount Due: PHP 18,648.00\nPlease pay within 15 days.",
+    "status": "ok",
+    "classification": {
+      "category": "invoice",
+      "merchant": "PIXELFORGE DESIGN STUDIO",
+      "date": "2026-10-02",
+      "amount_text": "PHP 18,648.00",
+      "amount": "18648.00",
+      "currency": "PHP",
+      "evidence_quote": "Total Amount Due: PHP 18,648.00",
+      "evidence_verified": true,
+      "explanation": "The document is clearly labeled as an invoice with a total amount due, vendor name, and issue date, matching the definition of an invoice.",
+      "document_kind": "invoice",
+      "field_profile": "transaction"
+    },
+    "review_flags": [],
+    "duplicate_of": null,
+    "user_corrected": true,
+    "review_disposition": "filed"
+  },
+  "plan_before": {
+    "plan_id": "plan_scan_49c55469383d",
+    "scan_id": "scan_49c55469383d",
+    "mode": "blocking",
+    "operations": [
+      {
+        "file_id": "c1bc2f40",
+        "original_relative_path": "fa/invoices/INV-1043_Pixelforge_Studio.pdf",
+        "destination_relative_path": "Invoices/2026-10/INV-1043_Pixelforge_Studio.pdf",
+        "reason": "invoice dated 2026-10-02",
+        "collision_suffixed": false
+      },
+      {
+        "file_id": "b7e09f8a",
+        "original_relative_path": "fa/receipts/bayside-office-mart.pdf",
+        "destination_relative_path": "Uncategorized/bayside-office-mart.pdf",
+        "reason": "Waiting for human review",
+        "collision_suffixed": false
+      },
+      {
+        "file_id": "12489f45",
+        "original_relative_path": "fa/receipts/kanto-stall-cash-note.txt",
+        "destination_relative_path": "Uncategorized/kanto-stall-cash-note.txt",
+        "reason": "Waiting for human review",
+        "collision_suffixed": false
+      },
+      {
+        "file_id": "6655c320",
+        "original_relative_path": "fa/receipts/sunbeam-cafe-receipt.pdf",
+        "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+        "reason": "receipt dated 2026-09-21",
+        "collision_suffixed": false
+      }
+    ],
+    "report_rows": [
+      {
+        "file_id": "c1bc2f40",
+        "source_filename": "fa/invoices/INV-1043_Pixelforge_Studio.pdf",
+        "category": "invoice",
+        "date": "2026-10-02",
+        "merchant": "PIXELFORGE DESIGN STUDIO",
+        "amount": "18648.00",
+        "currency": "PHP",
+        "status": "accepted"
+      },
+      {
+        "file_id": "b7e09f8a",
+        "source_filename": "fa/receipts/bayside-office-mart.pdf",
+        "category": "receipt",
+        "date": "2026-09-05",
+        "merchant": "BAYSIDE OFFICE MART",
+        "amount": null,
+        "currency": "PHP",
+        "status": "needs_review"
+      },
+      {
+        "file_id": "12489f45",
+        "source_filename": "fa/receipts/kanto-stall-cash-note.txt",
+        "category": "receipt",
+        "date": "2026-09-12",
+        "merchant": "KANTO MARKET STALL 14",
+        "amount": null,
+        "currency": null,
+        "status": "needs_review"
+      },
+      {
+        "file_id": "6655c320",
+        "source_filename": "fa/receipts/sunbeam-cafe-receipt.pdf",
+        "category": "receipt",
+        "date": "2026-09-21",
+        "merchant": "SUNBEAM CAFE",
+        "amount": "683.20",
+        "currency": "PHP",
+        "status": "accepted"
+      }
+    ],
+    "totals": [
+      {
+        "currency": "PHP",
+        "amount": "19331.20",
+        "row_count": 2
+      }
+    ],
+    "blocking_review_count": 2
+  },
+  "plan_after": {
+    "plan_id": "plan_scan_49c55469383d",
+    "scan_id": "scan_49c55469383d",
+    "mode": "blocking",
+    "operations": [
+      {
+        "file_id": "c1bc2f40",
+        "original_relative_path": "fa/invoices/INV-1043_Pixelforge_Studio.pdf",
+        "destination_relative_path": "Invoices/2026-10/INV-1043_Pixelforge_Studio.pdf",
+        "reason": "invoice dated 2026-10-02",
+        "collision_suffixed": false
+      },
+      {
+        "file_id": "b7e09f8a",
+        "original_relative_path": "fa/receipts/bayside-office-mart.pdf",
+        "destination_relative_path": "Uncategorized/bayside-office-mart.pdf",
+        "reason": "Waiting for human review",
+        "collision_suffixed": false
+      },
+      {
+        "file_id": "12489f45",
+        "original_relative_path": "fa/receipts/kanto-stall-cash-note.txt",
+        "destination_relative_path": "Uncategorized/kanto-stall-cash-note.txt",
+        "reason": "Waiting for human review",
+        "collision_suffixed": false
+      },
+      {
+        "file_id": "6655c320",
+        "original_relative_path": "fa/receipts/sunbeam-cafe-receipt.pdf",
+        "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+        "reason": "receipt dated 2026-09-21",
+        "collision_suffixed": false
+      }
+    ],
+    "report_rows": [
+      {
+        "file_id": "c1bc2f40",
+        "source_filename": "fa/invoices/INV-1043_Pixelforge_Studio.pdf",
+        "category": "invoice",
+        "date": "2026-10-02",
+        "merchant": "PIXELFORGE DESIGN STUDIO",
+        "amount": "18648.00",
+        "currency": "PHP",
+        "status": "accepted"
+      },
+      {
+        "file_id": "b7e09f8a",
+        "source_filename": "fa/receipts/bayside-office-mart.pdf",
+        "category": "receipt",
+        "date": "2026-09-05",
+        "merchant": "BAYSIDE OFFICE MART",
+        "amount": null,
+        "currency": "PHP",
+        "status": "needs_review"
+      },
+      {
+        "file_id": "12489f45",
+        "source_filename": "fa/receipts/kanto-stall-cash-note.txt",
+        "category": "receipt",
+        "date": "2026-09-12",
+        "merchant": "KANTO MARKET STALL 14",
+        "amount": null,
+        "currency": null,
+        "status": "needs_review"
+      },
+      {
+        "file_id": "6655c320",
+        "source_filename": "fa/receipts/sunbeam-cafe-receipt.pdf",
+        "category": "receipt",
+        "date": "2026-09-21",
+        "merchant": "SUNBEAM CAFE",
+        "amount": "683.20",
+        "currency": "PHP",
+        "status": "accepted"
+      }
+    ],
+    "totals": [
+      {
+        "currency": "PHP",
+        "amount": "19331.20",
+        "row_count": 2
+      }
+    ],
+    "blocking_review_count": 2
+  }
+}

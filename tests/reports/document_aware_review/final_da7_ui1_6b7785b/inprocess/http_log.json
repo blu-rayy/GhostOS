@@ -1,0 +1,886 @@
+[
+  {
+    "request": {
+      "method": "POST",
+      "path": "/api/scan",
+      "body": {
+        "root": "<TEST_BASE>\\M"
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_c21328ae8438",
+        "state": "running",
+        "files_total": 0,
+        "files_processed": 0,
+        "current_file": null,
+        "error": null
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_c21328ae8438/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_c21328ae8438",
+        "state": "done",
+        "files_total": 4,
+        "files_processed": 4,
+        "current_file": null,
+        "error": null
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_c21328ae8438/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_c21328ae8438",
+        "scan_id": "scan_c21328ae8438",
+        "mode": "blocking",
+        "operations": [
+          {
+            "file_id": "9b6354fa",
+            "original_relative_path": "fm/invoices/INV-1043_Pixelforge_Studio.pdf",
+            "destination_relative_path": "Invoices/2026-10/INV-1043_Pixelforge_Studio.pdf",
+            "reason": "invoice dated 2026-10-02",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "1bb08723",
+            "original_relative_path": "fm/receipts/bayside-office-mart.pdf",
+            "destination_relative_path": "Uncategorized/bayside-office-mart.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "b39f5f24",
+            "original_relative_path": "fm/receipts/kanto-stall-cash-note.txt",
+            "destination_relative_path": "Uncategorized/kanto-stall-cash-note.txt",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "c8e36776",
+            "original_relative_path": "fm/receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "9b6354fa",
+            "source_filename": "fm/invoices/INV-1043_Pixelforge_Studio.pdf",
+            "category": "invoice",
+            "date": "2026-10-02",
+            "merchant": "PIXELFORGE DESIGN STUDIO",
+            "amount": "18648.00",
+            "currency": "PHP",
+            "status": "accepted"
+          },
+          {
+            "file_id": "1bb08723",
+            "source_filename": "fm/receipts/bayside-office-mart.pdf",
+            "category": "receipt",
+            "date": "2026-09-05",
+            "merchant": "BAYSIDE OFFICE MART",
+            "amount": null,
+            "currency": "PHP",
+            "status": "needs_review"
+          },
+          {
+            "file_id": "b39f5f24",
+            "source_filename": "fm/receipts/kanto-stall-cash-note.txt",
+            "category": "receipt",
+            "date": "2026-09-12",
+            "merchant": "KANTO MARKET STALL 14",
+            "amount": null,
+            "currency": null,
+            "status": "needs_review"
+          },
+          {
+            "file_id": "c8e36776",
+            "source_filename": "fm/receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "19331.20",
+            "row_count": 2
+          }
+        ],
+        "blocking_review_count": 2
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/1bb08723",
+      "body": {
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 422,
+      "body": {
+        "detail": "Cannot accept transaction while source validation findings remain unresolved"
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/1bb08723",
+      "body": {
+        "amount": "1520.00",
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 422,
+      "body": {
+        "detail": "amount correction is not supported by validated source evidence"
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/c8e36776",
+      "body": {
+        "amount": "610.00",
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 422,
+      "body": {
+        "detail": "amount correction is not supported by validated source evidence"
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/c8e36776",
+      "body": {
+        "currency": "XYZ"
+      }
+    },
+    "response": {
+      "status": 422,
+      "body": {
+        "detail": "currency must be a supported currency code"
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/c8e36776",
+      "body": {
+        "amount": null,
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 422,
+      "body": {
+        "detail": "amount must be a parseable monetary value"
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/b39f5f24",
+      "body": {
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "file_id": "b39f5f24",
+        "relative_path": "fm/receipts/kanto-stall-cash-note.txt",
+        "file_type": "txt",
+        "size_bytes": 155,
+        "sha256": "837439340b3153cb4753c7c131da9a0871e6b506fee959c837cf1c5851c4ab21",
+        "excerpt": "KANTO MARKET STALL 14\nCash note - no official receipt issued\nDate: 2026-09-12\nItems: rice (2 bags), cooking oil (1 bottle)\nAmount not written on this note",
+        "status": "ok",
+        "classification": {
+          "category": "receipt",
+          "merchant": "KANTO MARKET STALL 14",
+          "date": "2026-09-12",
+          "amount_text": null,
+          "amount": null,
+          "currency": null,
+          "evidence_quote": "Date: 2026-09-12",
+          "evidence_verified": true,
+          "explanation": "MOCK no amount",
+          "document_kind": "receipt",
+          "field_profile": "transaction"
+        },
+        "review_flags": [],
+        "duplicate_of": null,
+        "user_corrected": true,
+        "review_disposition": "filed_uncounted"
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_c21328ae8438/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_c21328ae8438",
+        "scan_id": "scan_c21328ae8438",
+        "mode": "blocking",
+        "operations": [
+          {
+            "file_id": "9b6354fa",
+            "original_relative_path": "fm/invoices/INV-1043_Pixelforge_Studio.pdf",
+            "destination_relative_path": "Invoices/2026-10/INV-1043_Pixelforge_Studio.pdf",
+            "reason": "invoice dated 2026-10-02",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "1bb08723",
+            "original_relative_path": "fm/receipts/bayside-office-mart.pdf",
+            "destination_relative_path": "Uncategorized/bayside-office-mart.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "b39f5f24",
+            "original_relative_path": "fm/receipts/kanto-stall-cash-note.txt",
+            "destination_relative_path": "Receipts/2026-09/kanto-stall-cash-note.txt",
+            "reason": "receipt dated 2026-09-12",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "c8e36776",
+            "original_relative_path": "fm/receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "9b6354fa",
+            "source_filename": "fm/invoices/INV-1043_Pixelforge_Studio.pdf",
+            "category": "invoice",
+            "date": "2026-10-02",
+            "merchant": "PIXELFORGE DESIGN STUDIO",
+            "amount": "18648.00",
+            "currency": "PHP",
+            "status": "accepted"
+          },
+          {
+            "file_id": "1bb08723",
+            "source_filename": "fm/receipts/bayside-office-mart.pdf",
+            "category": "receipt",
+            "date": "2026-09-05",
+            "merchant": "BAYSIDE OFFICE MART",
+            "amount": null,
+            "currency": "PHP",
+            "status": "needs_review"
+          },
+          {
+            "file_id": "b39f5f24",
+            "source_filename": "fm/receipts/kanto-stall-cash-note.txt",
+            "category": "receipt",
+            "date": "2026-09-12",
+            "merchant": "KANTO MARKET STALL 14",
+            "amount": null,
+            "currency": null,
+            "status": "needs_review"
+          },
+          {
+            "file_id": "c8e36776",
+            "source_filename": "fm/receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "19331.20",
+            "row_count": 2
+          }
+        ],
+        "blocking_review_count": 1
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_c21328ae8438/plan?mode=partial",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_c21328ae8438",
+        "scan_id": "scan_c21328ae8438",
+        "mode": "partial",
+        "operations": [
+          {
+            "file_id": "9b6354fa",
+            "original_relative_path": "fm/invoices/INV-1043_Pixelforge_Studio.pdf",
+            "destination_relative_path": "Invoices/2026-10/INV-1043_Pixelforge_Studio.pdf",
+            "reason": "invoice dated 2026-10-02",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "1bb08723",
+            "original_relative_path": "fm/receipts/bayside-office-mart.pdf",
+            "destination_relative_path": "Uncategorized/bayside-office-mart.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "b39f5f24",
+            "original_relative_path": "fm/receipts/kanto-stall-cash-note.txt",
+            "destination_relative_path": "Receipts/2026-09/kanto-stall-cash-note.txt",
+            "reason": "receipt dated 2026-09-12",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "c8e36776",
+            "original_relative_path": "fm/receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "9b6354fa",
+            "source_filename": "fm/invoices/INV-1043_Pixelforge_Studio.pdf",
+            "category": "invoice",
+            "date": "2026-10-02",
+            "merchant": "PIXELFORGE DESIGN STUDIO",
+            "amount": "18648.00",
+            "currency": "PHP",
+            "status": "accepted"
+          },
+          {
+            "file_id": "b39f5f24",
+            "source_filename": "fm/receipts/kanto-stall-cash-note.txt",
+            "category": "receipt",
+            "date": "2026-09-12",
+            "merchant": "KANTO MARKET STALL 14",
+            "amount": null,
+            "currency": null,
+            "status": "needs_review"
+          },
+          {
+            "file_id": "c8e36776",
+            "source_filename": "fm/receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "19331.20",
+            "row_count": 2
+          }
+        ],
+        "blocking_review_count": 1
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_c21328ae8438/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_c21328ae8438",
+        "scan_id": "scan_c21328ae8438",
+        "mode": "blocking",
+        "operations": [
+          {
+            "file_id": "9b6354fa",
+            "original_relative_path": "fm/invoices/INV-1043_Pixelforge_Studio.pdf",
+            "destination_relative_path": "Invoices/2026-10/INV-1043_Pixelforge_Studio.pdf",
+            "reason": "invoice dated 2026-10-02",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "1bb08723",
+            "original_relative_path": "fm/receipts/bayside-office-mart.pdf",
+            "destination_relative_path": "Uncategorized/bayside-office-mart.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "b39f5f24",
+            "original_relative_path": "fm/receipts/kanto-stall-cash-note.txt",
+            "destination_relative_path": "Receipts/2026-09/kanto-stall-cash-note.txt",
+            "reason": "receipt dated 2026-09-12",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "c8e36776",
+            "original_relative_path": "fm/receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "9b6354fa",
+            "source_filename": "fm/invoices/INV-1043_Pixelforge_Studio.pdf",
+            "category": "invoice",
+            "date": "2026-10-02",
+            "merchant": "PIXELFORGE DESIGN STUDIO",
+            "amount": "18648.00",
+            "currency": "PHP",
+            "status": "accepted"
+          },
+          {
+            "file_id": "1bb08723",
+            "source_filename": "fm/receipts/bayside-office-mart.pdf",
+            "category": "receipt",
+            "date": "2026-09-05",
+            "merchant": "BAYSIDE OFFICE MART",
+            "amount": null,
+            "currency": "PHP",
+            "status": "needs_review"
+          },
+          {
+            "file_id": "b39f5f24",
+            "source_filename": "fm/receipts/kanto-stall-cash-note.txt",
+            "category": "receipt",
+            "date": "2026-09-12",
+            "merchant": "KANTO MARKET STALL 14",
+            "amount": null,
+            "currency": null,
+            "status": "needs_review"
+          },
+          {
+            "file_id": "c8e36776",
+            "source_filename": "fm/receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "19331.20",
+            "row_count": 2
+          }
+        ],
+        "blocking_review_count": 1
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/b39f5f24",
+      "body": {
+        "amount": "500.00",
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 422,
+      "body": {
+        "detail": "amount correction is not supported by validated source evidence"
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/9b6354fa",
+      "body": {
+        "amount": "18648.00",
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "file_id": "9b6354fa",
+        "relative_path": "fm/invoices/INV-1043_Pixelforge_Studio.pdf",
+        "file_type": "pdf",
+        "size_bytes": 1331,
+        "sha256": "a4a03b73a0af92d7de9299e61083648b42a130492841fb12f22688751638cff7",
+        "excerpt": "PIXELFORGE DESIGN STUDIO (fictional)\nInvoice: INV-1043\nDate issued: 02-Oct-2026\nClient: Mara Villanueva Studio\nLogo refinement, 8 hrs @ PHP 1,500.00: PHP 12,000.00\nSocial media template set: PHP 6,500.00\nSubtotal: PHP 18,500.00\nLess 10% loyalty discount: -PHP 1,850.00\nNet of discount: PHP 16,650.00\nVAT 12%: PHP 1,998.00\nTotal Amount Due: PHP 18,648.00\nPlease pay within 15 days.",
+        "status": "ok",
+        "classification": {
+          "category": "invoice",
+          "merchant": "PIXELFORGE DESIGN STUDIO",
+          "date": "2026-10-02",
+          "amount_text": "PHP 18,648.00",
+          "amount": "18648.00",
+          "currency": "PHP",
+          "evidence_quote": "Total Amount Due: PHP 18,648.00",
+          "evidence_verified": true,
+          "explanation": "MOCK",
+          "document_kind": "invoice",
+          "field_profile": "transaction"
+        },
+        "review_flags": [],
+        "duplicate_of": null,
+        "user_corrected": true,
+        "review_disposition": "filed"
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/c8e36776",
+      "body": {
+        "amount": "683.20",
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "file_id": "c8e36776",
+        "relative_path": "fm/receipts/sunbeam-cafe-receipt.pdf",
+        "file_type": "pdf",
+        "size_bytes": 1217,
+        "sha256": "aab1c6fe32a7f119fcf15db2b96eabdd930c66337776a4324824e1ae6a8ed4c9",
+        "excerpt": "SUNBEAM CAFE (fictional)\nSample Street, Quezon City\nOR No. 2026-118204\nDate: 09/21/2026 10:15 AM\n1 x Flat white: PHP 180.00\n1 x Spanish latte: PHP 190.00\n2 x Butter croissant @ 120.00: PHP 240.00\nSubtotal: PHP 610.00\nVAT 12%: PHP 73.20\nFINAL TOTAL: PHP 683.20\nPaid by card ending 0000",
+        "status": "ok",
+        "classification": {
+          "category": "receipt",
+          "merchant": "SUNBEAM CAFE",
+          "date": "2026-09-21",
+          "amount_text": "PHP 683.20",
+          "amount": "683.20",
+          "currency": "PHP",
+          "evidence_quote": "FINAL TOTAL: PHP 683.20",
+          "evidence_verified": true,
+          "explanation": "MOCK",
+          "document_kind": "receipt",
+          "field_profile": "transaction"
+        },
+        "review_flags": [],
+        "duplicate_of": null,
+        "user_corrected": true,
+        "review_disposition": "filed"
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_c21328ae8438/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_c21328ae8438",
+        "scan_id": "scan_c21328ae8438",
+        "mode": "blocking",
+        "operations": [
+          {
+            "file_id": "9b6354fa",
+            "original_relative_path": "fm/invoices/INV-1043_Pixelforge_Studio.pdf",
+            "destination_relative_path": "Invoices/2026-10/INV-1043_Pixelforge_Studio.pdf",
+            "reason": "invoice dated 2026-10-02",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "1bb08723",
+            "original_relative_path": "fm/receipts/bayside-office-mart.pdf",
+            "destination_relative_path": "Uncategorized/bayside-office-mart.pdf",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "b39f5f24",
+            "original_relative_path": "fm/receipts/kanto-stall-cash-note.txt",
+            "destination_relative_path": "Receipts/2026-09/kanto-stall-cash-note.txt",
+            "reason": "receipt dated 2026-09-12",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "c8e36776",
+            "original_relative_path": "fm/receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "9b6354fa",
+            "source_filename": "fm/invoices/INV-1043_Pixelforge_Studio.pdf",
+            "category": "invoice",
+            "date": "2026-10-02",
+            "merchant": "PIXELFORGE DESIGN STUDIO",
+            "amount": "18648.00",
+            "currency": "PHP",
+            "status": "accepted"
+          },
+          {
+            "file_id": "1bb08723",
+            "source_filename": "fm/receipts/bayside-office-mart.pdf",
+            "category": "receipt",
+            "date": "2026-09-05",
+            "merchant": "BAYSIDE OFFICE MART",
+            "amount": null,
+            "currency": "PHP",
+            "status": "needs_review"
+          },
+          {
+            "file_id": "b39f5f24",
+            "source_filename": "fm/receipts/kanto-stall-cash-note.txt",
+            "category": "receipt",
+            "date": "2026-09-12",
+            "merchant": "KANTO MARKET STALL 14",
+            "amount": null,
+            "currency": null,
+            "status": "needs_review"
+          },
+          {
+            "file_id": "c8e36776",
+            "source_filename": "fm/receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "19331.20",
+            "row_count": 2
+          }
+        ],
+        "blocking_review_count": 1
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "POST",
+      "path": "/api/scan",
+      "body": {
+        "root": "<TEST_BASE>\\M2"
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_73fef9f4c694",
+        "state": "running",
+        "files_total": 0,
+        "files_processed": 0,
+        "current_file": null,
+        "error": null
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_73fef9f4c694/progress",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "scan_id": "scan_73fef9f4c694",
+        "state": "done",
+        "files_total": 4,
+        "files_processed": 4,
+        "current_file": null,
+        "error": null
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "PATCH",
+      "path": "/api/documents/8989e2c8",
+      "body": {
+        "accept": true
+      }
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "file_id": "8989e2c8",
+        "relative_path": "fn/receipts/bayside-office-mart.pdf",
+        "file_type": "pdf",
+        "size_bytes": 1124,
+        "sha256": "3b11f36ab288c9fc7fae694ee40faa827aa864cfc65e925b28f1433c9b1d810f",
+        "excerpt": "BAYSIDE OFFICE MART (fictional)\nSales Receipt No. 55-20931\nDate: 2026-09-05\nA4 bond paper, 3 reams: PHP 675.00\nInk cartridge, black: PHP 575.00\nSubtotal: PHP 1,250.00\nAMOUNT DUE: PHP 1,520.00\nCash: PHP 1,600.00\nChange: PHP 80.00",
+        "status": "ok",
+        "classification": {
+          "category": "receipt",
+          "merchant": "BAYSIDE OFFICE MART",
+          "date": "2026-09-05",
+          "amount_text": null,
+          "amount": null,
+          "currency": "PHP",
+          "evidence_quote": "AMOUNT DUE: PHP 1,520.00",
+          "evidence_verified": true,
+          "explanation": "MOCK",
+          "document_kind": "receipt",
+          "field_profile": "transaction"
+        },
+        "review_flags": [],
+        "duplicate_of": null,
+        "user_corrected": true,
+        "review_disposition": "filed_uncounted"
+      }
+    }
+  },
+  {
+    "request": {
+      "method": "GET",
+      "path": "/api/scans/scan_73fef9f4c694/plan",
+      "body": null
+    },
+    "response": {
+      "status": 200,
+      "body": {
+        "plan_id": "plan_scan_73fef9f4c694",
+        "scan_id": "scan_73fef9f4c694",
+        "mode": "blocking",
+        "operations": [
+          {
+            "file_id": "3fd66e83",
+            "original_relative_path": "fn/invoices/INV-1043_Pixelforge_Studio.pdf",
+            "destination_relative_path": "Invoices/2026-10/INV-1043_Pixelforge_Studio.pdf",
+            "reason": "invoice dated 2026-10-02",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "8989e2c8",
+            "original_relative_path": "fn/receipts/bayside-office-mart.pdf",
+            "destination_relative_path": "Receipts/2026-09/bayside-office-mart.pdf",
+            "reason": "receipt dated 2026-09-05",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "f8def335",
+            "original_relative_path": "fn/receipts/kanto-stall-cash-note.txt",
+            "destination_relative_path": "Uncategorized/kanto-stall-cash-note.txt",
+            "reason": "Waiting for human review",
+            "collision_suffixed": false
+          },
+          {
+            "file_id": "36a71e19",
+            "original_relative_path": "fn/receipts/sunbeam-cafe-receipt.pdf",
+            "destination_relative_path": "Receipts/2026-09/sunbeam-cafe-receipt.pdf",
+            "reason": "receipt dated 2026-09-21",
+            "collision_suffixed": false
+          }
+        ],
+        "report_rows": [
+          {
+            "file_id": "3fd66e83",
+            "source_filename": "fn/invoices/INV-1043_Pixelforge_Studio.pdf",
+            "category": "invoice",
+            "date": "2026-10-02",
+            "merchant": "PIXELFORGE DESIGN STUDIO",
+            "amount": "18648.00",
+            "currency": "PHP",
+            "status": "accepted"
+          },
+          {
+            "file_id": "8989e2c8",
+            "source_filename": "fn/receipts/bayside-office-mart.pdf",
+            "category": "receipt",
+            "date": "2026-09-05",
+            "merchant": "BAYSIDE OFFICE MART",
+            "amount": null,
+            "currency": "PHP",
+            "status": "needs_review"
+          },
+          {
+            "file_id": "f8def335",
+            "source_filename": "fn/receipts/kanto-stall-cash-note.txt",
+            "category": "receipt",
+            "date": "2026-09-12",
+            "merchant": "KANTO MARKET STALL 14",
+            "amount": null,
+            "currency": null,
+            "status": "needs_review"
+          },
+          {
+            "file_id": "36a71e19",
+            "source_filename": "fn/receipts/sunbeam-cafe-receipt.pdf",
+            "category": "receipt",
+            "date": "2026-09-21",
+            "merchant": "SUNBEAM CAFE",
+            "amount": "683.20",
+            "currency": "PHP",
+            "status": "accepted"
+          }
+        ],
+        "totals": [
+          {
+            "currency": "PHP",
+            "amount": "19331.20",
+            "row_count": 2
+          }
+        ],
+        "blocking_review_count": 1
+      }
+    }
+  }
+]

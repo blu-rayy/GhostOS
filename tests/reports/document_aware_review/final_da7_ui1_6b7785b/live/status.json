@@ -1,0 +1,9 @@
+{
+  "backend_endpoint": "http://127.0.0.1:8000",
+  "model_name": "qwen3:4b-instruct",
+  "model_endpoint": "http://127.0.0.1:11434",
+  "model_loaded": true,
+  "external_requests": 0,
+  "last_inference_ms": null,
+  "last_inference_at": null
+}

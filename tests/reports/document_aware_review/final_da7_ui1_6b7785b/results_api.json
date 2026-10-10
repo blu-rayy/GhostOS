@@ -1,0 +1,392 @@
+[
+  {
+    "id": "L-B1",
+    "method": "LIVE",
+    "check": "Bayside after scan: conflicting amount untrusted",
+    "expected": "needs_review; amount_conflict; canonical amount null",
+    "actual": {
+      "status": "needs_review",
+      "flags": [
+        "amount_conflict"
+      ],
+      "amount": null,
+      "amount_text": "PHP 1,520.00",
+      "evidence_quote": "AMOUNT DUE: PHP 1,520.00",
+      "evidence_verified": true
+    },
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-B2",
+    "method": "LIVE",
+    "check": "Bayside PATCH {accept: true}",
+    "expected": "422 (amount_text non-empty -> full guard); record and plan unchanged",
+    "actual": "HTTP 422 Cannot accept transaction while source validation findings remain unresolved; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": "live amount_text 'PHP 1,520.00': the contract only routes to the guard when amount_text is non-empty"
+  },
+  {
+    "id": "L-B3",
+    "method": "LIVE",
+    "check": "Bayside {amount: 1520.00, accept: true} (ambiguous source)",
+    "expected": "422; record and plan unchanged",
+    "actual": "HTTP 422 amount correction is not supported by validated source evidence; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-C1",
+    "method": "LIVE",
+    "check": "INV-1043_Pixelforge_Studio.pdf {\"amount\": \"18648.00\", \"accept\": true} (source-supported authoritative total)",
+    "expected": "200; amount 18648.00; ok; disposition filed; no flags",
+    "actual": "HTTP 200; amount 18648.00; ok; filed; flags []; evidence 'Total Amount Due: PHP 18,648.00'",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-C2",
+    "method": "LIVE",
+    "check": "sunbeam-cafe-receipt.pdf {\"amount\": \"683.20\", \"accept\": true} (source-supported authoritative total)",
+    "expected": "200; amount 683.20; ok; disposition filed; no flags",
+    "actual": "HTTP 200; amount 683.20; ok; filed; flags []; evidence 'FINAL TOTAL: PHP 683.20'",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-V1",
+    "method": "LIVE",
+    "check": "invalid sunbeam-cafe-receipt.pdf {\"amount\": \"610.00\", \"accept\": true}",
+    "expected": "422; record and plan unchanged",
+    "actual": "HTTP 422 amount correction is not supported by validated source evidence; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-V2",
+    "method": "LIVE",
+    "check": "invalid INV-1043_Pixelforge_Studio.pdf {\"amount\": \"18500.00\"}",
+    "expected": "422; record and plan unchanged",
+    "actual": "HTTP 422 amount correction is not supported by validated source evidence; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-V3",
+    "method": "LIVE",
+    "check": "invalid sunbeam-cafe-receipt.pdf {\"currency\": \"XYZ\"}",
+    "expected": "422; record and plan unchanged",
+    "actual": "HTTP 422 currency must be a supported currency code; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-V4",
+    "method": "LIVE",
+    "check": "invalid sunbeam-cafe-receipt.pdf {\"amount\": null, \"accept\": true}",
+    "expected": "422; record and plan unchanged",
+    "actual": "HTTP 422 amount must be a parseable monetary value; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-V5",
+    "method": "LIVE",
+    "check": "invalid sunbeam-cafe-receipt.pdf {\"amount\": \"\", \"accept\": true}",
+    "expected": "422; record and plan unchanged",
+    "actual": "HTTP 422 amount must be a parseable monetary value; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-N1",
+    "method": "LIVE",
+    "check": "Amount-less cash note after scan",
+    "expected": "transaction profile; amount null; amount_text empty; missing_amount",
+    "actual": {
+      "status": "needs_review",
+      "category": "receipt",
+      "field_profile": "transaction",
+      "flags": [
+        "missing_amount"
+      ],
+      "amount": null,
+      "amount_text": null,
+      "currency": null,
+      "evidence_quote": "Amount not written on this note"
+    },
+    "status": "PASS",
+    "owner": "Dev 2",
+    "note": "live model output; FAIL here means the precondition for the live filed-uncounted path was not produced"
+  },
+  {
+    "id": "L-N2",
+    "method": "LIVE",
+    "check": "Cash note {accept: true}",
+    "expected": "200; disposition filed_uncounted; status ok; amount null; row not accepted; not in totals",
+    "actual": "HTTP 200; filed_uncounted; ok; amount None; flags []; rows [('needs_review', None)]; totals [{'currency': 'PHP', 'amount': '19331.20', 'row_count': 2}]",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-N3",
+    "method": "LIVE",
+    "check": "Cash note invented amount {amount: 500.00} after filed-uncounted",
+    "expected": "422; record and plan unchanged",
+    "actual": "HTTP 422 amount correction is not supported by validated source evidence; record unchanged; plan unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-R1",
+    "method": "LIVE + production render_report (prepared, not committed)",
+    "check": "CSV rows",
+    "expected": "exactly Pixelforge 18648.00 and Sunbeam 683.20",
+    "actual": [
+      [
+        "fa/invoices/INV-1043_Pixelforge_Studio.pdf",
+        "18648.00",
+        "PHP"
+      ],
+      [
+        "fa/receipts/sunbeam-cafe-receipt.pdf",
+        "683.20",
+        "PHP"
+      ]
+    ],
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-R2",
+    "method": "LIVE",
+    "check": "Totals: independent 18648.00 + 683.20 = CSV = plan (blocking and partial)",
+    "expected": {
+      "PHP": "19331.20"
+    },
+    "actual": {
+      "csv": {
+        "PHP": "19331.20"
+      },
+      "plan": [
+        {
+          "currency": "PHP",
+          "amount": "19331.20",
+          "row_count": 2
+        }
+      ],
+      "partial": [
+        {
+          "currency": "PHP",
+          "amount": "19331.20",
+          "row_count": 2
+        }
+      ]
+    },
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-R3",
+    "method": "LIVE",
+    "check": "PHP 1,520.00 (and 1,250.00) absent from rows and totals; Bayside not accepted",
+    "expected": "absent",
+    "actual": {
+      "bayside_rows": [
+        [
+          "needs_review",
+          null
+        ]
+      ],
+      "amounts_in_rows": [
+        "18648.00",
+        "683.20"
+      ]
+    },
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-R4",
+    "method": "LIVE",
+    "check": "Blocking count / destinations",
+    "expected": "Bayside still blocking; destinations from backend map",
+    "actual": {
+      "blocking": 1,
+      "ops": {
+        "fa/invoices/INV-1043_Pixelforge_Studio.pdf": "Invoices/2026-10/INV-1043_Pixelforge_Studio.pdf",
+        "fa/receipts/bayside-office-mart.pdf": "Uncategorized/bayside-office-mart.pdf",
+        "fa/receipts/kanto-stall-cash-note.txt": "Receipts/2026-09/kanto-stall-cash-note.txt",
+        "fa/receipts/sunbeam-cafe-receipt.pdf": "Receipts/2026-09/sunbeam-cafe-receipt.pdf"
+      }
+    },
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "L-G1",
+    "method": "LIVE",
+    "check": "All roots and canary after live part",
+    "expected": "unchanged",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M-B1",
+    "method": "INPROCESS mocked",
+    "check": "Bayside amount_text 'PHP 1,520.00' after real validator",
+    "expected": "needs_review; amount_conflict; amount null",
+    "actual": "needs_review; ['amount_conflict']; amount None",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M-B2",
+    "method": "INPROCESS mocked (store read directly)",
+    "check": "Bayside accept {\"accept\": true}",
+    "expected": "422; revision, snapshot and record unchanged",
+    "actual": "HTTP 422 Cannot accept transaction while source validation findings remain unresolved; revision 0->0; snapshot unchanged; record unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M-B3",
+    "method": "INPROCESS mocked (store read directly)",
+    "check": "Bayside amount due {\"amount\": \"1520.00\", \"accept\": true}",
+    "expected": "422; revision, snapshot and record unchanged",
+    "actual": "HTTP 422 amount correction is not supported by validated source evidence; revision 0->0; snapshot unchanged; record unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M-V1",
+    "method": "INPROCESS mocked (store read directly)",
+    "check": "Sunbeam subtotal {\"amount\": \"610.00\", \"accept\": true}",
+    "expected": "422; revision, snapshot and record unchanged",
+    "actual": "HTTP 422 amount correction is not supported by validated source evidence; revision 0->0; snapshot unchanged; record unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M-V2",
+    "method": "INPROCESS mocked (store read directly)",
+    "check": "Sunbeam bad currency {\"currency\": \"XYZ\"}",
+    "expected": "422; revision, snapshot and record unchanged",
+    "actual": "HTTP 422 currency must be a supported currency code; revision 0->0; snapshot unchanged; record unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M-V3",
+    "method": "INPROCESS mocked (store read directly)",
+    "check": "Sunbeam null amount {\"amount\": null, \"accept\": true}",
+    "expected": "422; revision, snapshot and record unchanged",
+    "actual": "HTTP 422 amount must be a parseable monetary value; revision 0->0; snapshot unchanged; record unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M-N1",
+    "method": "INPROCESS mocked",
+    "check": "Cash note (amount_text null) after real validator",
+    "expected": "needs_review; missing_amount; amount null",
+    "actual": "needs_review; ['missing_amount']; amount None",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M-N2",
+    "method": "INPROCESS mocked",
+    "check": "Cash note {accept: true} -> filed-uncounted",
+    "expected": "200; filed_uncounted; ok; amount null; revision +1; row not accepted; not in totals; not blocking",
+    "actual": "HTTP 200; filed_uncounted; ok; amount None; flags ['missing_amount']->[]; revision 0->1; row [('needs_review', None)]; totals [{'currency': 'PHP', 'amount': '19331.20', 'row_count': 2}]; blocking 1; dest ['Receipts/2026-09/kanto-stall-cash-note.txt']",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M-N3",
+    "method": "INPROCESS mocked (store read directly)",
+    "check": "Cash note invented amount after filed-uncounted {\"amount\": \"500.00\", \"accept\": true}",
+    "expected": "422; revision, snapshot and record unchanged",
+    "actual": "HTTP 422 amount correction is not supported by validated source evidence; revision 1->1; snapshot unchanged; record unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M-C1",
+    "method": "INPROCESS mocked",
+    "check": "Valid Pixelforge/Sunbeam corrections; accepted rows and totals",
+    "expected": "200/200; rows Pixelforge 18648.00 + Sunbeam 683.20 only; PHP 19331.20",
+    "actual": "HTTP 200/200; accepted [('fm/invoices/INV-1043_Pixelforge_Studio.pdf', '18648.00'), ('fm/receipts/sunbeam-cafe-receipt.pdf', '683.20')]; totals [{'currency': 'PHP', 'amount': '19331.20', 'row_count': 2}]",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M-E1",
+    "method": "INPROCESS mocked",
+    "check": "Bayside with amount_text null (model gave no amount) after real validator",
+    "expected": "needs_review; amount_conflict present",
+    "actual": "needs_review; flags ['missing_amount', 'amount_conflict']; amount None",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M-E2",
+    "method": "INPROCESS mocked",
+    "check": "Bayside (conflict, empty amount_text) {accept: true}: amount never counted",
+    "expected": "no accepted row; amount null; nothing added to totals",
+    "actual": "HTTP 200; row [('needs_review', None)]; totals [{'currency': 'PHP', 'amount': '19331.20', 'row_count': 2}]",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  },
+  {
+    "id": "M-E3",
+    "method": "INPROCESS mocked",
+    "check": "Bayside (conflict, empty amount_text) {accept: true}: conflict guard",
+    "expected": "422 and amount_conflict kept (commit message: 'Conflicting/unsupported amounts keep the full guard')",
+    "actual": "HTTP 200; disposition filed_uncounted; status ok; flags ['missing_amount', 'amount_conflict']->[]",
+    "status": "FAIL",
+    "owner": "Dev 1",
+    "note": "filed-uncounted eligibility checks only that amount/amount_text are empty, not which flags exist; the UI blocks this path (AMOUNT_FLAGS)"
+  },
+  {
+    "id": "M-G1",
+    "method": "INPROCESS",
+    "check": "All roots and canary after in-process part",
+    "expected": "unchanged",
+    "actual": "unchanged",
+    "status": "PASS",
+    "owner": "Dev 1",
+    "note": ""
+  }
+]
