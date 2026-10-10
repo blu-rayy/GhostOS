@@ -32,9 +32,10 @@ Built for the **AppBuildersPH Hackathon 2026**.
 
 |  |  |
 |---|---|
-| <figure><img src="assets/screenshots/01-pick-folder.png" alt="TODO" width="100%"><figcaption>TODO: pick a folder</figcaption></figure> | <figure><img src="assets/screenshots/02-scanning.png" alt="TODO" width="100%"><figcaption>TODO: reading files locally</figcaption></figure> |
-| <figure><img src="assets/screenshots/03-check.png" alt="TODO" width="100%"><figcaption>TODO: check what Pip found</figcaption></figure> | <figure><img src="assets/screenshots/04-totals.png" alt="TODO" width="100%"><figcaption>TODO: preview destinations and totals</figcaption></figure> |
-| <figure><img src="assets/screenshots/05-move.png" alt="TODO" width="100%"><figcaption>TODO: approve and move</figcaption></figure> | <figure><img src="assets/screenshots/06-done-undo.png" alt="TODO" width="100%"><figcaption>TODO: done — and undo</figcaption></figure> |
+| <figure><img src="assets/screenshots/01-ready.png" alt="Ready when you are" width="100%"><figcaption>Ready when you are — confirm to start</figcaption></figure> | <figure><img src="assets/screenshots/02-pick-folder.png" alt="Pick a folder step" width="100%"><figcaption>Pick a folder</figcaption></figure> |
+| <figure><img src="assets/screenshots/03-need-a-look.png" alt="Files that need a look" width="100%"><figcaption>Files that need a look — review one by one or set aside</figcaption></figure> | <figure><img src="assets/screenshots/04-check.png" alt="TODO" width="100%"><figcaption>TODO: check what Pip found</figcaption></figure> |
+| <figure><img src="assets/screenshots/05-totals.png" alt="TODO" width="100%"><figcaption>TODO: preview destinations and totals</figcaption></figure> | <figure><img src="assets/screenshots/06-move.png" alt="TODO" width="100%"><figcaption>TODO: approve and move</figcaption></figure> |
+| <figure><img src="assets/screenshots/07-done-undo.png" alt="TODO" width="100%"><figcaption>TODO: done — and undo</figcaption></figure> |  |
 
 ## Why it exists
 
