@@ -8,23 +8,6 @@ Built for the **AppBuildersPH Hackathon 2026**.
 
 ## Screenshots
 
-<!--
-  Screenshot guide: drop your images into an `assets/screenshots/` folder
-  (create it if needed) and reference them below. Recommended width 800px.
-  The section renders as a side-by-side grid on wide screens.
-
-  To fill in a slot, replace the placeholder path after the `src=` with your
-  file, e.g. `src="assets/screenshots/01-pick-folder.png"`, and replace the
-  "TODO" caption with a one-line description of what the shot shows.
-  Delete any `<figure>` block you don't use, or leave it commented out.
-
-  Example of a filled slot:
-  <figure>
-    <img src="assets/screenshots/01-pick-folder.png" alt="Pick a folder step" width="100%">
-    <figcaption>1 · Pick a folder</figcaption>
-  </figure>
--->
-
 <div align="center">
   <img src="assets/screenshots/00-hero.png" alt="GhostOS hero" width="100%" style="border:1px solid #ddd;border-radius:8px">
   <p><em>The GhostOS landing page — pick a folder and let a local model sort your paperwork, offline.</em></p>
@@ -82,6 +65,7 @@ python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 # 3. Frontend (from frontend/)
 npm install
 npm run dev:browser        # http://127.0.0.1:5173
+npm run electron:preview  # desktop build (needs backend + Ollama running)
 ```
 
 By default the UI runs on **built-in demo data** (look for the demo badge) so you can click through the whole flow with no setup. To use the live backend, create `frontend/.env.local`:
@@ -91,7 +75,7 @@ VITE_USE_FIXTURES=false
 VITE_API_BASE=http://127.0.0.1:8000
 ```
 
-A 20-file sample folder with edge cases (duplicates, collisions, conflicts, statements, prompt injection) lives in `tests/fixtures/sample_folder/`.
+A 25-file sample folder (7 invoices, 7 receipts, 8 other, 3 uncertain) with edge cases (duplicates, collisions, conflicts, statements, prompt injection) lives in `tests/fixtures/sample_folder/`.
 
 If `ollama list` already shows `qwen3:4b-instruct`, do not pull it again. If Ollama is already running, leave it running and skip `ollama serve`.
 
@@ -117,11 +101,13 @@ The backend CORS configuration allows `http://127.0.0.1:5173` and `http://localh
 | `backend/app/services/scanner.py` | Safe folder enumeration and metadata for PDF, TXT, and CSV inputs |
 | `backend/app/services/extractor.py` | PDF/text/CSV extraction, bounded excerpts, and SHA-256 computation |
 | `backend/app/services/orchestrator.py` | Scan workflow, validation integration, destination planning, report-row selection, and immutable snapshots |
+| `backend/app/services/operations.py` | Backend-owned destination rules (the model never picks paths) |
 | `backend/app/services/session_store.py` | In-memory scan, plan snapshot, and batch state |
 | `backend/app/services/report.py` | Decimal-based expense CSV rendering and temporary/atomic publication helpers |
 | `backend/app/services/path_safety.py` | Root containment, Windows path equivalence, and source-directory collision checks |
 | `backend/app/routes/session.py` | Scan sessions, corrections, plan preview/approval, commit, progress, and undo |
 | `backend/app/routes/classify.py` | Direct classification endpoint for supplied local-file requests |
+| `backend/app/routes/scan.py` | Legacy sync scan endpoint (`POST /api/scan-v1`); the session flow in `session.py` is the current path |
 | `backend/app/routes/contracts.py` | Development contract examples; no scanning, Ollama calls, or file writes |
 
 ## Document-aware classification
@@ -170,6 +156,9 @@ npm run typecheck
 npm run lint
 npm test
 npm run build
+
+# Sample-folder accuracy, live local model (from backend/, needs Ollama + qwen3:4b-instruct)
+python scripts/evaluate_sample_folder.py   # read-only; writes backend/evaluation_output/
 ```
 
 The sample-folder evaluator uses real local Ollama inference and writes results under `backend/evaluation_output/`; keep baseline and experiment outputs separate. Verify `ollama list` first and do not treat fixture data as model output.
@@ -197,7 +186,7 @@ Implemented in the current backend are local scanning/extraction, structured loc
 | `backend/tests/` | Contract, validation, and session tests |
 | `frontend/src/` | React + TypeScript UI (browser + Electron): Check → Totals → Done flow, paper design system |
 | `frontend/src/api/` | `GhostApi` interface, HTTP client, and the fixture mock used for demos |
-| `tests/fixtures/sample_folder/` | 20-file demo dataset covering the edge cases |
+| `tests/fixtures/sample_folder/` | 25-file demo dataset covering the edge cases |
 | `tests/reports/` | QA evidence: acceptance logs, retest reports, model evaluations |
 | `docs/` | Product plan, API handoff, design screens, QA strategy |
 | `context.md` | Working reference: mission, phases, and team ownership |
