@@ -41,4 +41,49 @@ describe('regression: marking a transaction checked with no amount entered', () 
       /^422 Cannot accept transaction while source validation findings remain unresolved/,
     )
   })
+
+  it('leave for review on a conflict receipt keeps flags; fixing restores counted filing', async () => {
+    const progress = await settle(mockApi.startScan('C:/GhostOS-fixture-root'), 250)
+    const scan = await settle(mockApi.getScan(progress.scan_id), 250)
+    const before = scan.documents.find((d) => d.file_id === 'f07')!
+    expect(before.classification!.amount).toBeNull()
+
+    // FU-2: the panel's Leave for review request on a transaction.
+    const left = await settle(mockApi.correctDocument('f07', { category: 'uncertain', accept: true }), 150)
+    expect(left).toMatchObject({ status: 'needs_review', user_corrected: true, review_disposition: 'leave_for_review' })
+    expect(left.classification!.category).toBe('uncertain')
+    expect(left.review_flags.map((f) => f.code)).toEqual(['amount_conflict'])
+
+    // Still blocking, bound for Uncategorized/, never counted (no report row
+    // at all while the category is uncertain).
+    const blocking = await settle(mockApi.getPlan(progress.scan_id), 200)
+    expect(blocking.blocking_review_count).toBe(7)
+    expect(blocking.operations.find((o) => o.file_id === 'f07')!.destination_relative_path).toBe(
+      'Uncategorized/receipt_office_warehouse.txt',
+    )
+    expect(blocking.report_rows.find((r) => r.file_id === 'f07')).toBeUndefined()
+    const blockingPhp = blocking.totals.find((t) => t.currency === 'PHP')!
+
+    // Reviewing it back restores the filing category (what the panel sends).
+    const fixed = await settle(
+      mockApi.correctDocument('f07', { category: 'receipt', amount: '1520.00', accept: true }),
+      150,
+    )
+    expect(fixed).toMatchObject({ status: 'ok', review_disposition: 'filed' })
+    expect(fixed.classification).toMatchObject({ category: 'receipt', amount: '1520.00' })
+    expect(fixed.review_flags).toEqual([])
+
+    const filed = await settle(mockApi.getPlan(progress.scan_id), 200)
+    expect(filed.blocking_review_count).toBe(6)
+    expect(filed.operations.find((o) => o.file_id === 'f07')!.destination_relative_path).toBe(
+      'Receipts/2026-09/receipt_office_warehouse.txt',
+    )
+    expect(filed.report_rows.find((r) => r.file_id === 'f07')).toMatchObject({
+      status: 'accepted',
+      amount: '1520.00',
+    })
+    // The fixed receipt now counts exactly once on top of the prior totals.
+    const filedPhp = filed.totals.find((t) => t.currency === 'PHP')!
+    expect(filedPhp.row_count).toBe(blockingPhp.row_count + 1)
+  })
 })

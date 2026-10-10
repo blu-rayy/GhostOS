@@ -461,6 +461,193 @@ def test_accept_as_is_on_conflicting_amount_is_rejected_without_mutation(tmp_pat
     assert client.get("/api/scans/test_da7_accept_as_is/plan").json() == preview
 
 
+def test_filed_uncounted_cannot_erase_conflict_without_amount_text(tmp_path):
+    """FU-1: a conflict finding is not erased by the filed-uncounted path just
+    because the model omitted ``amount_text``. Accept stays 422 with no
+    mutation to classification, flags, status, disposition, revision, or plan."""
+    from copy import deepcopy
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_fu1_conflict_no_text",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    classification = {
+        "category": "receipt",
+        "merchant": "Office Warehouse",
+        "date": "2026-09-05",
+        "amount_text": None,
+        "amount": None,
+        "currency": "PHP",
+        "evidence_quote": "Office Warehouse receipt",
+        "evidence_verified": True,
+        "explanation": "Conflicting totals with no usable amount text.",
+    }
+    flags = [
+        {"code": "missing_amount", "message": "No amount found in the document"},
+        {"code": "amount_conflict", "message": "Subtotal 1,250.00 and amount due 1,520.00 disagree."},
+    ]
+    sess.documents.append(DocumentRecord(
+        file_id="fu1-conflict",
+        relative_path="receipt.txt",
+        file_type="txt",
+        size_bytes=10,
+        sha256="f" * 64,
+        excerpt="SUBTOTAL 1,250.00\nAMOUNT DUE 1,520.00",
+        status="needs_review",
+        classification=deepcopy(classification),
+        review_flags=deepcopy(flags),
+    ))
+    ss.put_scan(sess)
+    preview = client.get("/api/scans/test_fu1_conflict_no_text/plan").json()
+    revision_before = sess.plan_revision
+
+    resp = client.patch("/api/documents/fu1-conflict", json={"accept": True})
+    assert resp.status_code == 422, resp.text
+
+    doc = ss.find_document("fu1-conflict")
+    assert doc is not None
+    assert doc.status == "needs_review"
+    assert doc.user_corrected is False
+    assert doc.review_disposition == "none"
+    assert doc.classification == classification
+    assert doc.review_flags == flags
+    assert sess.plan_revision == revision_before
+    assert client.get("/api/scans/test_fu1_conflict_no_text/plan").json() == preview
+
+
+def test_transactional_leave_for_review_keeps_flags_then_fix_restores_filing(tmp_path):
+    """FU-2: a conflict transaction can be left for review (established leave
+    outcome: disposition kept, still needs_review, flags preserved), and a
+    later review restores its filing category so the verified receipt files to
+    its dated folder and counts — no Uncategorized limbo."""
+    from copy import deepcopy
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_fu2_leave_then_fix",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    classification = {
+        "category": "receipt",
+        "document_kind": "receipt",
+        "merchant": "Shop",
+        "date": "2026-09-05",
+        "amount_text": None,
+        "amount": None,
+        "currency": "PHP",
+        "evidence_quote": "Total: PHP 500.00",
+        "evidence_verified": True,
+        "explanation": "Conflicting totals with no usable amount text.",
+    }
+    flags = [
+        {"code": "missing_amount", "message": "No amount found in the document"},
+        {"code": "amount_conflict", "message": "Subtotal and amount due disagree."},
+    ]
+    sess.documents.append(DocumentRecord(
+        file_id="fu2-leave",
+        relative_path="receipt.txt",
+        file_type="txt",
+        size_bytes=10,
+        sha256="h" * 64,
+        excerpt="Shop receipt 2026-09-05\nTotal: PHP 500.00",
+        status="needs_review",
+        classification=deepcopy(classification),
+        review_flags=deepcopy(flags),
+    ))
+    ss.put_scan(sess)
+
+    # Step 1: leave for review — the established outcome, flags preserved.
+    resp = client.patch("/api/documents/fu2-leave", json={"category": "uncertain", "accept": True})
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["review_disposition"] == "leave_for_review"
+    assert body["status"] == "needs_review"
+    assert body["user_corrected"] is True
+    assert body["classification"]["category"] == "uncertain"
+    assert body["review_flags"] == flags
+
+    plan = client.get("/api/scans/test_fu2_leave_then_fix/plan").json()
+    assert plan["blocking_review_count"] == 1
+    assert plan["operations"][0]["destination_relative_path"] == "Uncategorized/receipt.txt"
+    assert all(row["status"] == "needs_review" for row in plan["report_rows"])
+    assert plan["totals"] == []
+
+    # Step 2: review with a source-supported amount — category restored, counted.
+    resp = client.patch(
+        "/api/documents/fu2-leave",
+        json={"category": "receipt", "amount": "500.00", "accept": True},
+    )
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["review_disposition"] == "filed"
+    assert body["status"] == "ok"
+    assert body["classification"]["category"] == "receipt"
+    assert body["classification"]["amount"] == "500.00"
+    assert body["review_flags"] == []
+
+    plan = client.get("/api/scans/test_fu2_leave_then_fix/plan").json()
+    assert plan["blocking_review_count"] == 0
+    assert plan["report_rows"][0]["status"] == "accepted"
+    assert plan["report_rows"][0]["amount"] == "500.00"
+    assert plan["totals"] == [{"currency": "PHP", "amount": "500.00", "row_count": 1}]
+    assert plan["operations"][0]["destination_relative_path"] == "Receipts/2026-09/receipt.txt"
+
+
+def test_filed_uncounted_allows_absent_date_alongside_missing_amount(tmp_path):
+    """FU-1: absent-field findings (missing date/merchant) do not block the
+    filed-uncounted outcome. The document files to Uncategorized/, uncounted."""
+    from app.services.session_store import DocumentRecord, ScanSession, store as ss
+
+    sess = ScanSession(
+        scan_id="test_fu1_absent_fields",
+        root=str(tmp_path),
+        scanned_at="2026-10-09T00:00:00Z",
+        state="done",
+    )
+    sess.documents.append(DocumentRecord(
+        file_id="fu1-absent",
+        relative_path="receipt.txt",
+        file_type="txt",
+        size_bytes=10,
+        sha256="g" * 64,
+        excerpt="Shop note, no total and no date printed",
+        status="needs_review",
+        classification={
+            "category": "receipt",
+            "merchant": "Shop",
+            "date": None,
+            "amount_text": None,
+            "amount": None,
+            "currency": "PHP",
+            "evidence_quote": "Shop note",
+            "evidence_verified": True,
+            "explanation": "",
+        },
+        review_flags=[
+            {"code": "missing_amount", "message": "No amount found in the document"},
+            {"code": "missing_date", "message": "No date found in the document"},
+        ],
+    ))
+    ss.put_scan(sess)
+
+    resp = client.patch("/api/documents/fu1-absent", json={"accept": True})
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["review_disposition"] == "filed_uncounted"
+    assert body["classification"]["amount"] is None
+
+    plan = client.get("/api/scans/test_fu1_absent_fields/plan").json()
+    assert plan["blocking_review_count"] == 0
+    assert plan["report_rows"][0]["status"] == "needs_review"
+    assert plan["totals"] == []
+    assert plan["operations"][0]["destination_relative_path"] == "Uncategorized/receipt.txt"
+
+
 def test_accept_as_is_on_parseable_conflicting_amount_is_rejected(tmp_path):
     """DA-7: accepting as-is must be rejected when the source has conflicting
     authoritative amounts, even if the stored ``amount_text`` is a single

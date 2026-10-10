@@ -305,19 +305,26 @@ export const mockApi: GhostApi = {
     if ('document_kind' in body) doc.classification.document_kind = proposed.document_kind
     doc.classification.field_profile = profileOf(doc.classification)
 
-    // DA-7 accept-guard parity: acceptance is not a second source of truth for
-    // a transaction. Filing without a usable amount is allowed only when there
-    // is nothing anywhere to revive; otherwise unresolved amount findings keep
-    // the document blocked. (The real backend revalidates the source text; the
-    // demo mock approximates it with the record's amount-related review flags.)
+    // DA-7 accept-guard parity (FU-1): acceptance is not a second source of truth
+    // for a transaction. Filing without a usable amount is allowed only for a
+    // genuinely amount-less paper with no unresolved findings beyond absent
+    // fields; otherwise unresolved amount findings keep the document blocked.
+    // (The real backend revalidates the source text; the demo mock
+    // approximates it with the record's review flags.)
     const AMOUNT_FLAGS = ['amount_conflict', 'amount_unparseable', 'missing_amount', 'invalid_currency', 'currency_mismatch', 'missing_currency', 'evidence_not_found']
+    const ABSENT_FIELD_FLAGS = ['missing_amount', 'missing_date', 'missing_merchant']
     let allowFiledUncounted = false
-    if (correction.accept && profileOf(proposed) === 'transaction' && !('amount' in body)) {
+    // Leave for review is exempt, like the backend: it keeps needs_review and
+    // every flag, so it can neither verify a transaction nor revive an amount.
+    const leavingForReview = (body.category as string | undefined) === 'uncertain'
+    if (correction.accept && profileOf(proposed) === 'transaction' && !('amount' in body) && !leavingForReview) {
       const storedAmount = proposed.amount ?? null
       const storedAmountText = (proposed.amount_text ?? '').trim()
-      if (storedAmount === null && storedAmountText === '') {
+      const flagCodes = doc.review_flags.map((f) => f.code)
+      const onlyAbsentFields = flagCodes.every((c) => ABSENT_FIELD_FLAGS.includes(c))
+      if (storedAmount === null && storedAmountText === '' && onlyAbsentFields) {
         allowFiledUncounted = true
-      } else if (doc.review_flags.some((f) => AMOUNT_FLAGS.includes(f.code))) {
+      } else if (flagCodes.some((c) => AMOUNT_FLAGS.includes(c))) {
         throw unprocessable('Cannot accept transaction while source validation findings remain unresolved')
       }
     }

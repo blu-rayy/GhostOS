@@ -412,7 +412,12 @@ def correct_document(file_id: str, body: dict) -> dict:
             )
 
     allow_filed_uncounted = False
-    if body.get("accept") and profile == "transaction":
+    # Leave for review is exempt from the revalidation gate: it keeps the
+    # needs_review status and preserves every review flag, so it can neither
+    # verify a transaction nor revive an amount. The gate below protects only
+    # the outcomes that clear review state (filed / filed_uncounted).
+    leaving_for_review = body.get("category") == "uncertain"
+    if body.get("accept") and profile == "transaction" and not leaving_for_review:
         # Acceptance is not a second source of truth. Revalidate the complete
         # proposed transaction before clearing any review state. A canonical
         # amount from an earlier validation may be used as the temporary
@@ -429,10 +434,23 @@ def correct_document(file_id: str, body: dict) -> dict:
         stored_amount = proposed_classification.get("amount")
         stored_amount_text = str(proposed_classification.get("amount_text") or "").strip()
         # Filed-uncounted is only for a genuinely amount-less paper: no amount
-        # in the request, none stored, and nothing in amount_text to revive.
-        # A non-empty amount_text (even an unparseable "1,250.00 / 1,520.00")
-        # is a rejected/conflicting amount and must stay behind the full guard.
-        if no_amount_supplied and stored_amount is None and stored_amount_text == "":
+        # in the request, none stored, nothing in amount_text to revive, and no
+        # unresolved findings beyond absent fields. A non-empty amount_text
+        # (even an unparseable "1,250.00 / 1,520.00") or any conflicting /
+        # source-validation finding (FU-1) must stay behind the full guard, so
+        # the uncounted outcome can never erase them.
+        flag_codes = {
+            flag.get("code")
+            for flag in (doc.review_flags or [])
+            if isinstance(flag, dict)
+        }
+        only_absent_fields = flag_codes <= {"missing_amount", "missing_date", "missing_merchant"}
+        if (
+            no_amount_supplied
+            and stored_amount is None
+            and stored_amount_text == ""
+            and only_absent_fields
+        ):
             allow_filed_uncounted = True
         else:
             candidate_data = {
