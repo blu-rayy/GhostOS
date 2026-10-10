@@ -6,6 +6,36 @@ GhostOS is a desktop workspace that organizes messy folders of receipts, invoice
 
 Built for the **AppBuildersPH Hackathon 2026**.
 
+## Screenshots
+
+<!--
+  Screenshot guide: drop your images into an `assets/screenshots/` folder
+  (create it if needed) and reference them below. Recommended width 800px.
+  The section renders as a side-by-side grid on wide screens.
+
+  To fill in a slot, replace the placeholder path after the `src=` with your
+  file, e.g. `src="assets/screenshots/01-pick-folder.png"`, and replace the
+  "TODO" caption with a one-line description of what the shot shows.
+  Delete any `<figure>` block you don't use, or leave it commented out.
+
+  Example of a filled slot:
+  <figure>
+    <img src="assets/screenshots/01-pick-folder.png" alt="Pick a folder step" width="100%">
+    <figcaption>1 · Pick a folder</figcaption>
+  </figure>
+-->
+
+<div align="center">
+  <img src="assets/screenshots/00-hero.png" alt="GhostOS hero" width="100%">
+  <p><em>The GhostOS landing page — pick a folder and let a local model sort your paperwork, offline.</em></p>
+</div>
+
+|  |  |
+|---|---|
+| <figure><img src="assets/screenshots/01-pick-folder.png" alt="TODO" width="100%"><figcaption>TODO: pick a folder</figcaption></figure> | <figure><img src="assets/screenshots/02-scanning.png" alt="TODO" width="100%"><figcaption>TODO: reading files locally</figcaption></figure> |
+| <figure><img src="assets/screenshots/03-check.png" alt="TODO" width="100%"><figcaption>TODO: check what Pip found</figcaption></figure> | <figure><img src="assets/screenshots/04-totals.png" alt="TODO" width="100%"><figcaption>TODO: preview destinations and totals</figcaption></figure> |
+| <figure><img src="assets/screenshots/05-move.png" alt="TODO" width="100%"><figcaption>TODO: approve and move</figcaption></figure> | <figure><img src="assets/screenshots/06-done-undo.png" alt="TODO" width="100%"><figcaption>TODO: done — and undo</figcaption></figure> |
+
 ## Why it exists
 
 Freelancers, small businesses, and anyone drowning in PDFs share one miserable chore: turning a pile of receipts into organized records and expense totals. Cloud tools can do it — by uploading your financial life to someone else's server. GhostOS does it **offline, on-device**, so bank statements, IDs, and medical papers are never sent anywhere.
