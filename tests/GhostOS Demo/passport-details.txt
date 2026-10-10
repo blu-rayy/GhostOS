@@ -1,0 +1,9 @@
+PASSPORT - DATA PAGE DETAILS (fictional specimen)
+Passport No: P0000000X
+Surname: VILLANUEVA
+Given names: MARA ISABEL
+Nationality: FILIPINO
+Date of birth: 02 APR 1995
+Date of issue: 12 MAR 2023
+Date of expiry: 11 MAR 2033
+Note: original kept in the fire safe, top shelf.
