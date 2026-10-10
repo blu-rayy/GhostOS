@@ -72,7 +72,7 @@ _AUTHORITATIVE_LABEL_RE = re.compile(
     re.IGNORECASE,
 )
 _COMPONENT_LABEL_RE = re.compile(
-    r"^\s*(?P<label>subtotal|discount|less|vat|tax|service[\s]+fee|fee)\b",
+    r"^\s*(?P<label>subtotal|discount|less|vat|tax|service[\s]+fee|service[\s]+charge|charge|charges|fee|fees)\b",
     re.IGNORECASE,
 )
 _APPROXIMATE_RE = re.compile(r"(?:about|approx(?:imately)?|around|roughly|~)", re.IGNORECASE)
