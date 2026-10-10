@@ -33,9 +33,10 @@ Built for the **AppBuildersPH Hackathon 2026**.
 |  |  |
 |---|---|
 | <figure><img src="assets/screenshots/01-ready.png" alt="Ready when you are" width="100%"><figcaption>Ready when you are — confirm to start</figcaption></figure> | <figure><img src="assets/screenshots/02-pick-folder.png" alt="Pick a folder step" width="100%"><figcaption>Pick a folder</figcaption></figure> |
-| <figure><img src="assets/screenshots/03-need-a-look.png" alt="Files that need a look" width="100%"><figcaption>Files that need a look — review one by one or set aside</figcaption></figure> | <figure><img src="assets/screenshots/04-check.png" alt="TODO" width="100%"><figcaption>TODO: check what Pip found</figcaption></figure> |
-| <figure><img src="assets/screenshots/05-totals.png" alt="TODO" width="100%"><figcaption>TODO: preview destinations and totals</figcaption></figure> | <figure><img src="assets/screenshots/06-move.png" alt="TODO" width="100%"><figcaption>TODO: approve and move</figcaption></figure> |
-| <figure><img src="assets/screenshots/07-done-undo.png" alt="TODO" width="100%"><figcaption>TODO: done — and undo</figcaption></figure> |  |
+| <figure><img src="assets/screenshots/03-need-a-look.png" alt="Files that need a look" width="100%"><figcaption>Files that need a look — review one by one or set aside</figcaption></figure> | <figure><img src="assets/screenshots/04-check.png" alt="Check what Pip found" width="100%"><figcaption>Check — review what Pip found</figcaption></figure> |
+| <figure><img src="assets/screenshots/05-check-detail.png" alt="File detail panel" width="100%"><figcaption>File detail — confirm or fix a flagged file</figcaption></figure> | <figure><img src="assets/screenshots/06-totals.png" alt="Totals preview" width="100%"><figcaption>Totals — destinations and expense preview</figcaption></figure> |
+| <figure><img src="assets/screenshots/07-confirm-move.png" alt="Confirm the move" width="100%"><figcaption>Confirm — approve the move</figcaption></figure> | <figure><img src="assets/screenshots/08-moving.png" alt="Moving files" width="100%"><figcaption>Moving — files and report written</figcaption></figure> |
+| <figure><img src="assets/screenshots/09-done.png" alt="Done" width="100%"><figcaption>Done — organized, with undo</figcaption></figure> |  |
 
 ## Why it exists
 
