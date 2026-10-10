@@ -79,6 +79,17 @@ A 25-file sample folder (7 invoices, 7 receipts, 8 other, 3 uncertain) with edge
 
 If `ollama list` already shows `qwen3:4b-instruct`, do not pull it again. If Ollama is already running, leave it running and skip `ollama serve`.
 
+## Package it (Windows)
+
+```powershell
+# from frontend/
+npm run package:win        # installer for the live backend -> release\GhostOS-Setup-<version>.exe
+npm run package:win:demo   # installer on built-in demo data -> release\demo\
+npm run package:dir        # unpacked app only -> release\win-unpacked\GhostOS.exe
+```
+
+The installer does **not** bundle the backend or Ollama: start both first (steps 1 and 2 above), or the app reports the backend as unavailable. `release/` is build output and is never committed. Self-signed code signing (`npm run package:win:signed`) is covered in [frontend/README.md](frontend/README.md#packaging-windows).
+
 ## Local URLs and API
 
 - Frontend: <http://127.0.0.1:5173>
